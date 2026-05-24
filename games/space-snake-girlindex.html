@@ -1,0 +1,115 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Space Snake Girl - Free Online Game</title>
+<meta name="description" content="Space themed snake game with astronaut girls. Catch planets and stars in the cosmos. Mobile friendly.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:system-ui,sans-serif;background:#000014;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;user-select:none;padding:10px;color:#fff}
+h1{color:#7df9ff;margin:5px 0;font-size:22px;text-shadow:0 0 8px #7df9ff}
+#hud{display:flex;gap:15px;margin-bottom:10px;font-weight:bold}
+#hud div{background:rgba(20,20,60,.85);padding:6px 14px;border-radius:20px;border:1px solid #7df9ff;font-size:14px;color:#7df9ff}
+canvas{background:#000014;border:2px solid #4488ff;border-radius:10px;box-shadow:0 0 25px rgba(68,136,255,.5);touch-action:none;max-width:100%;max-height:65vh}
+.screen{position:fixed;inset:0;background:rgba(0,0,20,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:20px;text-align:center}
+.screen h2{color:#7df9ff;font-size:30px;margin-bottom:10px;text-shadow:0 0 10px #7df9ff}
+.screen p{color:#aac;margin-bottom:20px;line-height:1.6;font-size:15px}
+.skin{font-size:70px;margin:15px;filter:drop-shadow(0 0 10px #7df9ff)}
+.btn{background:linear-gradient(45deg,#4488ff,#7df9ff);color:#000;border:none;padding:14px 36px;font-size:18px;border-radius:30px;cursor:pointer;font-weight:bold;box-shadow:0 0 15px rgba(125,249,255,.6);transition:.1s}
+.btn:active{transform:scale(.95)}
+.hidden{display:none!important}
+.back{position:fixed;top:10px;left:10px;background:rgba(20,20,60,.9);padding:8px 14px;border-radius:20px;text-decoration:none;color:#7df9ff;font-weight:bold;border:1px solid #7df9ff;z-index:5;font-size:14px}
+.unlocks{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin:10px;max-width:300px}
+.unlocks span{font-size:30px;opacity:.25;transition:.3s}
+.unlocks span.on{opacity:1;transform:scale(1.15);filter:drop-shadow(0 0 6px #7df9ff)}
+</style></head>
+<body>
+<a href="../../index.html" class="back">← Home</a>
+<h1>🚀 Space Snake Girl 🌌</h1>
+<div id="hud"><div>Score: <span id="s">0</span></div><div>Best: <span id="b">0</span></div></div>
+<canvas id="g" width="400" height="400"></canvas>
+<div id="start" class="screen">
+<h2>🚀 SPACE SNAKE GIRL 🌌</h2><div class="skin">👩‍🚀</div>
+<p>🪐 Planets = 1 point<br>⭐ Stars = 3 points (rare!)<br>📱 Swipe or arrow keys</p>
+<button class="btn" onclick="play()">LAUNCH</button>
+</div>
+<div id="end" class="screen hidden">
+<h2>Mission Failed</h2><div class="skin" id="es">👩‍🚀</div>
+<p>Score: <b id="fs">0</b> &nbsp; Best: <b id="fb">0</b></p>
+<div class="unlocks" id="ul"></div>
+<button class="btn" onclick="play()">Restart</button>
+</div>
+<script>
+const C=document.getElementById('g'),X=C.getContext('2d');
+const SK=['👩‍🚀','👽','🦸‍♀️','🧚‍♀️','🧜‍♀️','🦄','👸','🌟'];
+const FD=['🪐','🌎','🌕','🌍'];
+const W=20;
+let G,sn,d,nd,fx,fy,fe,fbn,sc,bs,tm,sp,si,stars;
+bs=+localStorage.getItem('spsgBest')||0;
+document.getElementById('b').textContent=bs;
+function fit(){let s=Math.min(innerWidth-20,innerHeight*.6,420);s=Math.floor(s/W)*W;C.width=C.height=s;G=s/W}
+function genStars(){stars=[];for(let i=0;i<40;i++)stars.push({x:Math.random()*C.width,y:Math.random()*C.height,r:Math.random()*1.5+.3,a:Math.random()})}
+function play(){
+ document.getElementById('start').classList.add('hidden');
+ document.getElementById('end').classList.add('hidden');
+ fit();genStars();
+ sn=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+ d={x:1,y:0};nd=d;sc=0;si=0;sp=140;
+ document.getElementById('s').textContent=0;
+ food();clearInterval(tm);tm=setInterval(tick,sp);
+}
+function food(){
+ do{fx=0|Math.random()*W;fy=0|Math.random()*W}while(sn.some(p=>p.x===fx&&p.y===fy));
+ fbn=Math.random()<.18;fe=fbn?'⭐':FD[0|Math.random()*FD.length];
+}
+function tick(){
+ d=nd;let h={x:sn[0].x+d.x,y:sn[0].y+d.y};
+ if(h.x<0||h.x>=W||h.y<0||h.y>=W||sn.some(p=>p.x===h.x&&p.y===h.y))return over();
+ sn.unshift(h);
+ if(h.x===fx&&h.y===fy){
+  sc+=fbn?3:1;document.getElementById('s').textContent=sc;
+  si=Math.min(0|sc/5,SK.length-1);food();
+  if(sp>55){sp-=2;clearInterval(tm);tm=setInterval(tick,sp)}
+ }else sn.pop();
+ draw();
+}
+function draw(){
+ X.fillStyle='#000014';X.fillRect(0,0,C.width,C.height);
+ stars.forEach(s=>{X.fillStyle=`rgba(255,255,255,${s.a})`;X.beginPath();X.arc(s.x,s.y,s.r,0,6.3);X.fill();s.a+=(Math.random()-.5)*.05;s.a=Math.max(.1,Math.min(1,s.a))});
+ X.shadowBlur=10;X.shadowColor='#7df9ff';
+ for(let i=sn.length-1;i>0;i--){X.fillStyle=`hsl(${200+i*4},80%,60%)`;X.beginPath();X.arc(sn[i].x*G+G/2,sn[i].y*G+G/2,G/2-2,0,6.3);X.fill()}
+ X.shadowBlur=0;
+ X.font=`${G*.9}px serif`;X.textAlign='center';X.textBaseline='middle';
+ if(fbn){X.shadowBlur=15;X.shadowColor='#ffd700'}
+ X.fillText(fe,fx*G+G/2,fy*G+G/2);X.shadowBlur=0;
+ X.fillText(SK[si],sn[0].x*G+G/2,sn[0].y*G+G/2);
+}
+function over(){
+ clearInterval(tm);
+ if(sc>bs){bs=sc;localStorage.setItem('spsgBest',bs);document.getElementById('b').textContent=bs}
+ document.getElementById('fs').textContent=sc;
+ document.getElementById('fb').textContent=bs;
+ document.getElementById('es').textContent=SK[si];
+ let u=document.getElementById('ul');u.innerHTML='';
+ SK.forEach((s,i)=>{let e=document.createElement('span');e.textContent=s;if(i<=si)e.className='on';u.appendChild(e)});
+ document.getElementById('end').classList.remove('hidden');
+}
+addEventListener('keydown',e=>{
+ let k=e.key;
+ if((k==='ArrowUp'||k==='w')&&d.y===0)nd={x:0,y:-1};
+ else if((k==='ArrowDown'||k==='s')&&d.y===0)nd={x:0,y:1};
+ else if((k==='ArrowLeft'||k==='a')&&d.x===0)nd={x:-1,y:0};
+ else if((k==='ArrowRight'||k==='d')&&d.x===0)nd={x:1,y:0};
+});
+let tx,ty;
+C.addEventListener('touchstart',e=>{e.preventDefault();tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:false});
+C.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+C.addEventListener('touchend',e=>{
+ e.preventDefault();
+ let t=e.changedTouches[0],dx=t.clientX-tx,dy=t.clientY-ty;
+ if(Math.abs(dx)<20&&Math.abs(dy)<20)return;
+ if(Math.abs(dx)>Math.abs(dy)){if(dx>0&&d.x===0)nd={x:1,y:0};else if(dx<0&&d.x===0)nd={x:-1,y:0}}
+ else{if(dy>0&&d.y===0)nd={x:0,y:1};else if(dy<0&&d.y===0)nd={x:0,y:-1}}
+},{passive:false});
+addEventListener('resize',()=>{fit();genStars();if(sn)draw()});
+fit();genStars();
+</script></body></html>
