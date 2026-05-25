@@ -5,423 +5,136 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Candy Snake Girl - Youzi Games</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: #1a1a2e;
-            color: #fff;
+            background: #1a1a2e; color: #fff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow-x: hidden;
+            min-height: 100vh; display: flex; flex-direction: column; align-items: center;
         }
-
         .game-header {
-            text-align: center;
-            padding: 20px;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center; padding: 20px; width: 100%;
+            background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-
         .game-header h1 {
             font-size: 28px;
             background: linear-gradient(135deg, #ff6b9d, #c44569);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
-
-        .game-container {
-            position: relative;
-            margin: 20px auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-
+        .game-container { position: relative; margin: 20px auto; display: flex; flex-direction: column; align-items: center; gap: 15px; }
         .info-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 400px;
-            padding: 12px 20px;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(15px);
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex; justify-content: space-between; align-items: center; width: 400px;
+            padding: 12px 20px; background: rgba(255,255,255,0.08);
+            border-radius: 15px; border: 1px solid rgba(255,255,255,0.15);
         }
-
-        .score-display {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .rank-display {
-            font-size: 14px;
-            color: #ff6b9d;
-            font-weight: 500;
-        }
-
+        .score-display { font-size: 18px; font-weight: 600; }
+        .rank-display { font-size: 14px; color: #ff6b9d; font-weight: 500; }
         .canvas-wrapper {
-            position: relative;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 107, 157, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            position: relative; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(255,107,157,0.1);
+            border: 2px solid rgba(255,255,255,0.1);
         }
-
         .game-bg-character {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 200px;
-            height: 200px;
-            opacity: 0.12;
-            pointer-events: none;
-            background-size: cover;
-            background-position: center;
-            border-radius: 50%;
-            filter: blur(2px);
-            transition: opacity 0.5s ease;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 200px; height: 200px; opacity: 0.12; pointer-events: none;
+            background-size: cover; background-position: center;
+            border-radius: 50%; filter: blur(2px); transition: opacity 0.5s ease; z-index: 0;
         }
-
-        canvas {
-            display: block;
-            background: #16213e;
-            position: relative;
-            z-index: 1;
+        canvas { display: block; background: #16213e; position: relative; z-index: 1; }
+        .controls-hint { font-size: 12px; color: rgba(255,255,255,0.5); text-align: center; }
+        .start-screen, .gameover-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: rgba(22,33,62,0.95); z-index: 10; border-radius: 20px;
         }
-
-        .controls-hint {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.5);
-            text-align: center;
-        }
-
-        /* Start Screen */
-        .start-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: rgba(22, 33, 62, 0.95);
-            backdrop-filter: blur(5px);
-            z-index: 10;
-            border-radius: 20px;
-        }
-
+        .gameover-screen { display: none; }
         .start-screen h2 {
-            font-size: 32px;
-            margin-bottom: 10px;
+            font-size: 32px; margin-bottom: 10px;
             background: linear-gradient(135deg, #ff6b9d, #feca57);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
-
-        .start-screen p {
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 30px;
-        }
-
+        .start-screen p { color: rgba(255,255,255,0.6); margin-bottom: 30px; }
+        .gameover-screen h2 { font-size: 28px; color: #ff6b9d; margin-bottom: 10px; }
+        .gameover-screen .final-score { font-size: 20px; margin-bottom: 20px; color: rgba(255,255,255,0.8); }
         .btn {
-            padding: 14px 40px;
-            font-size: 16px;
-            font-weight: 600;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            padding: 14px 40px; font-size: 16px; font-weight: 600; border: none;
+            border-radius: 30px; cursor: pointer; transition: all 0.3s ease;
+            text-transform: uppercase; letter-spacing: 1px;
         }
-
         .btn-primary {
-            background: linear-gradient(135deg, #ff6b9d, #c44569);
-            color: #fff;
-            box-shadow: 0 5px 20px rgba(255, 107, 157, 0.4);
+            background: linear-gradient(135deg, #ff6b9d, #c44569); color: #fff;
+            box-shadow: 0 5px 20px rgba(255,107,157,0.4);
         }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(255, 107, 157, 0.6);
-        }
-
-        /* Game Over Screen */
-        .gameover-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: rgba(22, 33, 62, 0.95);
-            backdrop-filter: blur(5px);
-            z-index: 10;
-            border-radius: 20px;
-        }
-
-        .gameover-screen h2 {
-            font-size: 28px;
-            color: #ff6b9d;
-            margin-bottom: 10px;
-        }
-
-        .gameover-screen .final-score {
-            font-size: 20px;
-            margin-bottom: 20px;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        /* Gallery */
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,107,157,0.6); }
         .gallery-section {
-            width: 400px;
-            margin: 20px auto;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 400px; margin: 20px auto; padding: 20px;
+            background: rgba(255,255,255,0.05); border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
-
-        .gallery-section h3 {
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: 18px;
-            color: #ff6b9d;
-        }
-
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-        }
-
+        .gallery-section h3 { text-align: center; margin-bottom: 15px; font-size: 18px; color: #ff6b9d; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
         .gallery-item {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
+            position: relative; width: 100%; aspect-ratio: 1; border-radius: 12px;
+            overflow: hidden; border: 2px solid rgba(255,255,255,0.1); transition: all 0.3s ease;
         }
-
-        .gallery-item.unlocked {
-            border-color: rgba(255, 107, 157, 0.5);
-            cursor: pointer;
-        }
-
-        .gallery-item.unlocked:hover {
-            transform: scale(1.08);
-            border-color: #ff6b9d;
-            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
-        }
-
-        .gallery-item.locked {
-            background: #0a0a15;
-            cursor: not-allowed;
-        }
-
+        .gallery-item.unlocked { border-color: rgba(255,107,157,0.5); cursor: pointer; }
+        .gallery-item.unlocked:hover { transform: scale(1.08); border-color: #ff6b9d; box-shadow: 0 4px 15px rgba(255,107,157,0.3); }
+        .gallery-item.locked { background: #0a0a15; cursor: not-allowed; }
         .gallery-item.locked::after {
-            content: '?';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 20px;
-            color: rgba(255, 255, 255, 0.2);
+            content: '?'; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); font-size: 20px; color: rgba(255,255,255,0.2);
         }
-
-        .gallery-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
         .gallery-item .rank-label {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 2px;
-            font-size: 9px;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.7);
-            color: rgba(255, 255, 255, 0.8);
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 2px;
+            font-size: 9px; text-align: center; background: rgba(0,0,0,0.7); color: rgba(255,255,255,0.8);
         }
-
-        /* Lightbox for large image */
         .lightbox {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.92); z-index: 1000; justify-content: center;
+            align-items: center; cursor: pointer; flex-direction: column;
         }
-
-        .lightbox.active {
-            display: flex;
-        }
-
+        .lightbox.active { display: flex; }
         .lightbox-content {
-            max-width: 350px;
-            max-height: 80vh;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(255, 107, 157, 0.3);
-            border: 3px solid rgba(255, 107, 157, 0.5);
+            max-width: 300px; max-height: 70vh; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 20px 60px rgba(255,107,157,0.3); border: 3px solid rgba(255,107,157,0.5);
         }
-
-        .lightbox-content img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .lightbox-name {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 20px;
-            color: #ff6b9d;
-            font-weight: 600;
-        }
-
-        .lightbox-inner {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* Achievement Notification */
+        .lightbox-content img { width: 100%; height: 100%; object-fit: contain; display: block; }
+        .lightbox-name { text-align: center; margin-top: 15px; font-size: 20px; color: #ff6b9d; font-weight: 600; }
         .achievement-popup {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            background: linear-gradient(135deg, rgba(255, 107, 157, 0.95), rgba(196, 69, 105, 0.95));
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4);
-            z-index: 500;
-            transform: translateX(400px);
+            position: fixed; top: 20px; right: 20px; padding: 15px 25px;
+            background: linear-gradient(135deg, rgba(255,107,157,0.95), rgba(196,69,105,0.95));
+            border-radius: 15px; box-shadow: 0 10px 30px rgba(255,107,157,0.4);
+            z-index: 500; transform: translateX(400px);
             transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            max-width: 280px;
         }
-
-        .achievement-popup.show {
-            transform: translateX(0);
+        .achievement-popup.show { transform: translateX(0); }
+        .achievement-popup h4 { font-size: 14px; margin-bottom: 4px; }
+        .achievement-popup p { font-size: 12px; color: rgba(255,255,255,0.85); }
+        .mobile-controls { display: none; margin-top: 15px; }
+        .dpad { display: grid; grid-template-areas: ". up ." "left . right" ". down ."; gap: 5px; }
+        .dpad button {
+            width: 55px; height: 55px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08);
+            color: #fff; font-size: 20px; cursor: pointer;
         }
-
-        .achievement-popup h4 {
-            font-size: 14px;
-            margin-bottom: 4px;
-            color: #fff;
-        }
-
-        .achievement-popup p {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.85);
-        }
-
-        /* Mobile Controls */
-        .mobile-controls {
-            display: none;
-            margin-top: 15px;
-            gap: 5px;
-        }
-
-        .mobile-controls button {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
-            font-size: 20px;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-        }
-
-        .mobile-controls button:active {
-            background: rgba(255, 107, 157, 0.3);
-            border-color: #ff6b9d;
-        }
-
-        .dpad {
-            display: grid;
-            grid-template-areas:
-                ". up ."
-                "left . right"
-                ". down .";
-            gap: 5px;
-        }
-
-        .dpad .up { grid-area: up; }
-        .dpad .down { grid-area: down; }
-        .dpad .left { grid-area: left; }
-        .dpad .right { grid-area: right; }
-
+        .dpad .up { grid-area: up; } .dpad .down { grid-area: down; }
+        .dpad .left { grid-area: left; } .dpad .right { grid-area: right; }
         @media (max-width: 500px) {
-            .info-bar, .gallery-section {
-                width: 95vw;
-            }
-            canvas {
-                width: 95vw;
-                height: 95vw;
-            }
-            .mobile-controls {
-                display: grid;
-            }
+            .info-bar, .gallery-section { width: 95vw; }
+            canvas { width: 95vw; height: 95vw; }
+            .mobile-controls { display: grid; }
         }
-
-        .back-link {
-            margin: 20px;
-            color: rgba(255, 255, 255, 0.5);
-            text-decoration: none;
-            font-size: 14px;
-            transition: color 0.3s;
-        }
-
-        .back-link:hover {
-            color: #ff6b9d;
-        }
+        .back-link { margin: 20px; color: rgba(255,255,255,0.5); text-decoration: none; font-size: 14px; }
+        .back-link:hover { color: #ff6b9d; }
     </style>
 </head>
 <body>
-    <div class="game-header">
-        <h1>🍬 Candy Snake Girl</h1>
-    </div>
-
+    <div class="game-header"><h1>🍬 Candy Snake Girl</h1></div>
     <div class="game-container">
         <div class="info-bar">
             <div class="score-display">Score: <span id="score">0</span></div>
             <div class="rank-display" id="rank-text">Rank: Casual Girl</div>
         </div>
-
         <div class="canvas-wrapper">
             <div class="game-bg-character" id="bg-character"></div>
             <canvas id="gameCanvas" width="400" height="400"></canvas>
@@ -436,9 +149,7 @@
                 <button class="btn btn-primary" id="restartBtn">Play Again</button>
             </div>
         </div>
-
         <div class="controls-hint">Use Arrow Keys or WASD to move</div>
-
         <div class="mobile-controls">
             <div class="dpad">
                 <button class="up" onclick="setDir(0,-1)">▲</button>
@@ -448,37 +159,24 @@
             </div>
         </div>
     </div>
-
     <div class="gallery-section">
         <h3>👗 Character Gallery</h3>
         <div class="gallery-grid" id="galleryGrid"></div>
     </div>
-
-    <!-- Lightbox -->
-    <div class="lightbox" id="lightbox">
-        <div class="lightbox-inner">
-            <div class="lightbox-content">
-                <img id="lightbox-img" src="" alt="Character">
-            </div>
-            <div class="lightbox-name" id="lightbox-name"></div>
-        </div>
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <div class="lightbox-content"><img id="lightbox-img" src="" alt="Character"></div>
+        <div class="lightbox-name" id="lightbox-name"></div>
     </div>
-
-    <!-- Achievement Popup -->
     <div class="achievement-popup" id="achievementPopup">
         <h4>🎉 New Character Unlocked!</h4>
         <p id="achievementText"></p>
     </div>
-
     <a href="/" class="back-link">← Back to Youzi Games</a>
-
     <script>
-        // Game Configuration
-        const GRID_SIZE = 20;
-        const CELL_SIZE = 400 / GRID_SIZE;
-        const GAME_SPEED = 150;
-
-        const RANKS = [
+        var GRID_SIZE = 20;
+        var CELL_SIZE = 400 / GRID_SIZE;
+        var GAME_SPEED = 150;
+        var RANKS = [
             { name: "Casual Girl", score: 0 },
             { name: "Sweet Girl", score: 5 },
             { name: "Candy Girl", score: 12 },
@@ -491,278 +189,166 @@
             { name: "Goddess Girl", score: 115 }
         ];
 
-        // Canvas setup
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+        var canvas = document.getElementById('gameCanvas');
+        var ctx = canvas.getContext('2d');
+        var snake = [];
+        var food = { x: 0, y: 0 };
+        var direction = { x: 1, y: 0 };
+        var nextDirection = { x: 1, y: 0 };
+        var score = 0;
+        var highScore = parseInt(localStorage.getItem('candySnakeHigh') || '0');
+        var currentRank = 0;
+        var gameRunning = false;
+        var gameLoop = null;
+        var unlockedRanks = JSON.parse(localStorage.getItem('candySnakeUnlocked') || '[0]');
 
-        // Game state
-        let snake = [];
-        let food = { x: 0, y: 0 };
-        let direction = { x: 1, y: 0 };
-        let nextDirection = { x: 1, y: 0 };
-        let score = 0;
-        let highScore = parseInt(localStorage.getItem('candySnakeHigh') || '0');
-        let currentRank = 0;
-        let gameRunning = false;
-        let gameLoop = null;
-        let unlockedRanks = JSON.parse(localStorage.getItem('candySnakeUnlocked') || '[0]');
-
-        // Character sprite
-        const charImg = new Image();
+        var charImg = new Image();
         charImg.src = 'characters.png';
-        let charLoaded = false;
-        charImg.onload = () => { charLoaded = true; updateGallery(); updateBgCharacter(); };
-        charImg.onerror = () => { charLoaded = false; };
+        var charLoaded = false;
+        charImg.onload = function() { charLoaded = true; updateGallery(); updateBgCharacter(); };
+        charImg.onerror = function() { charLoaded = false; updateGallery(); };
 
-        // Get character clip position from sprite sheet (5 cols x 2 rows)
-        function getCharPos(index) {
-            const col = index % 5;
-            const row = Math.floor(index / 5);
-            return { col, row };
+        function getCharClip(index) {
+            var col = index % 5;
+            var row = Math.floor(index / 5);
+            var sw = charImg.naturalWidth / 5;
+            var sh = charImg.naturalHeight / 2;
+            return { sx: col * sw, sy: row * sh, sw: sw, sh: sh };
         }
 
-        // Draw single character from sprite to a canvas/context
-        function drawCharToCanvas(targetCtx, index, dx, dy, dw, dh, circular) {
-            if (!charLoaded) return;
-            const pos = getCharPos(index);
-            const sw = charImg.naturalWidth / 5;
-            const sh = charImg.naturalHeight / 2;
-            const sx = pos.col * sw;
-            const sy = pos.row * sh;
-
-            if (circular) {
-                targetCtx.save();
-                targetCtx.beginPath();
-                targetCtx.arc(dx + dw / 2, dy + dh / 2, dw / 2, 0, Math.PI * 2);
-                targetCtx.closePath();
-                targetCtx.clip();
-                targetCtx.drawImage(charImg, sx, sy, sw, sh, dx, dy, dw, dh);
-                targetCtx.restore();
-            } else {
-                targetCtx.drawImage(charImg, sx, sy, sw, sh, dx, dy, dw, dh);
-            }
-        }
-
-        // Update background character
         function updateBgCharacter() {
-            const bgEl = document.getElementById('bg-character');
-            if (!charLoaded) {
-                bgEl.style.display = 'none';
-                return;
-            }
+            var bgEl = document.getElementById('bg-character');
+            if (!charLoaded) { bgEl.style.display = 'none'; return; }
             bgEl.style.display = 'block';
-
-            // Use a temporary canvas to create the background image
-            const tempCanvas = document.createElement('canvas');
-            const pos = getCharPos(currentRank);
-            const sw = charImg.naturalWidth / 5;
-            const sh = charImg.naturalHeight / 2;
-            tempCanvas.width = sw;
-            tempCanvas.height = sh;
-            const tempCtx = tempCanvas.getContext('2d');
-            const sx = pos.col * sw;
-            const sy = pos.row * sh;
-            tempCtx.drawImage(charImg, sx, sy, sw, sh, 0, 0, sw, sh);
-
-            bgEl.style.backgroundImage = `url(${tempCanvas.toDataURL()})`;
+            var tc = document.createElement('canvas');
+            var clip = getCharClip(currentRank);
+            tc.width = clip.sw; tc.height = clip.sh;
+            var tctx = tc.getContext('2d');
+            tctx.drawImage(charImg, clip.sx, clip.sy, clip.sw, clip.sh, 0, 0, clip.sw, clip.sh);
+            bgEl.style.backgroundImage = 'url(' + tc.toDataURL() + ')';
         }
 
-        // Initialize game
         function initGame() {
-            snake = [
-                { x: 5, y: 10 },
-                { x: 4, y: 10 },
-                { x: 3, y: 10 }
-            ];
+            snake = [{ x: 5, y: 10 }, { x: 4, y: 10 }, { x: 3, y: 10 }];
             direction = { x: 1, y: 0 };
             nextDirection = { x: 1, y: 0 };
             score = 0;
             currentRank = 0;
             updateScore();
-            updateRank();
+            updateRankDisplay();
             placeFood();
             updateBgCharacter();
         }
 
-        // Place food randomly
         function placeFood() {
-            let valid = false;
+            var valid = false;
             while (!valid) {
                 food.x = Math.floor(Math.random() * GRID_SIZE);
                 food.y = Math.floor(Math.random() * GRID_SIZE);
-                valid = !snake.some(seg => seg.x === food.x && seg.y === food.y);
+                valid = true;
+                for (var i = 0; i < snake.length; i++) {
+                    if (snake[i].x === food.x && snake[i].y === food.y) { valid = false; break; }
+                }
             }
         }
 
-        // Update score display
         function updateScore() {
             document.getElementById('score').textContent = score;
         }
 
-        // Update rank
-        function updateRank() {
-            let newRank = 0;
-            for (let i = RANKS.length - 1; i >= 0; i--) {
-                if (score >= RANKS[i].score) {
-                    newRank = i;
-                    break;
-                }
+        function updateRankDisplay() {
+            var newRank = 0;
+            for (var i = RANKS.length - 1; i >= 0; i--) {
+                if (score >= RANKS[i].score) { newRank = i; break; }
             }
-
             if (newRank !== currentRank) {
                 currentRank = newRank;
                 updateBgCharacter();
-
-                // Unlock new rank
-                if (!unlockedRanks.includes(currentRank)) {
+                if (unlockedRanks.indexOf(currentRank) === -1) {
                     unlockedRanks.push(currentRank);
                     localStorage.setItem('candySnakeUnlocked', JSON.stringify(unlockedRanks));
                     showAchievement(RANKS[currentRank].name);
                     updateGallery();
                 }
             }
-
-            document.getElementById('rank-text').textContent = `Rank: ${RANKS[currentRank].name}`;
+            document.getElementById('rank-text').textContent = 'Rank: ' + RANKS[currentRank].name;
         }
 
-        // Show achievement notification
         function showAchievement(rankName) {
-            const popup = document.getElementById('achievementPopup');
-            document.getElementById('achievementText').textContent = `You unlocked: ${rankName}!`;
+            var popup = document.getElementById('achievementPopup');
+            document.getElementById('achievementText').textContent = 'You unlocked: ' + rankName + '!';
             popup.classList.add('show');
-            setTimeout(() => popup.classList.remove('show'), 3000);
+            setTimeout(function() { popup.classList.remove('show'); }, 3000);
         }
 
-        // Game loop
         function update() {
-            direction = { ...nextDirection };
-
-            const head = {
-                x: snake[0].x + direction.x,
-                y: snake[0].y + direction.y
-            };
-
-            // Wall collision
-            if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
-                gameOver();
-                return;
+            direction.x = nextDirection.x;
+            direction.y = nextDirection.y;
+            var head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+            if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) { gameOver(); return; }
+            for (var i = 0; i < snake.length; i++) {
+                if (snake[i].x === head.x && snake[i].y === head.y) { gameOver(); return; }
             }
-
-            // Self collision
-            if (snake.some(seg => seg.x === head.x && seg.y === head.y)) {
-                gameOver();
-                return;
-            }
-
             snake.unshift(head);
-
-            // Eat food
             if (head.x === food.x && head.y === food.y) {
                 score++;
                 updateScore();
-                updateRank();
+                updateRankDisplay();
                 placeFood();
             } else {
                 snake.pop();
             }
-
             draw();
         }
 
-        // Draw game
         function draw() {
-            // Clear canvas
             ctx.fillStyle = '#16213e';
             ctx.fillRect(0, 0, 400, 400);
-
-            // Draw grid lines (subtle)
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+            ctx.strokeStyle = 'rgba(255,255,255,0.03)';
             ctx.lineWidth = 0.5;
-            for (let i = 0; i <= GRID_SIZE; i++) {
-                ctx.beginPath();
-                ctx.moveTo(i * CELL_SIZE, 0);
-                ctx.lineTo(i * CELL_SIZE, 400);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(0, i * CELL_SIZE);
-                ctx.lineTo(400, i * CELL_SIZE);
-                ctx.stroke();
+            for (var i = 0; i <= GRID_SIZE; i++) {
+                ctx.beginPath(); ctx.moveTo(i * CELL_SIZE, 0); ctx.lineTo(i * CELL_SIZE, 400); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, i * CELL_SIZE); ctx.lineTo(400, i * CELL_SIZE); ctx.stroke();
             }
-
-            // Draw food (candy)
-            const fx = food.x * CELL_SIZE;
-            const fy = food.y * CELL_SIZE;
-            ctx.fillStyle = '#ff6b9d';
-            ctx.shadowColor = '#ff6b9d';
-            ctx.shadowBlur = 10;
-            ctx.beginPath();
-            ctx.arc(fx + CELL_SIZE / 2, fy + CELL_SIZE / 2, CELL_SIZE / 2.5, 0, Math.PI * 2);
-            ctx.fill();
+            var fx = food.x * CELL_SIZE, fy = food.y * CELL_SIZE;
+            ctx.fillStyle = '#ff6b9d'; ctx.shadowColor = '#ff6b9d'; ctx.shadowBlur = 10;
+            ctx.beginPath(); ctx.arc(fx + CELL_SIZE/2, fy + CELL_SIZE/2, CELL_SIZE/2.5, 0, Math.PI*2); ctx.fill();
             ctx.shadowBlur = 0;
-
-            // Draw candy shine
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-            ctx.beginPath();
-            ctx.arc(fx + CELL_SIZE / 2 - 3, fy + CELL_SIZE / 2 - 3, 3, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Draw snake body
-            for (let i = snake.length - 1; i >= 1; i--) {
-                const seg = snake[i];
-                const alpha = 0.4 + (0.6 * (i / snake.length));
-                ctx.fillStyle = `rgba(255, 107, 157, ${alpha})`;
-                ctx.shadowColor = 'rgba(255, 107, 157, 0.3)';
-                ctx.shadowBlur = 5;
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.beginPath(); ctx.arc(fx + CELL_SIZE/2 - 3, fy + CELL_SIZE/2 - 3, 3, 0, Math.PI*2); ctx.fill();
+            for (var i = snake.length - 1; i >= 1; i--) {
+                var seg = snake[i];
+                var alpha = 0.4 + (0.6 * (i / snake.length));
+                ctx.fillStyle = 'rgba(255,107,157,' + alpha + ')';
                 ctx.beginPath();
-                ctx.arc(
-                    seg.x * CELL_SIZE + CELL_SIZE / 2,
-                    seg.y * CELL_SIZE + CELL_SIZE / 2,
-                    CELL_SIZE / 2.5,
-                    0, Math.PI * 2
-                );
+                ctx.arc(seg.x * CELL_SIZE + CELL_SIZE/2, seg.y * CELL_SIZE + CELL_SIZE/2, CELL_SIZE/2.5, 0, Math.PI*2);
                 ctx.fill();
-                ctx.shadowBlur = 0;
             }
-
-            // Draw snake head (character avatar)
-            const head = snake[0];
-            const hx = head.x * CELL_SIZE;
-            const hy = head.y * CELL_SIZE;
-
+            var hd = snake[0], hx = hd.x * CELL_SIZE, hy = hd.y * CELL_SIZE;
             if (charLoaded) {
-                drawCharToCanvas(ctx, currentRank, hx, hy, CELL_SIZE, CELL_SIZE, true);
-                // Glow around head
-                ctx.strokeStyle = 'rgba(255, 107, 157, 0.6)';
-                ctx.lineWidth = 2;
+                var clip = getCharClip(currentRank);
+                ctx.save();
                 ctx.beginPath();
-                ctx.arc(hx + CELL_SIZE / 2, hy + CELL_SIZE / 2, CELL_SIZE / 2, 0, Math.PI * 2);
-                ctx.stroke();
+                ctx.arc(hx + CELL_SIZE/2, hy + CELL_SIZE/2, CELL_SIZE/2, 0, Math.PI*2);
+                ctx.closePath(); ctx.clip();
+                ctx.drawImage(charImg, clip.sx, clip.sy, clip.sw, clip.sh, hx, hy, CELL_SIZE, CELL_SIZE);
+                ctx.restore();
+                ctx.strokeStyle = 'rgba(255,107,157,0.6)'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.arc(hx + CELL_SIZE/2, hy + CELL_SIZE/2, CELL_SIZE/2, 0, Math.PI*2); ctx.stroke();
             } else {
-                ctx.fillStyle = '#feca57';
-                ctx.shadowColor = '#feca57';
-                ctx.shadowBlur = 10;
-                ctx.beginPath();
-                ctx.arc(hx + CELL_SIZE / 2, hy + CELL_SIZE / 2, CELL_SIZE / 2.2, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#feca57'; ctx.beginPath();
+                ctx.arc(hx + CELL_SIZE/2, hy + CELL_SIZE/2, CELL_SIZE/2.2, 0, Math.PI*2); ctx.fill();
             }
         }
 
-        // Game over
         function gameOver() {
             gameRunning = false;
             clearInterval(gameLoop);
-
-            if (score > highScore) {
-                highScore = score;
-                localStorage.setItem('candySnakeHigh', highScore.toString());
-            }
-
-            document.getElementById('finalScore').textContent = `Score: ${score} | Best: ${highScore}`;
+            if (score > highScore) { highScore = score; localStorage.setItem('candySnakeHigh', highScore.toString()); }
+            document.getElementById('finalScore').textContent = 'Score: ' + score + ' | Best: ' + highScore;
             document.getElementById('gameoverScreen').style.display = 'flex';
         }
 
-        // Start game
         function startGame() {
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('gameoverScreen').style.display = 'none';
@@ -772,58 +358,84 @@
             gameLoop = setInterval(update, GAME_SPEED);
         }
 
-        // Direction control
         function setDir(x, y) {
-            if (x === -direction.x && y === 0) return;
-            if (y === -direction.y && x === 0) return;
-            nextDirection = { x, y };
+            if (x !== 0 && x === -direction.x) return;
+            if (y !== 0 && y === -direction.y) return;
+            nextDirection = { x: x, y: y };
         }
 
-        // Keyboard controls
-        document.addEventListener('keydown', (e) => {
+        document.addEventListener('keydown', function(e) {
             if (!gameRunning) return;
-            switch (e.key) {
-                case 'ArrowUp': case 'w': case 'W':
-                    setDir(0, -1); e.preventDefault(); break;
-                case 'ArrowDown': case 's': case 'S':
-                    setDir(0, 1); e.preventDefault(); break;
-                case 'ArrowLeft': case 'a': case 'A':
-                    setDir(-1, 0); e.preventDefault(); break;
-                case 'ArrowRight': case 'd': case 'D':
-                    setDir(1, 0); e.preventDefault(); break;
-            }
+            if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') { setDir(0, -1); e.preventDefault(); }
+            else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') { setDir(0, 1); e.preventDefault(); }
+            else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { setDir(-1, 0); e.preventDefault(); }
+            else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { setDir(1, 0); e.preventDefault(); }
         });
 
-        // Touch swipe controls
-        let touchStartX = 0, touchStartY = 0;
-        canvas.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-        });
-        canvas.addEventListener('touchend', (e) => {
+        var touchStartX = 0, touchStartY = 0;
+        canvas.addEventListener('touchstart', function(e) { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; });
+        canvas.addEventListener('touchend', function(e) {
             if (!gameRunning) return;
-            const dx = e.changedTouches[0].clientX - touchStartX;
-            const dy = e.changedTouches[0].clientY - touchStartY;
-            if (Math.abs(dx) > Math.abs(dy)) {
-                setDir(dx > 0 ? 1 : -1, 0);
-            } else {
-                setDir(0, dy > 0 ? 1 : -1);
-            }
+            var dx = e.changedTouches[0].clientX - touchStartX;
+            var dy = e.changedTouches[0].clientY - touchStartY;
+            if (Math.abs(dx) > Math.abs(dy)) { setDir(dx > 0 ? 1 : -1, 0); } else { setDir(0, dy > 0 ? 1 : -1); }
         });
 
-        // Gallery
         function updateGallery() {
-            const grid = document.getElementById('galleryGrid');
+            var grid = document.getElementById('galleryGrid');
             grid.innerHTML = '';
-
-            for (let i = 0; i < 10; i++) {
-                const item = document.createElement('div');
+            for (var i = 0; i < 10; i++) {
+                var item = document.createElement('div');
                 item.className = 'gallery-item';
-
-                if (unlockedRanks.includes(i)) {
+                if (unlockedRanks.indexOf(i) !== -1) {
                     item.classList.add('unlocked');
-
                     if (charLoaded) {
-                        const tempCanvas = document.createElement('canvas');
-                        const pos = getCharPos(i);
-                        const sw = charImg.natural
+                        var tc = document.createElement('canvas');
+                        var clip = getCharClip(i);
+                        tc.width = clip.sw; tc.height = clip.sh;
+                        var tctx = tc.getContext('2d');
+                        tctx.drawImage(charImg, clip.sx, clip.sy, clip.sw, clip.sh, 0, 0, clip.sw, clip.sh);
+                        var img = document.createElement('img');
+                        img.src = tc.toDataURL();
+                        item.appendChild(img);
+                    }
+                    var label = document.createElement('div');
+                    label.className = 'rank-label';
+                    label.textContent = RANKS[i].name;
+                    item.appendChild(label);
+                    (function(idx) {
+                        item.addEventListener('click', function() { openLightbox(idx); });
+                    })(i);
+                } else {
+                    item.classList.add('locked');
+                    var label = document.createElement('div');
+                    label.className = 'rank-label';
+                    label.textContent = '???';
+                    item.appendChild(label);
+                }
+                grid.appendChild(item);
+            }
+        }
+
+        function openLightbox(index) {
+            if (!charLoaded) return;
+            var tc = document.createElement('canvas');
+            var clip = getCharClip(index);
+            tc.width = clip.sw; tc.height = clip.sh;
+            var tctx = tc.getContext('2d');
+            tctx.drawImage(charImg, clip.sx, clip.sy, clip.sw, clip.sh, 0, 0, clip.sw, clip.sh);
+            document.getElementById('lightbox-img').src = tc.toDataURL();
+            document.getElementById('lightbox-name').textContent = RANKS[index].name;
+            document.getElementById('lightbox').classList.add('active');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+        }
+
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', startGame);
+        updateGallery();
+    </script>
+</body>
+</html>
