@@ -1,233 +1,829 @@
-<!DOCTYPE html><html lang="en"><head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Candy Snake Girl - Free Online Game</title>
-<meta name="description" content="Sweet candy snake game with beautiful character unlocks. Collect candy, rank up, unlock stunning outfits!">
-<style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;user-select:none;padding:10px;color:#fff}
-h1{color:#fff;margin:5px 0;font-size:20px;text-shadow:0 0 20px rgba(255,182,193,.5);letter-spacing:1px}
-#hud{display:flex;gap:8px;margin-bottom:8px;font-weight:500;flex-wrap:wrap;justify-content:center;align-items:center}
-#hud div{background:rgba(255,255,255,.08);backdrop-filter:blur(10px);padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.15);font-size:13px;color:#e0e0e0}
-#hud div span{color:#ff9ec4;font-weight:bold}
-#tierDisplay{display:flex;align-items:center;gap:6px;cursor:pointer}
-#tierDisplay:hover{background:rgba(255,255,255,.15)!important}
-.tier-icon{width:28px;height:28px;border-radius:50%;border:2px solid #ff69b4;overflow:hidden;display:inline-block;vertical-align:middle}
-.tier-icon canvas{width:100%;height:100%;display:block}
-#g{background:#1a1a2e;border:2px solid rgba(255,255,255,.1);border-radius:12px;touch-action:none;max-width:100%;max-height:62vh;box-shadow:0 0 40px rgba(255,105,180,.15)}
-.screen{position:fixed;inset:0;background:rgba(15,12,41,.97);backdrop-filter:blur(20px);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:20px;text-align:center}
-.screen h2{color:#fff;font-size:28px;margin-bottom:8px;text-shadow:0 0 20px rgba(255,105,180,.5)}
-.screen p{color:#bbb;margin-bottom:20px;line-height:1.7;font-size:14px}
-.btn{background:linear-gradient(135deg,#ff69b4,#ff1493);color:#fff;border:none;padding:14px 40px;font-size:17px;border-radius:30px;cursor:pointer;font-weight:bold;box-shadow:0 4px 20px rgba(255,20,147,.4);transition:.2s;letter-spacing:.5px}
-.btn:hover{transform:translateY(-2px);box-shadow:0 6px 25px rgba(255,20,147,.6)}
-.btn:active{transform:scale(.95)}
-.btn-secondary{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);box-shadow:none;padding:10px 24px;font-size:14px}
-.btn-secondary:hover{background:rgba(255,255,255,.2);box-shadow:none}
-.hidden{display:none!important}
-.back{position:fixed;top:10px;left:10px;background:rgba(255,255,255,.08);backdrop-filter:blur(10px);padding:8px 14px;border-radius:20px;text-decoration:none;color:#fff;font-weight:500;border:1px solid rgba(255,255,255,.15);z-index:5;font-size:13px;transition:.2s}
-.back:hover{background:rgba(255,255,255,.15)}
-#gallery{position:fixed;inset:0;background:rgba(10,8,30,.98);backdrop-filter:blur(20px);z-index:20;display:none;flex-direction:column;align-items:center;padding:20px;overflow-y:auto}
-#gallery.show{display:flex}
-#gallery h2{color:#fff;margin:10px 0 5px;font-size:22px}
-#gallery>p{color:#888;font-size:13px;margin-bottom:15px}
-.gallery-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;max-width:600px;width:100%}
-@media(max-width:500px){.gallery-grid{grid-template-columns:repeat(3,1fr);gap:8px}}
-.gallery-item{position:relative;aspect-ratio:3/5;border-radius:10px;overflow:hidden;border:2px solid rgba(255,255,255,.1);transition:.3s}
-.gallery-item.locked{border-color:rgba(255,255,255,.05)}
-.gallery-item.locked .gi-img{filter:brightness(0)}
-.gallery-item.locked::after{content:'🔒';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:24px;background:rgba(0,0,0,.5)}
-.gallery-item.unlocked{border-color:rgba(255,105,180,.5);box-shadow:0 0 15px rgba(255,105,180,.2)}
-.gi-img{width:100%;height:100%;display:block}
-.tier-label{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.8));padding:4px;text-align:center;font-size:11px;color:#ff9ec4}
-#galleryClose{position:absolute;top:15px;right:15px;background:rgba(255,255,255,.1);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;z-index:21}
-#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:linear-gradient(135deg,rgba(255,105,180,.95),rgba(255,20,147,.95));backdrop-filter:blur(10px);padding:14px 24px;border-radius:12px;z-index:100;text-align:center;transition:.5s cubic-bezier(.68,-.55,.27,1.55);box-shadow:0 10px 40px rgba(255,20,147,.4);pointer-events:none}
-#toast.show{transform:translateX(-50%) translateY(0)}
-#toast h3{font-size:14px;color:#fff;margin-bottom:3px}
-#toast p{font-size:12px;color:rgba(255,255,255,.8);margin:0}
-.preview-char{width:120px;height:180px;border-radius:12px;overflow:hidden;margin:15px auto;border:2px solid rgba(255,105,180,.4);box-shadow:0 0 30px rgba(255,105,180,.2);background:#1a1a2e}
-.preview-char canvas{width:100%;height:100%;display:block}
-.score-display{display:flex;gap:20px;margin:15px 0}
-.score-box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 20px;text-align:center}
-.score-box label{font-size:11px;color:#888;display:block;margin-bottom:4px}
-.score-box span{font-size:24px;font-weight:bold;color:#ff9ec4}
-.controls{font-size:11px;color:#666;margin-top:8px}
-</style></head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candy Snake Girl - Youzi Games</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a1a2e;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .game-header {
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .game-header h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .game-container {
+            position: relative;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 400px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .score-display {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .rank-display {
+            font-size: 14px;
+            color: #ff6b9d;
+            font-weight: 500;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 107, 157, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .game-bg-character {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            opacity: 0.12;
+            pointer-events: none;
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%;
+            filter: blur(2px);
+            transition: opacity 0.5s ease;
+        }
+
+        canvas {
+            display: block;
+            background: #16213e;
+            position: relative;
+            z-index: 1;
+        }
+
+        .controls-hint {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+        }
+
+        /* Start Screen */
+        .start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(22, 33, 62, 0.95);
+            backdrop-filter: blur(5px);
+            z-index: 10;
+            border-radius: 20px;
+        }
+
+        .start-screen h2 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ff6b9d, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .start-screen p {
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 14px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            color: #fff;
+            box-shadow: 0 5px 20px rgba(255, 107, 157, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 107, 157, 0.6);
+        }
+
+        /* Game Over Screen */
+        .gameover-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(22, 33, 62, 0.95);
+            backdrop-filter: blur(5px);
+            z-index: 10;
+            border-radius: 20px;
+        }
+
+        .gameover-screen h2 {
+            font-size: 28px;
+            color: #ff6b9d;
+            margin-bottom: 10px;
+        }
+
+        .gameover-screen .final-score {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Gallery */
+        .gallery-section {
+            width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .gallery-section h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #ff6b9d;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .gallery-item {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .gallery-item.unlocked {
+            border-color: rgba(255, 107, 157, 0.5);
+            cursor: pointer;
+        }
+
+        .gallery-item.unlocked:hover {
+            transform: scale(1.08);
+            border-color: #ff6b9d;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+        }
+
+        .gallery-item.locked {
+            background: #0a0a15;
+            cursor: not-allowed;
+        }
+
+        .gallery-item.locked::after {
+            content: '?';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-item .rank-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 2px;
+            font-size: 9px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Lightbox for large image */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            max-width: 350px;
+            max-height: 80vh;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(255, 107, 157, 0.3);
+            border: 3px solid rgba(255, 107, 157, 0.5);
+        }
+
+        .lightbox-content img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .lightbox-name {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 20px;
+            color: #ff6b9d;
+            font-weight: 600;
+        }
+
+        .lightbox-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Achievement Notification */
+        .achievement-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, rgba(255, 107, 157, 0.95), rgba(196, 69, 105, 0.95));
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4);
+            z-index: 500;
+            transform: translateX(400px);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            max-width: 280px;
+        }
+
+        .achievement-popup.show {
+            transform: translateX(0);
+        }
+
+        .achievement-popup h4 {
+            font-size: 14px;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+
+        .achievement-popup p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        /* Mobile Controls */
+        .mobile-controls {
+            display: none;
+            margin-top: 15px;
+            gap: 5px;
+        }
+
+        .mobile-controls button {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+
+        .mobile-controls button:active {
+            background: rgba(255, 107, 157, 0.3);
+            border-color: #ff6b9d;
+        }
+
+        .dpad {
+            display: grid;
+            grid-template-areas:
+                ". up ."
+                "left . right"
+                ". down .";
+            gap: 5px;
+        }
+
+        .dpad .up { grid-area: up; }
+        .dpad .down { grid-area: down; }
+        .dpad .left { grid-area: left; }
+        .dpad .right { grid-area: right; }
+
+        @media (max-width: 500px) {
+            .info-bar, .gallery-section {
+                width: 95vw;
+            }
+            canvas {
+                width: 95vw;
+                height: 95vw;
+            }
+            .mobile-controls {
+                display: grid;
+            }
+        }
+
+        .back-link {
+            margin: 20px;
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: #ff6b9d;
+        }
+    </style>
+</head>
 <body>
-<a href="../../index.html" class="back">← Home</a>
-<h1>✨ Candy Snake Girl</h1>
-<div id="hud">
- <div id="tierDisplay" onclick="openGallery()"><span class="tier-icon"><canvas id="tierAvatar" width="28" height="28"></canvas></span>&nbsp;Tier <span id="tierNum">1</span></div>
- <div>Score: <span id="s">0</span></div>
- <div>Best: <span id="b">0</span></div>
- <div>Bonus: <span id="bt">-</span></div>
-</div>
-<canvas id="g" width="400" height="400"></canvas>
-<p class="controls">Desktop: Arrow Keys / WASD | Mobile: Swipe | Click tier to view gallery</p>
+    <div class="game-header">
+        <h1>🍬 Candy Snake Girl</h1>
+    </div>
 
-<div id="start" class="screen">
-<h2>✨ Candy Snake Girl</h2>
-<div class="preview-char"><canvas id="startCharCanvas" width="120" height="180"></canvas></div>
-<p>Collect candy to rank up!<br>🌟 10 unique outfits to unlock<br>⭐ Golden candy = +5 bonus points<br>📱 Swipe or Arrow Keys / WASD</p>
-<button class="btn" onclick="startGame()">Start Game</button>
-<button class="btn btn-secondary" style="margin-top:10px" onclick="openGallery()">📖 View Gallery</button>
-</div>
+    <div class="game-container">
+        <div class="info-bar">
+            <div class="score-display">Score: <span id="score">0</span></div>
+            <div class="rank-display" id="rank-text">Rank: Casual Girl</div>
+        </div>
 
-<div id="end" class="screen hidden">
-<h2 id="endTitle">Game Over</h2>
-<div class="score-display">
- <div class="score-box"><label>SCORE</label><span id="fs">0</span></div>
- <div class="score-box"><label>BEST</label><span id="fb">0</span></div>
- <div class="score-box"><label>TIER</label><span id="ft">1</span></div>
-</div>
-<p id="endMsg" style="color:#aaa;font-size:13px"></p>
-<button class="btn" onclick="startGame()">Play Again</button>
-<button class="btn btn-secondary" style="margin-top:10px" onclick="openGallery()">📖 View Gallery</button>
-</div>
+        <div class="canvas-wrapper">
+            <div class="game-bg-character" id="bg-character"></div>
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+            <div class="start-screen" id="startScreen">
+                <h2>Candy Snake Girl</h2>
+                <p>Collect candies to rank up!</p>
+                <button class="btn btn-primary" id="startBtn">Start Game</button>
+            </div>
+            <div class="gameover-screen" id="gameoverScreen">
+                <h2>Game Over</h2>
+                <p class="final-score" id="finalScore">Score: 0</p>
+                <button class="btn btn-primary" id="restartBtn">Play Again</button>
+            </div>
+        </div>
 
-<div id="gallery">
-<button id="galleryClose" onclick="closeGallery()">✕</button>
-<h2>👗 Character Gallery</h2>
-<p>Unlock characters by reaching score milestones</p>
-<div class="gallery-grid" id="galleryGrid"></div>
-<button class="btn btn-secondary" style="margin-top:20px" onclick="closeGallery()">Close</button>
-</div>
+        <div class="controls-hint">Use Arrow Keys or WASD to move</div>
 
-<div id="toast">
-<h3 id="toastTitle">🎉 Tier Up!</h3>
-<p id="toastMsg">Unlocked</p>
-</div>
+        <div class="mobile-controls">
+            <div class="dpad">
+                <button class="up" onclick="setDir(0,-1)">▲</button>
+                <button class="left" onclick="setDir(-1,0)">◄</button>
+                <button class="right" onclick="setDir(1,0)">►</button>
+                <button class="down" onclick="setDir(0,1)">▼</button>
+            </div>
+        </div>
+    </div>
 
-<script>
-var TIERS=[
- {name:'Casual Style',score:0},
- {name:'Blue Breeze',score:5},
- {name:'Pink Blossom',score:12},
- {name:'Golden Satin',score:20},
- {name:'Purple Dream',score:30},
- {name:'Gold Empress',score:42},
- {name:'Red Elegance',score:56},
- {name:'Silver Knight',score:72},
- {name:'Ocean Jewel',score:90},
- {name:'Dark Phoenix',score:115}
-];
-var COLS=5,ROWS=2;
-var FOODS=['🍬','🍭','🧁','🍩','🍰','🍪','🍫','🍡'];
-var TIER_COLORS=['#ccc','#87ceeb','#ffb6c1','#ffd700','#9b59b6','#f39c12','#e74c3c','#95a5a6','#3498db','#2c3e50'];
+    <div class="gallery-section">
+        <h3>👗 Character Gallery</h3>
+        <div class="gallery-grid" id="galleryGrid"></div>
+    </div>
 
-var gameCanvas=document.getElementById('g');
-var ctx=gameCanvas.getContext('2d');
-var W=20;
-var G=20;
-var sn=null,d={x:1,y:0},nd={x:1,y:0};
-var fx=0,fy=0,fe='🍬',bx=-1,by=0,btim=0;
-var sc=0,bs=0,tm=null,sp=135;
-var currentTier=0;
-var unlockedTiers=[true,false,false,false,false,false,false,false,false,false];
-var spriteLoaded=false;
-var spriteImg=new Image();
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-inner">
+            <div class="lightbox-content">
+                <img id="lightbox-img" src="" alt="Character">
+            </div>
+            <div class="lightbox-name" id="lightbox-name"></div>
+        </div>
+    </div>
 
-// Load saved data
-try{
- bs=parseInt(localStorage.getItem('csg2Best'))||0;
- var saved=localStorage.getItem('csg2Unlocks');
- if(saved)unlockedTiers=JSON.parse(saved);
-}catch(e){}
-document.getElementById('b').textContent=bs;
+    <!-- Achievement Popup -->
+    <div class="achievement-popup" id="achievementPopup">
+        <h4>🎉 New Character Unlocked!</h4>
+        <p id="achievementText"></p>
+    </div>
 
-// Try loading image with multiple filenames
-spriteImg.onload=function(){
- spriteLoaded=true;
- drawStartChar();
- updateTierAvatar();
-};
-spriteImg.onerror=function(){
- // Try alternate filename with space
- if(spriteImg.src.indexOf('characters.png')>-1&&spriteImg.src.indexOf('%20')===-1){
-  spriteImg.src='characters%20.png';
- }else{
-  // Image not available, game still works with fallback colors
-  drawStartChar();
-  updateTierAvatar();
- }
-};
-spriteImg.src='characters.png';
+    <a href="/" class="back-link">← Back to Youzi Games</a>
 
-function getCharRect(i){
- if(!spriteLoaded)return null;
- var col=i%COLS,row=Math.floor(i/COLS);
- var sw=spriteImg.naturalWidth/COLS,sh=spriteImg.naturalHeight/ROWS;
- return{sx:col*sw,sy:row*sh,sw:sw,sh:sh};
-}
+    <script>
+        // Game Configuration
+        const GRID_SIZE = 20;
+        const CELL_SIZE = 400 / GRID_SIZE;
+        const GAME_SPEED = 150;
 
-function getHeadRect(i){
- var r=getCharRect(i);
- if(!r)return null;
- return{sx:r.sx+r.sw*0.15,sy:r.sy+r.sh*0.02,sw:r.sw*0.7,sh:r.sh*0.25};
-}
+        const RANKS = [
+            { name: "Casual Girl", score: 0 },
+            { name: "Sweet Girl", score: 5 },
+            { name: "Candy Girl", score: 12 },
+            { name: "Sugar Girl", score: 20 },
+            { name: "Honey Girl", score: 30 },
+            { name: "Crystal Girl", score: 42 },
+            { name: "Diamond Girl", score: 56 },
+            { name: "Royal Girl", score: 72 },
+            { name: "Queen Girl", score: 90 },
+            { name: "Goddess Girl", score: 115 }
+        ];
 
-function drawCircularHead(c,i,cx,cy,radius){
- if(spriteLoaded){
-  c.save();
-  c.beginPath();
-  c.arc(cx,cy,radius,0,Math.PI*2);
-  c.clip();
-  var r=getHeadRect(i);
-  if(r)c.drawImage(spriteImg,r.sx,r.sy,r.sw,r.sh,cx-radius,cy-radius,radius*2,radius*2);
-  c.restore();
- }else{
-  // Fallback: colored circle
-  var grad=c.createRadialGradient(cx,cy,0,cx,cy,radius);
-  grad.addColorStop(0,'#fff');
-  grad.addColorStop(1,TIER_COLORS[i]||'#ff69b4');
-  c.fillStyle=grad;
-  c.beginPath();
-  c.arc(cx,cy,radius,0,Math.PI*2);
-  c.fill();
- }
- // Border
- c.beginPath();
- c.arc(cx,cy,radius,0,Math.PI*2);
- c.strokeStyle='rgba(255,105,180,.7)';
- c.lineWidth=2;
- c.stroke();
-}
+        // Canvas setup
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-function updateTierAvatar(){
- var cv=document.getElementById('tierAvatar');
- var c=cv.getContext('2d');
- c.clearRect(0,0,28,28);
- if(spriteLoaded){
-  c.save();
-  c.beginPath();
-  c.arc(14,14,13,0,Math.PI*2);
-  c.clip();
-  var r=getHeadRect(currentTier);
-  if(r)c.drawImage(spriteImg,r.sx,r.sy,r.sw,r.sh,0,0,28,28);
-  c.restore();
- }else{
-  var grad=c.createRadialGradient(14,14,0,14,14,13);
-  grad.addColorStop(0,'#fff');
-  grad.addColorStop(1,TIER_COLORS[currentTier]);
-  c.fillStyle=grad;
-  c.beginPath();
-  c.arc(14,14,13,0,Math.PI*2);
-  c.fill();
- }
- document.getElementById('tierNum').textContent=currentTier+1;
-}
+        // Game state
+        let snake = [];
+        let food = { x: 0, y: 0 };
+        let direction = { x: 1, y: 0 };
+        let nextDirection = { x: 1, y: 0 };
+        let score = 0;
+        let highScore = parseInt(localStorage.getItem('candySnakeHigh') || '0');
+        let currentRank = 0;
+        let gameRunning = false;
+        let gameLoop = null;
+        let unlockedRanks = JSON.parse(localStorage.getItem('candySnakeUnlocked') || '[0]');
 
-function drawStartChar(){
- var cv=document.getElementById('startCharCanvas');
- var c=cv.getContext('2d');
- c.clearRect(0,0,120,180);
- if(spriteLoaded){
-  var r=getCharRect(0);
-  if(r)c.drawImage(spriteImg,r.sx,r.sy,r.sw,r.sh,0,0,120,180);
- }else{
-  // Fallback placeholder
-  var grad=c.createLinearGradient(0,0,0,180);
-  grad.addColorStop(0,'#ff69b4');
-  grad.addColorStop(1,'#4a0030');
-  c.fillStyle=grad;
-  c.fillRect(0,0,120,180);
-  c.fillStyle='#fff';
+        // Character sprite
+        const charImg = new Image();
+        charImg.src = 'characters.png';
+        let charLoaded = false;
+        charImg.onload = () => { charLoaded = true; updateGallery(); updateBgCharacter(); };
+        charImg.onerror = () => { charLoaded = false; };
+
+        // Get character clip position from sprite sheet (5 cols x 2 rows)
+        function getCharPos(index) {
+            const col = index % 5;
+            const row = Math.floor(index / 5);
+            return { col, row };
+        }
+
+        // Draw single character from sprite to a canvas/context
+        function drawCharToCanvas(targetCtx, index, dx, dy, dw, dh, circular) {
+            if (!charLoaded) return;
+            const pos = getCharPos(index);
+            const sw = charImg.naturalWidth / 5;
+            const sh = charImg.naturalHeight / 2;
+            const sx = pos.col * sw;
+            const sy = pos.row * sh;
+
+            if (circular) {
+                targetCtx.save();
+                targetCtx.beginPath();
+                targetCtx.arc(dx + dw / 2, dy + dh / 2, dw / 2, 0, Math.PI * 2);
+                targetCtx.closePath();
+                targetCtx.clip();
+                targetCtx.drawImage(charImg, sx, sy, sw, sh, dx, dy, dw, dh);
+                targetCtx.restore();
+            } else {
+                targetCtx.drawImage(charImg, sx, sy, sw, sh, dx, dy, dw, dh);
+            }
+        }
+
+        // Update background character
+        function updateBgCharacter() {
+            const bgEl = document.getElementById('bg-character');
+            if (!charLoaded) {
+                bgEl.style.display = 'none';
+                return;
+            }
+            bgEl.style.display = 'block';
+
+            // Use a temporary canvas to create the background image
+            const tempCanvas = document.createElement('canvas');
+            const pos = getCharPos(currentRank);
+            const sw = charImg.naturalWidth / 5;
+            const sh = charImg.naturalHeight / 2;
+            tempCanvas.width = sw;
+            tempCanvas.height = sh;
+            const tempCtx = tempCanvas.getContext('2d');
+            const sx = pos.col * sw;
+            const sy = pos.row * sh;
+            tempCtx.drawImage(charImg, sx, sy, sw, sh, 0, 0, sw, sh);
+
+            bgEl.style.backgroundImage = `url(${tempCanvas.toDataURL()})`;
+        }
+
+        // Initialize game
+        function initGame() {
+            snake = [
+                { x: 5, y: 10 },
+                { x: 4, y: 10 },
+                { x: 3, y: 10 }
+            ];
+            direction = { x: 1, y: 0 };
+            nextDirection = { x: 1, y: 0 };
+            score = 0;
+            currentRank = 0;
+            updateScore();
+            updateRank();
+            placeFood();
+            updateBgCharacter();
+        }
+
+        // Place food randomly
+        function placeFood() {
+            let valid = false;
+            while (!valid) {
+                food.x = Math.floor(Math.random() * GRID_SIZE);
+                food.y = Math.floor(Math.random() * GRID_SIZE);
+                valid = !snake.some(seg => seg.x === food.x && seg.y === food.y);
+            }
+        }
+
+        // Update score display
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+        }
+
+        // Update rank
+        function updateRank() {
+            let newRank = 0;
+            for (let i = RANKS.length - 1; i >= 0; i--) {
+                if (score >= RANKS[i].score) {
+                    newRank = i;
+                    break;
+                }
+            }
+
+            if (newRank !== currentRank) {
+                currentRank = newRank;
+                updateBgCharacter();
+
+                // Unlock new rank
+                if (!unlockedRanks.includes(currentRank)) {
+                    unlockedRanks.push(currentRank);
+                    localStorage.setItem('candySnakeUnlocked', JSON.stringify(unlockedRanks));
+                    showAchievement(RANKS[currentRank].name);
+                    updateGallery();
+                }
+            }
+
+            document.getElementById('rank-text').textContent = `Rank: ${RANKS[currentRank].name}`;
+        }
+
+        // Show achievement notification
+        function showAchievement(rankName) {
+            const popup = document.getElementById('achievementPopup');
+            document.getElementById('achievementText').textContent = `You unlocked: ${rankName}!`;
+            popup.classList.add('show');
+            setTimeout(() => popup.classList.remove('show'), 3000);
+        }
+
+        // Game loop
+        function update() {
+            direction = { ...nextDirection };
+
+            const head = {
+                x: snake[0].x + direction.x,
+                y: snake[0].y + direction.y
+            };
+
+            // Wall collision
+            if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
+                gameOver();
+                return;
+            }
+
+            // Self collision
+            if (snake.some(seg => seg.x === head.x && seg.y === head.y)) {
+                gameOver();
+                return;
+            }
+
+            snake.unshift(head);
+
+            // Eat food
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                updateScore();
+                updateRank();
+                placeFood();
+            } else {
+                snake.pop();
+            }
+
+            draw();
+        }
+
+        // Draw game
+        function draw() {
+            // Clear canvas
+            ctx.fillStyle = '#16213e';
+            ctx.fillRect(0, 0, 400, 400);
+
+            // Draw grid lines (subtle)
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i <= GRID_SIZE; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * CELL_SIZE, 0);
+                ctx.lineTo(i * CELL_SIZE, 400);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, i * CELL_SIZE);
+                ctx.lineTo(400, i * CELL_SIZE);
+                ctx.stroke();
+            }
+
+            // Draw food (candy)
+            const fx = food.x * CELL_SIZE;
+            const fy = food.y * CELL_SIZE;
+            ctx.fillStyle = '#ff6b9d';
+            ctx.shadowColor = '#ff6b9d';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(fx + CELL_SIZE / 2, fy + CELL_SIZE / 2, CELL_SIZE / 2.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Draw candy shine
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.beginPath();
+            ctx.arc(fx + CELL_SIZE / 2 - 3, fy + CELL_SIZE / 2 - 3, 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw snake body
+            for (let i = snake.length - 1; i >= 1; i--) {
+                const seg = snake[i];
+                const alpha = 0.4 + (0.6 * (i / snake.length));
+                ctx.fillStyle = `rgba(255, 107, 157, ${alpha})`;
+                ctx.shadowColor = 'rgba(255, 107, 157, 0.3)';
+                ctx.shadowBlur = 5;
+                ctx.beginPath();
+                ctx.arc(
+                    seg.x * CELL_SIZE + CELL_SIZE / 2,
+                    seg.y * CELL_SIZE + CELL_SIZE / 2,
+                    CELL_SIZE / 2.5,
+                    0, Math.PI * 2
+                );
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            // Draw snake head (character avatar)
+            const head = snake[0];
+            const hx = head.x * CELL_SIZE;
+            const hy = head.y * CELL_SIZE;
+
+            if (charLoaded) {
+                drawCharToCanvas(ctx, currentRank, hx, hy, CELL_SIZE, CELL_SIZE, true);
+                // Glow around head
+                ctx.strokeStyle = 'rgba(255, 107, 157, 0.6)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(hx + CELL_SIZE / 2, hy + CELL_SIZE / 2, CELL_SIZE / 2, 0, Math.PI * 2);
+                ctx.stroke();
+            } else {
+                ctx.fillStyle = '#feca57';
+                ctx.shadowColor = '#feca57';
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.arc(hx + CELL_SIZE / 2, hy + CELL_SIZE / 2, CELL_SIZE / 2.2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        // Game over
+        function gameOver() {
+            gameRunning = false;
+            clearInterval(gameLoop);
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('candySnakeHigh', highScore.toString());
+            }
+
+            document.getElementById('finalScore').textContent = `Score: ${score} | Best: ${highScore}`;
+            document.getElementById('gameoverScreen').style.display = 'flex';
+        }
+
+        // Start game
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameoverScreen').style.display = 'none';
+            initGame();
+            gameRunning = true;
+            draw();
+            gameLoop = setInterval(update, GAME_SPEED);
+        }
+
+        // Direction control
+        function setDir(x, y) {
+            if (x === -direction.x && y === 0) return;
+            if (y === -direction.y && x === 0) return;
+            nextDirection = { x, y };
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (!gameRunning) return;
+            switch (e.key) {
+                case 'ArrowUp': case 'w': case 'W':
+                    setDir(0, -1); e.preventDefault(); break;
+                case 'ArrowDown': case 's': case 'S':
+                    setDir(0, 1); e.preventDefault(); break;
+                case 'ArrowLeft': case 'a': case 'A':
+                    setDir(-1, 0); e.preventDefault(); break;
+                case 'ArrowRight': case 'd': case 'D':
+                    setDir(1, 0); e.preventDefault(); break;
+            }
+        });
+
+        // Touch swipe controls
+        let touchStartX = 0, touchStartY = 0;
+        canvas.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+        canvas.addEventListener('touchend', (e) => {
+            if (!gameRunning) return;
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
+            if (Math.abs(dx) > Math.abs(dy)) {
+                setDir(dx > 0 ? 1 : -1, 0);
+            } else {
+                setDir(0, dy > 0 ? 1 : -1);
+            }
+        });
+
+        // Gallery
+        function updateGallery() {
+            const grid = document.getElementById('galleryGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < 10; i++) {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+
+                if (unlockedRanks.includes(i)) {
+                    item.classList.add('unlocked');
+
+                    if (charLoaded) {
+                        const tempCanvas = document.createElement('canvas');
+                        const pos = getCharPos(i);
+                        const sw = charImg.natural
