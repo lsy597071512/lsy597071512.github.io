@@ -98,11 +98,6 @@ button::after{content:'';position:absolute;top:0;left:10%;right:10%;height:50%;b
 .achievement .icon{display:block;font-size:18px;margin-bottom:2px}
 .new-achievement{margin:10px 0 0;padding:8px 14px;border-radius:8px;font-family:var(--font-b);font-weight:600;color:var(--c-gold);background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.15);text-shadow:0 0 8px rgba(255,215,0,.2)}
 
-/* ===== Rotate Overlay ===== */
-#rotateOverlay{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;background:rgba(7,7,30,.95);text-align:center;padding:28px}
-.rotate-card{max-width:420px;padding:30px;border-radius:16px;background:var(--c-panel);border:2px solid rgba(0,240,255,.15);box-shadow:0 0 40px rgba(0,240,255,.06)}
-.rotate-icon{font-size:52px;margin-bottom:10px;filter:drop-shadow(0 0 8px rgba(0,240,255,.3))}
-
 /* ===== Responsive: <=768px ===== */
 @media(max-width:768px){
 #hudDesktop{display:none!important}
@@ -124,10 +119,6 @@ button{font-size:14px;padding:10px 22px;margin-top:12px}
 .achievement-panel p{font-size:11px;margin:4px 0}
 .progress-wrap{height:8px;margin:5px auto 6px}
 .new-achievement{padding:5px 8px;font-size:11px;margin:6px 0 0}
-.rotate-card{padding:18px 14px}
-.rotate-card h2{font-size:18px}
-.rotate-card p{font-size:12px}
-.rotate-icon{font-size:38px}
 }
 
 /* ===== Responsive: <=420px ===== */
@@ -157,16 +148,6 @@ button{font-size:13px;padding:8px 18px;margin-top:10px}
 <canvas id="game"></canvas>
 <div id="scanlines"></div>
 <div id="damageOverlay"></div>
-
-<div id="rotateOverlay">
-  <div class="rotate-card">
-    <div class="rotate-icon">📱↔️</div>
-    <h2>请横屏游玩</h2>
-    <p>为了获得最佳视野，请将手机旋转至横屏模式。</p>
-    <button id="rotateRetryBtn" style="margin-top:16px;padding:10px 28px;font-size:14px">已旋转？点击继续</button>
-    <button id="rotateForceBtn" style="margin-top:8px;padding:8px 18px;font-size:12px;background:rgba(255,255,255,.1);color:rgba(240,246,255,.6);box-shadow:none;letter-spacing:0;text-transform:none;font-family:var(--font-b)">竖屏继续游玩</button>
-  </div>
-</div>
 
 <div id="hudDesktop">
   <div class="hud-line">积分：<span data-bind="score">0</span></div>
@@ -298,7 +279,6 @@ const gameOverScreen=document.getElementById("gameOverScreen");
 const tip=document.getElementById("tip");
 const finalScore=document.getElementById("finalScore");
 const finalTime=document.getElementById("finalTime");
-const rotateOverlay=document.getElementById("rotateOverlay");
 
 const RANKS=[
   {name:"星尘新手",score:0,icon:"✨"},
@@ -324,7 +304,6 @@ const ACHIEVEMENTS=[
 init();
 
 function isMobileLayout(){return window.innerWidth<=768}
-function isPortraitMobile(){return isMobileLayout()&&window.innerHeight>window.innerWidth}
 
 function setHUDVisible(visible){
   if(!visible){hudDesktop.style.display="none";hudMobile.style.display="none";return}
@@ -362,14 +341,12 @@ function init(){
 
   window.addEventListener("pointerdown",()=>unlockAudio(),{once:true});
   window.addEventListener("resize",onResize);
-  window.addEventListener("orientationchange",()=>setTimeout(updateRotateOverlay,350));
+  window.addEventListener("orientationchange",()=>setTimeout(forceLandscape,300));
 
   document.getElementById("startBtn").onclick=startGame;
   document.getElementById("restartBtn").onclick=startGame;
-  document.getElementById("rotateRetryBtn").onclick=()=>{forceLandscape();updateRotateOverlay();};
-  document.getElementById("rotateForceBtn").onclick=()=>{rotateOverlay.style.display="none";if(!gameRunning)startGame(true);};
 
-  updateRotateOverlay();
+  forceLandscape();
   animate();
 }
 
@@ -435,25 +412,18 @@ function renderAchievementPanel(id,isGameover=false,newList=[]){
   `;
 }
 
-async function forceLandscape(){
+function forceLandscape(){
   if(!isMobileLayout())return;
   try{
     if(document.documentElement.requestFullscreen&&!document.fullscreenElement){
-      await document.documentElement.requestFullscreen();
+      document.documentElement.requestFullscreen();
     }
   }catch(e){}
   try{
     if(screen.orientation&&screen.orientation.lock){
-      await screen.orientation.lock("landscape");
+      screen.orientation.lock("landscape");
     }
   }catch(e){}
-  updateRotateOverlay();
-}
-
-function updateRotateOverlay(){
-  const show=isPortraitMobile()&&isMobileLayout();
-  rotateOverlay.style.display=show?"flex":"none";
-  if(show&&gameRunning)document.getElementById("startScreen").style.display="none";
 }
 
 function initSharedResources(){
@@ -1323,12 +1293,8 @@ function createRocks(){
   }
 }
 
-async function startGame(skipOrientation){
-  await forceLandscape();
-  if(isPortraitMobile()&&isMobileLayout()&&!skipOrientation){
-    updateRotateOverlay();
-    return;
-  }
+function startGame(){
+  forceLandscape();
 
   unlockAudio();
   playSfx("start");
@@ -1337,7 +1303,6 @@ async function startGame(skipOrientation){
   gameRunning=true;
   gameOverPending=false;
   playerIsDead=false;
-  updateRotateOverlay();
   document.getElementById("scanlines").style.display=isMobileLayout()?"none":"block";
 
   startScreen.style.display="none";
@@ -1837,7 +1802,6 @@ function endGame(){
   if(gameOverPending)return;
   gameOverPending=true;
   gameRunning=false;
-  updateRotateOverlay();
   document.getElementById("scanlines").style.display="none";
 
   stopBGM();
@@ -1951,7 +1915,6 @@ function onResize(){
   renderer.setPixelRatio(Math.min(window.devicePixelRatio,isMobileLayout()?1.25:1.6));
   updatePlayerHeadUIScale();
   if(gameRunning)setHUDVisible(true);
-  updateRotateOverlay();
 }
 
 function initAudio(){
