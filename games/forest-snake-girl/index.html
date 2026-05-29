@@ -109,13 +109,25 @@ button::after{content:'';position:absolute;top:0;left:10%;right:10%;height:50%;b
 #hudMobile{transform:scale(.88)}
 #joystick{display:block;left:50%;bottom:14px;transform:translateX(-50%);width:132px;height:132px;background:rgba(0,240,255,.03);border:2px solid rgba(0,240,255,.12)}
 #stick{left:38px;top:38px;width:56px;height:56px}
-.panel{width:min(94vw,560px);padding:20px}
-.panel h1{font-size:24px}
-.panel p{font-size:13px}
-button{font-size:15px;padding:12px 28px}
+.panel{width:min(94vw,560px);padding:14px 16px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.panel h1{font-size:20px;margin-bottom:6px}
+.panel p{font-size:12px;margin:4px 0}
+button{font-size:14px;padding:10px 22px;margin-top:12px}
 #warning{font-size:18px;padding:12px 20px}
-.achievements{grid-template-columns:repeat(2,1fr)}
-.rank-stat{font-size:11px}
+.achievements{grid-template-columns:repeat(2,1fr);gap:4px;margin-top:6px}
+.achievement{padding:5px 4px;font-size:9px;border-radius:6px}
+.achievement .icon{font-size:14px;margin-bottom:1px}
+.rank-badge{padding:5px 10px;font-size:12px}
+.rank-stat{padding:4px 7px;font-size:10px}
+.rank-row{gap:5px;margin-bottom:6px}
+.achievement-panel{margin:10px auto 0;padding:10px}
+.achievement-panel p{font-size:11px;margin:4px 0}
+.progress-wrap{height:8px;margin:5px auto 6px}
+.new-achievement{padding:5px 8px;font-size:11px;margin:6px 0 0}
+.rotate-card{padding:18px 14px}
+.rotate-card h2{font-size:18px}
+.rotate-card p{font-size:12px}
+.rotate-icon{font-size:38px}
 }
 
 /* ===== Responsive: <=420px ===== */
@@ -123,6 +135,20 @@ button{font-size:15px;padding:12px 28px}
 #hudMobile{transform:scale(.76);top:6px;left:6px}
 #joystick{width:120px;height:120px;bottom:10px}
 #stick{left:33px;top:33px;width:54px;height:54px}
+.panel{padding:10px 12px}
+.panel h1{font-size:18px}
+button{font-size:13px;padding:8px 18px;margin-top:10px}
+.rank-stat{font-size:9px}
+.achievement{padding:4px 3px;font-size:8px}
+.rank-badge{padding:4px 8px;font-size:11px}
+}
+
+/* ===== Responsive: <=360px ===== */
+@media(max-width:360px){
+.achievements{grid-template-columns:1fr 1fr;gap:3px}
+.achievement-panel{padding:6px}
+.achievement .icon{font-size:12px}
+.rank-row{flex-wrap:wrap;gap:3px}
 }
 </style>
 </head>
@@ -136,7 +162,9 @@ button{font-size:15px;padding:12px 28px}
   <div class="rotate-card">
     <div class="rotate-icon">📱↔️</div>
     <h2>请横屏游玩</h2>
-    <p>为了获得最佳视野，游戏会尽量自动切换横屏。若未成功，请手动旋转手机。</p>
+    <p>为了获得最佳视野，请将手机旋转至横屏模式。</p>
+    <button id="rotateRetryBtn" style="margin-top:16px;padding:10px 28px;font-size:14px">已旋转？点击继续</button>
+    <button id="rotateForceBtn" style="margin-top:8px;padding:8px 18px;font-size:12px;background:rgba(255,255,255,.1);color:rgba(240,246,255,.6);box-shadow:none;letter-spacing:0;text-transform:none;font-family:var(--font-b)">竖屏继续游玩</button>
   </div>
 </div>
 
@@ -338,6 +366,8 @@ function init(){
 
   document.getElementById("startBtn").onclick=startGame;
   document.getElementById("restartBtn").onclick=startGame;
+  document.getElementById("rotateRetryBtn").onclick=()=>{forceLandscape();updateRotateOverlay();};
+  document.getElementById("rotateForceBtn").onclick=()=>{rotateOverlay.style.display="none";if(!gameRunning)startGame(true);};
 
   updateRotateOverlay();
   animate();
@@ -421,7 +451,9 @@ async function forceLandscape(){
 }
 
 function updateRotateOverlay(){
-  rotateOverlay.style.display=isPortraitMobile()&&gameRunning?"flex":"none";
+  const show=isPortraitMobile()&&isMobileLayout();
+  rotateOverlay.style.display=show?"flex":"none";
+  if(show&&gameRunning)document.getElementById("startScreen").style.display="none";
 }
 
 function initSharedResources(){
@@ -1291,8 +1323,12 @@ function createRocks(){
   }
 }
 
-async function startGame(){
+async function startGame(skipOrientation){
   await forceLandscape();
+  if(isPortraitMobile()&&isMobileLayout()&&!skipOrientation){
+    updateRotateOverlay();
+    return;
+  }
 
   unlockAudio();
   playSfx("start");
