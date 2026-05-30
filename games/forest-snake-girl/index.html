@@ -141,6 +141,16 @@ button{font-size:13px;padding:8px 18px;margin-top:10px}
 .achievement .icon{font-size:12px}
 .rank-row{flex-wrap:wrap;gap:3px}
 }
+/* ===== Loading Screen ===== */
+#loadingScreen{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#07071e}
+#loadingScreen .l-bg{position:absolute;inset:0;background:url(TEX/loading_d.png) center/cover no-repeat;opacity:.45;filter:blur(1px)}
+#loadingScreen .l-wrap{position:relative;z-index:1;text-align:center}
+#loadingScreen .l-title{font-family:var(--font-d);font-size:clamp(16px,5vw,26px);font-weight:900;color:var(--c-text);text-shadow:0 0 20px rgba(0,240,255,.4);margin-bottom:20px;letter-spacing:2px}
+#loadingScreen .l-spinner{width:28px;height:28px;border:2px solid rgba(0,240,255,.15);border-top-color:var(--c-cyan);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loadingScreen .l-bar-outer{width:min(80vw,360px);height:6px;border-radius:3px;background:rgba(0,240,255,.1);overflow:hidden;margin:0 auto 12px}
+#loadingScreen .l-bar-inner{height:100%;width:0;border-radius:3px;background:linear-gradient(90deg,var(--c-cyan),var(--c-purple));transition:width .3s ease}
+#loadingScreen .l-pct{font-family:var(--font-d);font-size:13px;color:rgba(0,240,255,.7);letter-spacing:1px}
 </style>
 </head>
 
@@ -156,6 +166,7 @@ button{font-size:13px;padding:8px 18px;margin-top:10px}
   <div class="hud-line">水晶：<span data-bind="crystal">蓝色 +5</span></div>
   <div class="hud-line">敌人速度等级：<span data-bind="enemyLevel">1</span></div>
   <div class="hud-line">场上敌人：<span data-bind="enemyCount">0</span></div>
+  <div class="hud-line">FPS：<span data-bind="fps">0</span></div>
   <div class="hud-line">紫色精英怪：<span data-bind="purpleCount">0</span>/3</div>
   <div class="hud-line">状态果实：<span data-bind="fruitInfo">25秒后加速果实</span></div>
   <div class="hud-line">加速剩余：<span data-bind="speedBuff">0.0</span>s</div>
@@ -169,6 +180,7 @@ button{font-size:13px;padding:8px 18px;margin-top:10px}
     <div class="mobile-hud-item"><span class="mobile-hud-label">时间</span><span class="mobile-hud-value"><span data-bind="time">0.0</span>s</span></div>
     <div class="mobile-hud-item"><span class="mobile-hud-label">敌人</span><span class="mobile-hud-value" data-bind="enemyCount">0</span></div>
     <div class="mobile-hud-item"><span class="mobile-hud-label">紫怪</span><span class="mobile-hud-value"><span data-bind="purpleCount">0</span>/3</span></div>
+    <div class="mobile-hud-item"><span class="mobile-hud-label">FPS</span><span class="mobile-hud-value" data-bind="fps">0</span></div>
     <div class="mobile-hud-item"><span class="mobile-hud-label">加速</span><span class="mobile-hud-value"><span data-bind="speedBuff">0.0</span>s</span></div>
     <div class="mobile-hud-item"><span class="mobile-hud-label">无敌</span><span class="mobile-hud-value"><span data-bind="invincibleBuff">0.0</span>s</span></div>
     <div class="mobile-hud-item mobile-hud-wide"><span class="mobile-hud-label">水晶</span><span class="mobile-hud-value" data-bind="crystal">蓝色 +5</span></div>
@@ -196,6 +208,16 @@ button{font-size:13px;padding:8px 18px;margin-top:10px}
     <p>存活时间：<span id="finalTime">0.0</span>s</p>
     <div id="gameoverAchievementPanel" class="achievement-panel"></div>
     <button id="restartBtn">重新开始</button>
+  </div>
+</div>
+
+<div id="loadingScreen">
+  <div class="l-bg"></div>
+  <div class="l-wrap">
+    <div class="l-title">LOADING...</div>
+    <div class="l-spinner"></div>
+    <div class="l-bar-outer"><div class="l-bar-inner" id="lBar"></div></div>
+    <div class="l-pct" id="lPct">0％</div>
   </div>
 </div>
 
@@ -245,12 +267,27 @@ let frameTimeHistory=[];
 const PERFORMANCE_CHECK_INTERVAL=60;
 let performanceCheckCounter=0;
 
+let fps=0,fpsFrameCount=0,fpsAccumTime=0;
+
 let _isMobile=false;
 let _cachedTier=null;
 let _tierCacheScore=-1;
 let _tierCacheFrame=0;
 let _frameCount=0;
 let _prevTierHex=-1;
+
+let _totalLoads=0,_loadedCount=0,_loadPromises=[];
+function _trackLoad(promise){_totalLoads++;const p=promise.then(()=>{_loadedCount++;_updateLoadingUI();if(_loadedCount>=_totalLoads)onAllLoaded()}).catch(()=>{_loadedCount++;_updateLoadingUI();if(_loadedCount>=_totalLoads)onAllLoaded()});_loadPromises.push(p);return p}
+function _updateLoadingUI(){const pct=Math.floor(_loadedCount/_totalLoads*100);lBar.style.width=pct+"%";lPct.textContent=pct+"％"}
+function _autoTrackFBX(url,cb){_trackLoad(new Promise(resolve=>{new FBXLoader().load(url,fbx=>{cb(fbx);resolve()},undefined,()=>resolve())}))}
+function onAllLoaded(){
+  document.getElementById("loadingScreen").style.display="none";
+  startScreen.style.display="flex";
+  _totalLoads=0;_loadedCount=0;
+}
+
+const lBar=document.getElementById("lBar");
+const lPct=document.getElementById("lPct");
 
 const shared={geo:{},mat:{}};
 const _v3a=new THREE.Vector3(),_v3b=new THREE.Vector3(),_v3c=new THREE.Vector3(),_v3d=new THREE.Vector3(),_v3e=new THREE.Vector3(),_v3f=new THREE.Vector3(),_v3g=new THREE.Vector3(),_v3h=new THREE.Vector3();
@@ -343,6 +380,7 @@ function setBind(name,value){if(!_hudBinds[name])_hudBinds[name]=document.queryS
 
 function init(){
   updateLayoutCache();
+  startScreen.style.display="none";
   meta=loadMeta();
   renderAchievementPanel("startAchievementPanel",false,[]);
 
@@ -352,23 +390,19 @@ function init(){
   camera.position.set(0,18,18);
   camera.lookAt(0,0,0);
 
-  renderer=new THREE.WebGLRenderer({canvas:document.getElementById("game"),antialias:window.innerWidth>768,powerPreference:"high-performance"});
+  renderer=new THREE.WebGLRenderer({canvas:document.getElementById("game"),antialias:!(_isMobile&&window.innerWidth<=500),powerPreference:"high-performance"});
   renderer.setSize(window.innerWidth,window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio,_isMobile?1.25:1.6));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,_isMobile?1.0:1.6));
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure=_isMobile?1.08:1.02;
-  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.enabled=!_isMobile;
   renderer.shadowMap.type=_isMobile?THREE.BasicShadowMap:THREE.PCFSoftShadowMap;
   renderer.shadowMap.autoUpdate=false;
 
   initSharedResources();
   createLights();
-  createSkybox();
-  createPlatformModel();
-  createDecorationRock();
-  loadCollisionRockModel();
-  createPlayer();
+  _loadAllAssets();
 
   setupControls();
   setupJoystick();
@@ -382,6 +416,14 @@ function init(){
 
   forceLandscape();
   animate();
+}
+
+function _loadAllAssets(){
+  _trackLoad(new Promise(resolve=>{createSkybox(resolve)}));
+  createPlatformModel();
+  createDecorationRock();
+  loadCollisionRockModel();
+  createPlayer();
 }
 
 function loadMeta(){
@@ -507,7 +549,7 @@ function createLights(){
   scene.add(target);
   sun.target=target;
 
-  const mapSize=isMobileLayout()?1024:2048;
+  const mapSize=_isMobile?512:2048;
   sun.shadow.mapSize.width=mapSize;
   sun.shadow.mapSize.height=mapSize;
   sun.shadow.camera.near=1;
@@ -528,7 +570,7 @@ function createLights(){
   }
 }
 
-function createSkybox(){
+function createSkybox(resolve){
   new THREE.TextureLoader().load(
     SKYBOX_TEXTURE_URL,
     texture=>{
@@ -537,48 +579,81 @@ function createSkybox(){
       texture.wrapT=THREE.ClampToEdgeWrapping;
       texture.anisotropy=4;
 
+      const seg=_isMobile?{w:32,h:16}:{w:64,h:32};
       skyboxMesh=new THREE.Mesh(
-        new THREE.SphereGeometry(480,64,32),
+        new THREE.SphereGeometry(480,seg.w,seg.h),
         new THREE.MeshBasicMaterial({map:texture,side:THREE.BackSide,depthWrite:false,depthTest:false})
       );
       skyboxMesh.renderOrder=-999;
       scene.add(skyboxMesh);
 
-      const fogShellGeo=new THREE.SphereGeometry(460,48,24);
-      const fogShellAlpha=isMobileLayout()? .42:.55;
-      const fogShellMat=new THREE.ShaderMaterial({
-        uniforms:{uFogColor:{value:new THREE.Color(0xa8c0d8)}},
-        vertexShader:'varying vec3 vWNormal;\nvoid main(){gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);vWNormal=normalize(mat3(modelMatrix)*normal);}',
-        fragmentShader:`varying vec3 vWNormal;\nuniform vec3 uFogColor;\nvoid main(){float hz=clamp(1.-abs(vWNormal.y),0.,1.);float a=hz*hz*${fogShellAlpha};gl_FragColor=vec4(uFogColor,a);}`,
-        side:THREE.BackSide,depthWrite:false,depthTest:false,transparent:true
-      });
-      const fogShell=new THREE.Mesh(fogShellGeo,fogShellMat);
-      fogShell.renderOrder=-998;
-      skyboxMesh.add(fogShell);
+      if(!_isMobile){
+        const fogShellGeo=new THREE.SphereGeometry(460,48,24);
+        const fogShellAlpha=.55;
+        const fogShellMat=new THREE.ShaderMaterial({
+          uniforms:{uFogColor:{value:new THREE.Color(0xa8c0d8)}},
+          vertexShader:'varying vec3 vWNormal;\nvoid main(){gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);vWNormal=normalize(mat3(modelMatrix)*normal);}',
+          fragmentShader:`varying vec3 vWNormal;\nuniform vec3 uFogColor;\nvoid main(){float hz=clamp(1.-abs(vWNormal.y),0.,1.);float a=hz*hz*${fogShellAlpha};gl_FragColor=vec4(uFogColor,a);}`,
+          side:THREE.BackSide,depthWrite:false,depthTest:false,transparent:true
+        });
+        const fogShell=new THREE.Mesh(fogShellGeo,fogShellMat);
+        fogShell.renderOrder=-998;
+        skyboxMesh.add(fogShell);
+      }
+      resolve();
     },
     undefined,
     err=>{
       console.warn("天空盒贴图加载失败：",SKYBOX_TEXTURE_URL,err);
       scene.background=new THREE.Color(0x050816);
+      resolve();
     }
   );
 }
 
 function loadTexture(url,options={}){
-  const texture=new THREE.TextureLoader().load(url,()=>{},undefined,err=>console.warn("贴图加载失败：",url,err));
-  texture.colorSpace=options.colorSpace||THREE.SRGBColorSpace;
-  texture.wrapS=options.wrapS||THREE.RepeatWrapping;
-  texture.wrapT=options.wrapT||THREE.RepeatWrapping;
-  texture.repeat.set(options.repeatX??1,options.repeatY??1);
-  texture.flipY=options.flipY??false;
-  texture.anisotropy=options.anisotropy??4;
+  let texture;
+  if(_isMobile&&options.resizeHalf!==false){
+    texture=new THREE.Texture();
+    _trackLoad(new Promise(resolve=>{
+      const img=new Image();
+      img.crossOrigin="anonymous";
+      img.onload=()=>{
+        const w=img.naturalWidth,mw=Math.floor(w/2);
+        const h=img.naturalHeight,mh=Math.floor(h/2);
+        const c=document.createElement("canvas");
+        c.width=mw;c.height=mh;
+        const ctx=c.getContext("2d");
+        ctx.drawImage(img,0,0,mw,mh);
+        texture.image=c;
+        texture.needsUpdate=true;
+        texture.colorSpace=options.colorSpace||THREE.SRGBColorSpace;
+        texture.wrapS=options.wrapS||THREE.RepeatWrapping;
+        texture.wrapT=options.wrapT||THREE.RepeatWrapping;
+        texture.repeat.set(options.repeatX??1,options.repeatY??1);
+        texture.flipY=options.flipY??false;
+        texture.anisotropy=options.anisotropy??4;
+        resolve();
+      };
+      img.onerror=()=>{const t=new THREE.TextureLoader().load(url,()=>{},undefined,()=>{});texture=t;resolve()};
+      img.src=url;
+    }));
+  }else{
+    texture=new THREE.TextureLoader().load(url,()=>{},undefined,err=>console.warn("贴图加载失败：",url,err));
+    texture.colorSpace=options.colorSpace||THREE.SRGBColorSpace;
+    texture.wrapS=options.wrapS||THREE.RepeatWrapping;
+    texture.wrapT=options.wrapT||THREE.RepeatWrapping;
+    texture.repeat.set(options.repeatX??1,options.repeatY??1);
+    texture.flipY=options.flipY??false;
+    texture.anisotropy=options.anisotropy??4;
+  }
   return texture;
 }
 
 function createPlatformMaterials(){
   const topTexture=loadTexture(PLATFORM_TOP_TEXTURE_URL,{colorSpace:THREE.SRGBColorSpace,repeatX:PLATFORM_TOP_TEXTURE_REPEAT_X,repeatY:PLATFORM_TOP_TEXTURE_REPEAT_Y,flipY:false,anisotropy:8});
   const sideTexture=loadTexture(PLATFORM_SIDE_TEXTURE_URL,{colorSpace:THREE.SRGBColorSpace,repeatX:PLATFORM_SIDE_TEXTURE_REPEAT_X,repeatY:PLATFORM_SIDE_TEXTURE_REPEAT_Y,flipY:false,anisotropy:8});
-  const normalTexture=loadTexture(PLATFORM_NORMAL_TEXTURE_URL,{colorSpace:THREE.NoColorSpace,repeatX:1,repeatY:1,flipY:false,anisotropy:8});
+  const normalTexture=loadTexture(PLATFORM_NORMAL_TEXTURE_URL,{resizeHalf:false,colorSpace:THREE.NoColorSpace,repeatX:1,repeatY:1,flipY:false,anisotropy:8});
   return [
     new THREE.MeshStandardMaterial({map:topTexture,normalMap:normalTexture,normalScale:new THREE.Vector2(.35,.35),color:0xffffff,roughness:.88,metalness:.02}),
     new THREE.MeshStandardMaterial({map:sideTexture,normalMap:normalTexture,normalScale:new THREE.Vector2(.45,.45),color:0xffffff,roughness:.92,metalness:.01}),
@@ -587,30 +662,25 @@ function createPlatformMaterials(){
 }
 
 function createPlatformModel(){
-  new FBXLoader().load(
-    PLATFORM_MODEL_URL,
-    fbx=>{
-      platformModel=fbx;
-      platformMeshes=[];
-      scene.add(platformModel);
-      fitPlatformToWorld(platformModel);
-      const platformMaterials=createPlatformMaterials();
-      platformModel.traverse(obj=>{
-        if(obj.isMesh||obj.isSkinnedMesh){
-          obj.castShadow=false;
-          obj.receiveShadow=true;
-          if(obj.geometry){obj.geometry.computeBoundingBox();obj.geometry.computeVertexNormals()}
-          applyTopSideBottomMaterialsWorld(obj,platformMaterials);
-          platformMeshes.push(obj);
-        }
-      });
-      updatePlatformWalkBounds();
-      platformReady=true;
-      fitDecorationRockToPlatform();
-    },
-    undefined,
-    err=>console.warn("平台模型加载失败：",PLATFORM_MODEL_URL,err)
-  );
+  _autoTrackFBX(PLATFORM_MODEL_URL,fbx=>{
+    platformModel=fbx;
+    platformMeshes=[];
+    scene.add(platformModel);
+    fitPlatformToWorld(platformModel);
+    const platformMaterials=createPlatformMaterials();
+    platformModel.traverse(obj=>{
+      if(obj.isMesh||obj.isSkinnedMesh){
+        obj.castShadow=false;
+        obj.receiveShadow=true;
+        if(obj.geometry){obj.geometry.computeBoundingBox();obj.geometry.computeVertexNormals()}
+        applyTopSideBottomMaterialsWorld(obj,platformMaterials);
+        platformMeshes.push(obj);
+      }
+    });
+    updatePlatformWalkBounds();
+    platformReady=true;
+    fitDecorationRockToPlatform();
+  });
 }
 
 function fitPlatformToWorld(object3D){
@@ -660,24 +730,19 @@ function createDecorationRock(){
   if(DECORATION_ROCK_TEXTURE_MIRROR_X)texture.offset.x=1;
   texture.needsUpdate=true;
   const material=new THREE.MeshStandardMaterial({map:texture,color:0xffffff,roughness:.9,metalness:0});
-  new FBXLoader().load(
-    DECORATION_ROCK_MODEL_URL,
-    fbx=>{
-      decorationRockModel=fbx;
-      decorationRockModel.traverse(obj=>{
-        if(obj.isMesh||obj.isSkinnedMesh){
-          obj.castShadow=true;obj.receiveShadow=true;
-          if(obj.geometry){obj.geometry.computeBoundingBox();obj.geometry.computeVertexNormals()}
-          obj.material=material;obj.material.needsUpdate=true;
-        }
-      });
-      scene.add(decorationRockModel);
-      decorationRockReady=true;
-      fitDecorationRockToPlatform();
-    },
-    undefined,
-    err=>console.warn("装饰模型 rock_01 加载失败：",DECORATION_ROCK_MODEL_URL,err)
-  );
+  _autoTrackFBX(DECORATION_ROCK_MODEL_URL,fbx=>{
+    decorationRockModel=fbx;
+    decorationRockModel.traverse(obj=>{
+      if(obj.isMesh||obj.isSkinnedMesh){
+        obj.castShadow=true;obj.receiveShadow=true;
+        if(obj.geometry){obj.geometry.computeBoundingBox();obj.geometry.computeVertexNormals()}
+        obj.material=material;obj.material.needsUpdate=true;
+      }
+    });
+    scene.add(decorationRockModel);
+    decorationRockReady=true;
+    fitDecorationRockToPlatform();
+  });
 }
 
 function fitDecorationRockToPlatform(){
@@ -707,22 +772,17 @@ function fitDecorationRockToPlatform(){
 function loadCollisionRockModel(){
   const texture=loadTexture(COLLISION_ROCK_TEXTURE_URL,{colorSpace:THREE.SRGBColorSpace,repeatX:1,repeatY:1,flipY:true,anisotropy:4});
   const material=new THREE.MeshStandardMaterial({map:texture,color:0xffffff,roughness:.92,metalness:0});
-  new FBXLoader().load(
-    COLLISION_ROCK_MODEL_URL,
-    fbx=>{
-      collisionRockTemplate=fbx;
-      collisionRockTemplate.traverse(obj=>{
-        if(obj.isMesh||obj.isSkinnedMesh){
-          obj.castShadow=true;obj.receiveShadow=true;
-          if(obj.geometry){obj.geometry.computeBoundingBox();obj.geometry.computeVertexNormals()}
-          obj.material=material;
-        }
-      });
-      collisionRockReady=true;
-    },
-    undefined,
-    err=>console.warn("碰撞岩石模型 rock_02 加载失败：",COLLISION_ROCK_MODEL_URL,err)
-  );
+  _autoTrackFBX(COLLISION_ROCK_MODEL_URL,fbx=>{
+    collisionRockTemplate=fbx;
+    collisionRockTemplate.traverse(obj=>{
+      if(obj.isMesh||obj.isSkinnedMesh){
+        obj.castShadow=true;obj.receiveShadow=true;
+        if(obj.geometry){obj.geometry.computeBoundingBox();obj.geometry.computeVertexNormals()}
+        obj.material=material;
+      }
+    });
+    collisionRockReady=true;
+  });
 }
 
 function cloneCollisionRock(){
@@ -761,19 +821,21 @@ function getPlatformHeightAt(x,z){return PLATFORM_TOP_Y}
 function snapObjectToPlatform(object3D,extraY=0){object3D.position.y=getPlatformHeightAt(object3D.position.x,object3D.position.z)+extraY}
 
 function createPlayer(){
-  player=new THREE.Group();
-  player.position.set(0,0,0);
-  scene.add(player);
-  const fallback=new THREE.Group();
-  const body=new THREE.Mesh(new THREE.CapsuleGeometry(.5,1.1,6,12),new THREE.MeshStandardMaterial({color:playerNormalColor,roughness:.42,emissive:0x003466,emissiveIntensity:.25}));
-  body.position.y=1;body.castShadow=true;body.receiveShadow=true;fallback.add(body);
-  const face=new THREE.Mesh(new THREE.SphereGeometry(.18,12,12),new THREE.MeshBasicMaterial({color:0xffffff}));
-  face.position.set(0,1.25,.45);fallback.add(face);
-  playerFallbackBody=fallback;player.add(fallback);
-  registerPlayerTintTarget(body);
-  createPlayerLocatorHalo();
-  createPlayerHeadUI();
-  loadPlayerTextures(()=>loadPlayerFBX());
+  _trackLoad(new Promise(resolve=>{
+    player=new THREE.Group();
+    player.position.set(0,0,0);
+    scene.add(player);
+    const fallback=new THREE.Group();
+    const body=new THREE.Mesh(new THREE.CapsuleGeometry(.5,1.1,6,12),new THREE.MeshStandardMaterial({color:playerNormalColor,roughness:.42,emissive:0x003466,emissiveIntensity:.25}));
+    body.position.y=1;body.castShadow=true;body.receiveShadow=true;fallback.add(body);
+    const face=new THREE.Mesh(new THREE.SphereGeometry(.18,12,12),new THREE.MeshBasicMaterial({color:0xffffff}));
+    face.position.set(0,1.25,.45);fallback.add(face);
+    playerFallbackBody=fallback;player.add(fallback);
+    registerPlayerTintTarget(body);
+    createPlayerLocatorHalo();
+    createPlayerHeadUI();
+    loadPlayerTextures(()=>loadPlayerFBX(resolve));
+  }));
 }
 
 function createPlayerLocatorHalo(){
@@ -1269,7 +1331,7 @@ function retargetClipToModel(rawClip,modelRoot,clipName){
   return newClip;
 }
 
-function loadPlayerFBX(){
+function loadPlayerFBX(resolve){
   new FBXLoader().load(
     PLAYER_MODEL_URL,
     fbx=>{
@@ -1293,9 +1355,10 @@ function loadPlayerFBX(){
       loadPlayerAnimation("idle",PLAYER_IDLE_ANIM_URL,true);
       loadPlayerAnimation("run",PLAYER_RUN_ANIM_URL,true);
       loadPlayerAnimation("attacked",PLAYER_ATTACKED_ANIM_URL,false);
+      resolve();
     },
     undefined,
-    err=>console.warn("玩家模型加载失败：",PLAYER_MODEL_URL,err)
+    err=>{console.warn("玩家模型加载失败：",PLAYER_MODEL_URL,err);resolve();}
   );
 }
 
@@ -1524,7 +1587,7 @@ function spawnEnemyAt(pos){
   eye2.position.set(.2,.85,.58);group.add(eye2);
   group.position.set(pos.x,getPlatformHeightAt(pos.x,pos.z),pos.z);
   scene.add(group);
-  enemies.push({mesh:group,type:"normal",radius:.7,speed:t.enemySpeed*ENEMY_SPEED_MULTIPLIER,damage:t.enemyDamage,spawnTime:performance.now(),active:false,agility:1.0,stuckTimer:0,lastCheckPos:group.position.clone()});
+  enemies.push({mesh:group,type:"normal",radius:.7,speed:t.enemySpeed*ENEMY_SPEED_MULTIPLIER,damage:t.enemyDamage,spawnTime:performance.now(),active:false,agility:1.0,stuckTimer:0,lastCheckPos:group.position.clone(),lastDir:new THREE.Vector3(0,0,0)});
 }
 
 function spawnPurpleEnemy(){
@@ -1545,7 +1608,7 @@ function spawnPurpleEnemy(){
   group.position.set(pos.x,getPlatformHeightAt(pos.x,pos.z),pos.z);
   scene.add(group);
   const angle=Math.random()*Math.PI*2;
-  enemies.push({mesh:group,type:"purple",mode:"wander",radius:.7*1.3,speed:t.enemySpeed*ENEMY_SPEED_MULTIPLIER*1.1,damage:8,spawnTime:performance.now(),active:false,agility:1.45,detectRange:purpleDetectRange,wanderDir:new THREE.Vector3(Math.cos(angle),0,Math.sin(angle)),wanderTimer:THREE.MathUtils.randFloat(1.5,3.5),stuckTimer:0,lastCheckPos:group.position.clone()});
+  enemies.push({mesh:group,type:"purple",mode:"wander",radius:.7*1.3,speed:t.enemySpeed*ENEMY_SPEED_MULTIPLIER*1.1,damage:8,spawnTime:performance.now(),active:false,agility:1.45,detectRange:purpleDetectRange,wanderDir:new THREE.Vector3(Math.cos(angle),0,Math.sin(angle)),wanderTimer:THREE.MathUtils.randFloat(1.5,3.5),stuckTimer:0,lastCheckPos:group.position.clone(),lastDir:new THREE.Vector3(0,0,0)});
   playSfx("purple");
 }
 
@@ -1636,6 +1699,13 @@ function animate(){
   requestAnimationFrame(animate);
   _frameCount++;
   const dt=Math.min(clock.getDelta(),.033);
+  fpsFrameCount++;
+  fpsAccumTime+=dt;
+  if(fpsAccumTime>=.5){
+    fps=Math.round(fpsFrameCount/fpsAccumTime);
+    fpsFrameCount=0;
+    fpsAccumTime=0;
+  }
   if(skyboxMesh&&camera)skyboxMesh.position.copy(camera.position);
   updateFog();
   processEnemySpawnQueue();
@@ -1737,7 +1807,9 @@ function updateDamageFeedback(dt){
 }
 
 function updateCamera(dt){
-  _v3c.set(player.position.x,player.position.y+17,player.position.z+18);
+  const camYOff=isMobileLayout()?21:17;
+  const camZOff=isMobileLayout()?22:18;
+  _v3c.set(player.position.x,player.position.y+camYOff,player.position.z+camZOff);
   camera.position.lerp(_v3c,1-Math.pow(.001,dt));
   camera.lookAt(player.position.x,player.position.y,player.position.z);
 }
@@ -1799,10 +1871,18 @@ function updateEnemies(dt){
         snapObjectToPlatform(e.mesh,0);
         const escapeDir=getEnemyEscapeDirection(e);
         if(escapeDir.lengthSq()>.001){
+          escapeDir.lerp(_v3h.set(Math.random()-.5,0,Math.random()-.5).normalize(),.13).normalize();
           e.mesh.position.addScaledVector(escapeDir,e.speed*dt*1.35);
           clampToWorld(e.mesh.position);
           snapObjectToPlatform(e.mesh,0);
-          if(collidesWithRocks(e.mesh.position,e.radius)){e.mesh.position.copy(_v3a);snapObjectToPlatform(e.mesh,0)}
+          if(collidesWithRocks(e.mesh.position,e.radius)){
+            e.mesh.position.copy(_v3a);
+            const tangentDir=getEnemyTangentEscape(e);
+            e.mesh.position.addScaledVector(tangentDir,e.speed*dt*1.8);
+            clampToWorld(e.mesh.position);
+            snapObjectToPlatform(e.mesh,0);
+            if(collidesWithRocks(e.mesh.position,e.radius)){e.mesh.position.copy(_v3a);snapObjectToPlatform(e.mesh,0)}
+          }
         }
         if(e.type==="purple"&&e.mode==="wander")resetPurpleWander(e);
       }
@@ -1837,11 +1917,22 @@ function updateEnemyStuckState(enemy,dt,startX,startZ){
 function getEnemyEscapeDirection(enemy){
   const pos=enemy.mesh.position,away=_v3b.set(0,0,0);
   for(const rock of rocks){
-    const d=distance2D(pos,rock.mesh.position),danger=rock.radius+enemy.radius+1.8;
+    const d=distance2D(pos,rock.mesh.position),danger=rock.radius+enemy.radius+0.6;
     if(d<danger){
       _v3c.subVectors(pos,rock.mesh.position);
       _v3c.y=0;
       if(_v3c.lengthSq()>.001){_v3c.normalize();away.addScaledVector(_v3c,(danger-d)/danger+0.35)}
+    }
+  }
+  for(const other of enemies){
+    if(other===enemy)continue;
+    const d=distance2D(pos,other.mesh.position);
+    const sepDist=enemy.radius+other.radius+0.5;
+    if(d<sepDist&&d>.001){
+      _v3c.subVectors(pos,other.mesh.position);
+      _v3c.y=0;
+      _v3c.normalize();
+      away.addScaledVector(_v3c,(sepDist-d)/sepDist+0.15);
     }
   }
   if(away.lengthSq()<.001)away.set(Math.random()-.5,0,Math.random()-.5);
@@ -1854,18 +1945,32 @@ function getEnemySteeringDirection(enemy){
   toPlayer.y=0;
   if(toPlayer.lengthSq()<.001)return toPlayer.set(0,0,0);
   toPlayer.normalize();
-  const agility=enemy.agility||1,avoidance=_v3c.set(0,0,0),lookAhead=4.2*agility,future=_v3d.copy(pos).addScaledVector(toPlayer,lookAhead);
+  const agility=enemy.agility||1;
+  const speedRatio=(enemy.speed||3.0)/3.0;
+  const lookAhead=2.5*agility*speedRatio;
+  const avoidance=_v3c.set(0,0,0),future=_v3d.copy(pos).addScaledVector(toPlayer,lookAhead);
   for(const rock of rocks){
-    const distNow=distance2D(pos,rock.mesh.position),distFuture=distance2D(future,rock.mesh.position),danger=rock.radius+enemy.radius+2.7*agility;
+    const distNow=distance2D(pos,rock.mesh.position),distFuture=distance2D(future,rock.mesh.position),danger=rock.radius+enemy.radius+0.6*agility;
     if(distNow<danger||distFuture<danger){
       const away=_v3e.subVectors(pos,rock.mesh.position);away.y=0;
       if(away.lengthSq()>.001){
         away.normalize();
         const tangentA=_v3f.set(-away.z,0,away.x),tangentB=_v3g.set(away.z,0,-away.x),tangent=tangentA.dot(toPlayer)>tangentB.dot(toPlayer)?tangentA:tangentB;
         const strength=THREE.MathUtils.clamp((danger-Math.min(distNow,distFuture))/danger,0,1);
-        avoidance.addScaledVector(away,strength*2.8*agility);
-        avoidance.addScaledVector(tangent,strength*2.3*agility);
+        avoidance.addScaledVector(away,strength*0.5*agility);
+        avoidance.addScaledVector(tangent,strength*1.5*agility);
       }
+    }
+  }
+  for(const other of enemies){
+    if(other===enemy)continue;
+    const d=distance2D(pos,other.mesh.position);
+    const sepDist=enemy.radius+other.radius+0.5;
+    if(d<sepDist&&d>.001){
+      _v3e.subVectors(pos,other.mesh.position);
+      _v3e.y=0;
+      _v3e.normalize();
+      avoidance.addScaledVector(_v3e,(sepDist-d)/sepDist*0.35);
     }
   }
   toPlayer.multiplyScalar(enemy.type==="purple"?1.2:1.0).add(avoidance);
@@ -1873,15 +1978,35 @@ function getEnemySteeringDirection(enemy){
   return toPlayer;
 }
 
+function getEnemyTangentEscape(enemy){
+  const pos=enemy.mesh.position;
+  let nearestRock=null,nearestDist=Infinity;
+  for(const rock of rocks){
+    const d=distance2D(pos,rock.mesh.position);
+    if(d<nearestDist){nearestDist=d;nearestRock=rock;}
+  }
+  if(!nearestRock){_v3b.set(Math.random()-.5,0,Math.random()-.5).normalize();return _v3b}
+  _v3b.subVectors(pos,nearestRock.mesh.position);
+  _v3b.y=0;
+  if(_v3b.lengthSq()<.001){_v3b.set(Math.random()-.5,0,Math.random()-.5).normalize();return _v3b}
+  _v3b.normalize();
+  _v3d.set(-_v3b.z,0,_v3b.x);
+  _v3e.set(_v3b.z,0,-_v3b.x);
+  _v3c.subVectors(player.position,pos);_v3c.y=0;
+  const tangent=_v3c.dot(_v3d)>_v3c.dot(_v3e)?_v3d:_v3e;
+  _v3b.copy(tangent).lerp(_v3c.set(Math.random()-.5,0,Math.random()-.5).normalize(),.15).normalize();
+  return _v3b;
+}
+
 function getPurpleWanderDirection(enemy,dt){
   enemy.wanderTimer-=dt;
   if(enemy.wanderTimer<=0)resetPurpleWander(enemy);
-  const dir=_v3b.copy(enemy.wanderDir),avoidance=_v3c.set(0,0,0),future=_v3d.copy(enemy.mesh.position).addScaledVector(dir,3.2);
+  const dir=_v3b.copy(enemy.wanderDir),avoidance=_v3c.set(0,0,0),future=_v3d.copy(enemy.mesh.position).addScaledVector(dir,2.0);
   for(const rock of rocks){
-    const d=distance2D(future,rock.mesh.position),danger=rock.radius+enemy.radius+2.0;
+    const d=distance2D(future,rock.mesh.position),danger=rock.radius+enemy.radius+0.6;
     if(d<danger){
       const away=_v3e.subVectors(enemy.mesh.position,rock.mesh.position);away.y=0;
-      if(away.lengthSq()>.001){away.normalize();avoidance.addScaledVector(away,(danger-d)/danger*2.6)}
+      if(away.lengthSq()>.001){away.normalize();avoidance.addScaledVector(away,(danger-d)/danger*0.5)}
     }
   }
   dir.add(avoidance);
@@ -1922,7 +2047,7 @@ function updateFruits(dt){
     f.mesh.position.y=PLATFORM_TOP_Y+Math.sin(aliveTime*4+i)*.12;
     if(f.life<=0){scene.remove(f.mesh);fruits.splice(i,1);continue}
     if(dist2DSq(player.position.x,player.position.z,f.mesh.position.x,f.mesh.position.z)<(playerRadius+f.radius)*(playerRadius+f.radius)){
-      if(f.type==="speed"){speedBuffTimer=Math.min(speedBuffTimer+1.5,8.0);spawnPlayerSideEffect("speed")}
+      if(f.type==="speed"){speedBuffTimer=Math.min(speedBuffTimer+2.5,8.0);spawnPlayerSideEffect("speed")}
       if(f.type==="heal"){hp=Math.min(maxHp,hp+HEAL_AMOUNT);spawnPlayerSideEffect("heal")}
       if(f.type==="invincible")activateInvincible();
       scene.remove(f.mesh);
@@ -1963,6 +2088,7 @@ function updateHUD(){
   setBind("purpleCount",getPurpleEnemyCount());
   setBind("speedBuff",Math.max(0,speedBuffTimer).toFixed(1));
   setBind("invincibleBuff",Math.max(0,invincibleTimer).toFixed(1));
+  setBind("fps",fps);
   const invincibleNext=Math.max(0,Math.ceil(nextInvincibleFruitSpawnTime-invincibleFruitSpawnTimer));
   if(aliveTime<25)setBind("fruitInfo",`25秒后加速果实 / 无敌${invincibleNext}s`);
   else if(aliveTime<45)setBind("fruitInfo",`加速果实 / 无敌${invincibleNext}s`);
@@ -2087,7 +2213,7 @@ function onResize(){
   camera.aspect=window.innerWidth/window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth,window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio,_isMobile?1.25:1.6));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,_isMobile?1.0:1.6));
   updatePlayerHeadUIScale();
   if(gameRunning)setHUDVisible(true);
 }
@@ -2161,7 +2287,7 @@ function playSfx(type){
   if(type==="gameover"){playTone(329.63,.18,"sine",.06,0);playTone(246.94,.22,"sine",.055,.18);playTone(164.81,.35,"sine",.05,.42)}
 }
 function startBGM(){
-  if(!audioCtx||!audioUnlocked||bgmTimer)return;
+  if(!audioCtx||!audioUnlocked||bgmTimer||_isMobile)return;
   const melody=[196,246.94,293.66,369.99,329.63,293.66,246.94,220];
   bgmTimer=setInterval(()=>{
     if(!gameRunning||!audioCtx||!audioUnlocked)return;
