@@ -141,6 +141,66 @@ button{font-size:13px;padding:8px 18px;margin-top:10px}
 .achievement .icon{font-size:12px}
 .rank-row{flex-wrap:wrap;gap:3px}
 }
+/* ===== Pause Button ===== */
+#pauseBtn{position:fixed;top:12px;right:12px;z-index:50;width:46px;height:46px;padding:0;margin:0;display:none;align-items:center;justify-content:center;border-radius:50%;background:rgba(7,7,30,.72);border:2px solid rgba(0,240,255,.35);box-shadow:0 0 16px rgba(0,240,255,.18),inset 0 0 18px rgba(180,77,255,.08);backdrop-filter:blur(8px);cursor:pointer;font-size:18px;color:var(--c-cyan);text-shadow:0 0 8px rgba(0,240,255,.4);transition:transform .12s,box-shadow .12s;letter-spacing:0}
+#pauseBtn:hover{transform:scale(1.08);box-shadow:0 0 24px rgba(0,240,255,.32),inset 0 0 18px rgba(180,77,255,.12)}
+#pauseBtn:active{transform:scale(.94)}
+#pauseBtn::after{display:none}
+#pauseBtn .pb-bar{display:inline-block;width:5px;height:18px;margin:0 2px;border-radius:2px;background:linear-gradient(180deg,var(--c-cyan),var(--c-purple));box-shadow:0 0 6px rgba(0,240,255,.5)}
+#pauseBtn.is-paused .pb-bar{display:none}
+#pauseBtn .pb-play{display:none;width:0;height:0;border-style:solid;border-width:9px 0 9px 14px;border-color:transparent transparent transparent var(--c-cyan);filter:drop-shadow(0 0 4px rgba(0,240,255,.5));margin-left:3px}
+#pauseBtn.is-paused .pb-play{display:inline-block}
+
+/* ===== Debug Overlay ===== */
+#debugOverlay{position:fixed;inset:0;z-index:48;display:none;pointer-events:none;font-family:var(--font-b);color:var(--c-text)}
+#debugOverlay.active{display:block}
+#debugOverlay .dbg-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.55) 100%);mix-blend-mode:multiply}
+#debugOverlay .dbg-grid-overlay{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(0,240,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.07) 1px,transparent 1px);background-size:48px 48px;mask:radial-gradient(circle at 50% 50%,#000 20%,transparent 80%);-webkit-mask:radial-gradient(circle at 50% 50%,#000 20%,transparent 80%)}
+#debugOverlay .dbg-corner{position:absolute;width:38px;height:38px;border:2px solid var(--c-cyan);box-shadow:0 0 10px rgba(0,240,255,.4);pointer-events:none}
+#debugOverlay .dbg-tl{top:10px;left:10px;border-right:none;border-bottom:none}
+#debugOverlay .dbg-tr{top:10px;right:10px;border-left:none;border-bottom:none}
+#debugOverlay .dbg-bl{bottom:10px;left:10px;border-right:none;border-top:none}
+#debugOverlay .dbg-br{bottom:10px;right:10px;border-left:none;border-top:none}
+
+#debugTopBar{position:absolute;top:14px;left:50%;transform:translateX(-50%);padding:8px 18px;border-radius:999px;background:rgba(7,7,30,.62);border:1px solid rgba(0,240,255,.3);box-shadow:0 0 18px rgba(0,240,255,.12);backdrop-filter:blur(8px);font-family:var(--font-d);font-size:13px;font-weight:700;color:var(--c-cyan);letter-spacing:2px;text-shadow:0 0 8px rgba(0,240,255,.45);pointer-events:auto;display:flex;align-items:center;gap:10px}
+#debugTopBar .dbg-dot{width:8px;height:8px;border-radius:50%;background:var(--c-red);box-shadow:0 0 8px rgba(255,17,68,.6);animation:dbgPulse 1.4s infinite}
+@keyframes dbgPulse{0%,100%{opacity:.55;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
+
+#debugHelp{position:absolute;left:14px;top:64px;width:240px;max-height:calc(100vh - 90px);overflow:auto;padding:12px 14px;border-radius:10px;background:rgba(7,7,30,.62);border:1px solid rgba(0,240,255,.22);box-shadow:0 0 18px rgba(0,240,255,.08),inset 0 0 30px rgba(180,77,255,.04);backdrop-filter:blur(8px);pointer-events:auto;font-size:12px;line-height:1.5}
+#debugHelp h4{margin:0 0 8px;font-family:var(--font-d);font-size:12px;color:var(--c-cyan);letter-spacing:1.5px;text-transform:uppercase;text-shadow:0 0 6px rgba(0,240,255,.35)}
+#debugHelp ul{margin:0 0 8px;padding:0;list-style:none}
+#debugHelp li{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px dashed rgba(0,240,255,.08);color:rgba(240,246,255,.78)}
+#debugHelp li:last-child{border-bottom:none}
+#debugHelp li b{font-family:var(--font-d);font-weight:700;color:var(--c-text);text-shadow:0 0 6px rgba(0,240,255,.25)}
+#debugHelp .dbg-row{display:flex;align-items:center;gap:6px;margin-top:6px}
+#debugHelp .dbg-speed-btn{flex:1;padding:6px 0;border-radius:6px;background:rgba(0,240,255,.06);border:1px solid rgba(0,240,255,.2);color:var(--c-text);font-family:var(--font-d);font-weight:700;font-size:11px;cursor:pointer;transition:all .15s;letter-spacing:1px}
+#debugHelp .dbg-speed-btn.active{background:linear-gradient(135deg,var(--c-cyan),var(--c-purple));color:#07071e;box-shadow:0 0 12px rgba(0,240,255,.3)}
+#debugHelp .dbg-toggle{display:flex;align-items:center;gap:6px;padding:6px 8px;margin-top:6px;border-radius:6px;background:rgba(0,240,255,.04);border:1px solid rgba(0,240,255,.12);cursor:pointer}
+#debugHelp .dbg-toggle input{accent-color:var(--c-cyan)}
+
+#debugInfo{position:absolute;right:14px;top:64px;width:260px;padding:12px 14px;border-radius:10px;background:rgba(7,7,30,.62);border:1px solid rgba(0,240,255,.22);box-shadow:0 0 18px rgba(0,240,255,.08);backdrop-filter:blur(8px);pointer-events:auto;font-size:12px;line-height:1.5}
+#debugInfo h4{margin:0 0 8px;font-family:var(--font-d);font-size:12px;color:var(--c-purple);letter-spacing:1.5px;text-transform:uppercase;text-shadow:0 0 6px rgba(180,77,255,.35)}
+#debugInfo .dbg-kv{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px dashed rgba(180,77,255,.12);color:rgba(240,246,255,.8)}
+#debugInfo .dbg-kv:last-child{border-bottom:none}
+#debugInfo .dbg-kv span{font-family:var(--font-d);font-weight:700;color:var(--c-text)}
+#debugInfo .dbg-empty{color:rgba(240,246,255,.45);font-style:italic;text-align:center;padding:6px 0}
+
+#debugTooltip{position:absolute;display:none;padding:8px 10px;border-radius:8px;background:rgba(7,7,30,.85);border:1px solid rgba(0,240,255,.35);box-shadow:0 0 14px rgba(0,240,255,.18);backdrop-filter:blur(6px);pointer-events:none;font-size:11px;line-height:1.4;color:var(--c-text);white-space:nowrap;z-index:60}
+#debugTooltip b{color:var(--c-cyan);font-family:var(--font-d);text-shadow:0 0 6px rgba(0,240,255,.35)}
+
+#debugCrosshair{position:absolute;left:50%;top:50%;width:20px;height:20px;transform:translate(-50%,-50%);pointer-events:none;display:none}
+#debugCrosshair::before,#debugCrosshair::after{content:'';position:absolute;background:rgba(0,240,255,.7);box-shadow:0 0 6px rgba(0,240,255,.5)}
+#debugCrosshair::before{left:50%;top:0;width:1px;height:100%;transform:translateX(-50%)}
+#debugCrosshair::after{top:50%;left:0;height:1px;width:100%;transform:translateY(-50%)}
+#debugOverlay.active #debugCrosshair{display:block}
+
+@media(max-width:768px){
+  #pauseBtn{width:42px;height:42px;top:8px;right:8px}
+  #debugHelp{width:200px;font-size:11px;left:8px;top:56px;padding:9px 10px;max-height:calc(100vh - 76px)}
+  #debugInfo{width:200px;font-size:11px;right:8px;top:56px;padding:9px 10px}
+  #debugTopBar{font-size:11px;padding:6px 14px;top:10px}
+}
+
 /* ===== Loading Screen ===== */
 #loadingScreen{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#07071e}
 #loadingScreen .l-bg{position:absolute;inset:0;background:url(TEX/loading_d.png) center/cover no-repeat;opacity:.45;filter:blur(1px)}
@@ -167,7 +227,8 @@ button{font-size:13px;padding:8px 18px;margin-top:10px}
   <div class="hud-line">敌人速度等级：<span data-bind="enemyLevel">1</span></div>
   <div class="hud-line">场上敌人：<span data-bind="enemyCount">0</span></div>
   <div class="hud-line">FPS：<span data-bind="fps">0</span></div>
-  <div class="hud-line">紫色精英怪：<span data-bind="purpleCount">0</span>/3</div>
+  <div class="hud-line">紫色精英怪：<span data-bind="purpleCount">0</span>/5</div>
+  <div class="hud-line">幽灵BOSS：<span data-bind="ghostBossCount">0</span></div>
   <div class="hud-line">状态果实：<span data-bind="fruitInfo">25秒后加速果实</span></div>
   <div class="hud-line">加速剩余：<span data-bind="speedBuff">0.0</span>s</div>
   <div class="hud-line">无敌剩余：<span data-bind="invincibleBuff">0.0</span>s</div>
@@ -179,7 +240,8 @@ button{font-size:13px;padding:8px 18px;margin-top:10px}
     <div class="mobile-hud-item"><span class="mobile-hud-label">生命</span><span class="mobile-hud-value" data-bind="hp">50</span></div>
     <div class="mobile-hud-item"><span class="mobile-hud-label">时间</span><span class="mobile-hud-value"><span data-bind="time">0.0</span>s</span></div>
     <div class="mobile-hud-item"><span class="mobile-hud-label">敌人</span><span class="mobile-hud-value" data-bind="enemyCount">0</span></div>
-    <div class="mobile-hud-item"><span class="mobile-hud-label">紫怪</span><span class="mobile-hud-value"><span data-bind="purpleCount">0</span>/3</span></div>
+    <div class="mobile-hud-item"><span class="mobile-hud-label">紫怪</span><span class="mobile-hud-value"><span data-bind="purpleCount">0</span>/5</span></div>
+    <div class="mobile-hud-item"><span class="mobile-hud-label">幽灵</span><span class="mobile-hud-value" data-bind="ghostBossCount">0</span></div>
     <div class="mobile-hud-item"><span class="mobile-hud-label">FPS</span><span class="mobile-hud-value" data-bind="fps">0</span></div>
     <div class="mobile-hud-item"><span class="mobile-hud-label">加速</span><span class="mobile-hud-value"><span data-bind="speedBuff">0.0</span>s</span></div>
     <div class="mobile-hud-item"><span class="mobile-hud-label">无敌</span><span class="mobile-hud-value"><span data-bind="invincibleBuff">0.0</span>s</span></div>
@@ -191,6 +253,47 @@ button{font-size:13px;padding:8px 18px;margin-top:10px}
 <div id="warning">警告：生命值过低！</div>
 <div id="tip"></div>
 <div id="joystick"><div id="stick"></div></div>
+
+<button id="pauseBtn" type="button" title="暂停 (P / ESC)" aria-label="暂停游戏">
+  <span class="pb-bar"></span><span class="pb-bar"></span><span class="pb-play"></span>
+</button>
+
+<div id="debugOverlay">
+  <div class="dbg-vignette"></div>
+  <div class="dbg-grid-overlay"></div>
+  <div class="dbg-corner dbg-tl"></div>
+  <div class="dbg-corner dbg-tr"></div>
+  <div class="dbg-corner dbg-bl"></div>
+  <div class="dbg-corner dbg-br"></div>
+  <div id="debugCrosshair"></div>
+  <div id="debugTopBar"><span class="dbg-dot"></span>SCENE DEBUG · PAUSED</div>
+  <div id="debugHelp">
+    <h4>控制说明</h4>
+    <ul>
+      <li>移动 <b>W A S D</b></li>
+      <li>升 / 降 <b>Q / E</b></li>
+      <li>视角旋转 <b>右键拖拽</b></li>
+      <li>选中模型 <b>左键点击</b></li>
+      <li>视角缩放 <b>滚轮</b></li>
+      <li>速度提升 <b>Shift</b></li>
+      <li>恢复游戏 <b>P / ESC</b></li>
+    </ul>
+    <h4>速度档位</h4>
+    <div class="dbg-row">
+      <button class="dbg-speed-btn" data-speed="0">慢</button>
+      <button class="dbg-speed-btn active" data-speed="1">中</button>
+      <button class="dbg-speed-btn" data-speed="2">快</button>
+    </div>
+    <label class="dbg-toggle"><input type="checkbox" id="dbgHighlightToggle" checked />高亮场景模型</label>
+    <label class="dbg-toggle"><input type="checkbox" id="dbgWireframeToggle" />线框模式</label>
+    <label class="dbg-toggle"><input type="checkbox" id="dbgCollisionToggle" />显示碰撞体</label>
+  </div>
+  <div id="debugInfo">
+    <h4>选中对象</h4>
+    <div id="debugInfoBody"><div class="dbg-empty">点击模型查看属性</div></div>
+  </div>
+  <div id="debugTooltip"></div>
+</div>
 
 <div id="startScreen">
   <div class="panel">
@@ -233,12 +336,13 @@ button{font-size:13px;padding:8px 18px;margin-top:10px}
 <script type="module">
 import * as THREE from "three";
 import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
+import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 
 let scene,camera,renderer,skyboxMesh=null;
 let platformModel=null,platformMeshes=[],platformRaycaster=new THREE.Raycaster();
-let platformWalkRadiusX=20,platformWalkRadiusZ=20,platformReady=false;
-let decorationRockModel=null,decorationRockReady=false;
-let collisionRockTemplate=null,collisionRockReady=false;
+let platformWalkRadiusX=20,platformWalkRadiusZ=20,platformReady=false,platformTopY=0,platformCollisionModel=null;
+let platformCollisionMeshes=[],platformCollisionBox=null,platformCollisionCenterX=0,platformCollisionCenterZ=0;
+const _platformDownDir=new THREE.Vector3(0,-1,0),_platformRayOrigin=new THREE.Vector3();
 
 let player,playerFallbackBody=null,playerModel=null,playerMixer=null;
 let playerActions={},currentPlayerAnim="",playerHitAnimTimer=0,playerIsDead=false;
@@ -249,14 +353,26 @@ let playerSideEffects=[],crystalScorePopups=[],playerBaseColorTexture=null,playe
 
 let playerRadius=.65,clock=new THREE.Clock();
 let gameRunning=false,gameOverPending=false,score=0,hp=50,aliveTime=0;
-let crystals=[],enemies=[],rocks=[],fruits=[],enemySpawnQueue=[],crystalBursts=[];
+let crystals=[],enemies=[],rocks=[],fruits=[],enemySpawnQueue=[],crystalBursts=[],purpleEnemyPool=[];
+let rockModels=[],rockMaterial=null;
 let platformCloudTexture=null,airParticleTexture=null;
 let platformAirPointSystem=null,platformAirParticleData=[];
 let keys={},moveInput=new THREE.Vector2(0,0),playerMovingThisFrame=false;
 
 let enemySpawnTimer=0,crystalSpawnTimer=0,fruitSpawnTimer=0,purpleEnemySpawnTimer=0,nextPurpleEnemySpawnTime=20;
-let invincibleFruitSpawnTimer=0,nextInvincibleFruitSpawnTime=50,invincibleTimer=0,invincibleVisualActive=false,invincibleHue=0;
-let speedBuffTimer=0,damageFlashTimer=0,lowHpWarningTimer=0,knockbackVelocity=new THREE.Vector3(0,0,0);
+let invincibleFruitSpawnTimer=0,nextInvincibleFruitSpawnTime=THREE.MathUtils.randFloat(6,8),invincibleTimer=0,invincibleVisualActive=false,invincibleHue=0;
+let ghostBossSpawnTimer=0;
+let speedBuffTimer=0,speedStackLevel=0,damageFlashTimer=0,lowHpWarningTimer=0,knockbackVelocity=new THREE.Vector3(0,0,0);
+
+let isPaused=false,debugCameraMode=false,originalCameraState=null;
+let debugCameraTarget=new THREE.Vector3(),debugCameraSpherical=new THREE.Spherical(20,Math.PI/3,Math.PI/4);
+let debugCameraSpeed=10,debugSpeedPresets=[3,10,30],debugSpeedIndex=1;
+let debugMouseDown=false,debugMouseRight=false,debugPrevMouse=new THREE.Vector2();
+let debugHighlightObjects=[],debugHighlightOriginal={},debugSelectedObject=null;
+let debugHighlightEnabled=true,debugWireframeEnabled=false;
+let debugRaycaster=new THREE.Raycaster();
+debugRaycaster.far=200;
+let debugCollisionEntities=[],debugCollisionSaved=[];
 
 let audioCtx=null,audioUnlocked=false,bgmTimer=null,bgmStep=0;
 let meta=null;
@@ -264,7 +380,7 @@ let newlyUnlockedAchievements=[];
 
 let performanceLevel=1;
 let frameTimeHistory=[];
-const PERFORMANCE_CHECK_INTERVAL=60;
+const PERFORMANCE_CHECK_INTERVAL=30;
 let performanceCheckCounter=0;
 
 let fps=0,fpsFrameCount=0,fpsAccumTime=0;
@@ -301,30 +417,30 @@ function disposeSpriteSafe(sprite){if(!sprite||!sprite.material)return;sprite.ma
 function disposeObj(obj){if(obj.geometry)obj.geometry.dispose();disposeMaterial(obj.material)}
 function disposeGroup(group,parent){parent.remove(group);group.traverse(obj=>disposeObj(obj))}
 
-const worldSize=42,maxHp=50,maxCrystals=20,INITIAL_CRYSTAL_COUNT=8,CRYSTAL_SPAWN_INTERVAL=1.25;
-const maxFruits=12,maxPurpleEnemies=3,purpleDetectRange=9.5,basePlayerSpeed=5.0;
+const worldSize=42,maxHp=50,maxCrystals=20,INITIAL_CRYSTAL_COUNT=8,CRYSTAL_SPAWN_INTERVAL=0.9;
+const maxFruits=24,maxSpeedFruits=14,maxHealFruits=10;
+const maxPurpleEnemies=5,purpleStartTime=15,basePlayerSpeed=5.0;
 const HEAL_AMOUNT=8;
 const ENEMY_SPEED_MULTIPLIER=1.15,ENEMY_MAX_DIFFICULTY_TIME=120,MAX_SCENE_ENEMIES=24;
 const ENEMY_STUCK_DESTROY_TIME=2.0,ENEMY_STUCK_MOVE_EPSILON=0.08;
 const MOBILE_MAX_CRYSTALS=15,MOBILE_INITIAL_CRYSTALS=6;
-const MOBILE_MAX_FRUITS=8;
 const INVINCIBLE_FRUIT_COUNT=2,INVINCIBLE_FRUIT_LIFE=4.0,INVINCIBLE_DURATION=5.0,INVINCIBLE_SPEED_MULTIPLIER=2.0;
+const GHOST_BOSS_SPAWN_INTERVAL=60,GHOST_BOSS_LIFETIME=10,GHOST_BOSS_DAMAGE=20;
 
 const SKYBOX_TEXTURE_URL="model/tex/skybox_basecolor_01.png";
 const PLATFORM_MODEL_URL="model/Sphere001.fbx";
-const PLATFORM_TOP_TEXTURE_URL="model/tex/Sphere001_basecolor_01.png";
-const PLATFORM_SIDE_TEXTURE_URL="model/tex/Sphere001_basecolor_02.png";
-const PLATFORM_NORMAL_TEXTURE_URL="model/tex/Sphere001_normalmap_01.png";
-const PLATFORM_EXTRA_SCALE=1.5,PLATFORM_TOP_Y=0,PLATFORM_TOP_TEXTURE_REPEAT_X=1,PLATFORM_TOP_TEXTURE_REPEAT_Y=1,PLATFORM_SIDE_TEXTURE_REPEAT_X=1,PLATFORM_SIDE_TEXTURE_REPEAT_Y=1;
-
-const DECORATION_ROCK_MODEL_URL="model/rock_01.fbx";
-const DECORATION_ROCK_TEXTURE_URL="model/tex/rock_01_basecolor.png";
-const DECORATION_ROCK_PLATFORM_SIZE_RATIO=1.28,DECORATION_ROCK_TOP_OFFSET=0.5,DECORATION_ROCK_TEXTURE_FLIP_Y=true,DECORATION_ROCK_TEXTURE_MIRROR_X=false,DECORATION_ROCK_EXTRA_SCALE=1.108;
-
-const COLLISION_ROCK_MODEL_URL="model/rock_02.fbx";
-const COLLISION_ROCK_TEXTURE_URL="model/tex/rock_01_basecolor.png";
+const PLATFORM_COL_MODEL_URL="model/Sphere001_col.FBX";
+const PLATFORM_BASECOLOR_TEXTURE_URL="model/tex/Sphere001_BaseColor.png";
+const PLATFORM_ROUGHNESS_TEXTURE_URL="model/tex/Sphere001_Roughness.png";
+const PLATFORM_NORMAL_TEXTURE_URL="model/tex/Sphere001_Normal.png";
+const PLATFORM_EXTRA_SCALE=1.5,PLATFORM_TOP_Y=0;
 
 const OBSTACLE_COLOR=0x9F7448;
+const ROCK_NEW_MODEL_URLS=[
+  "model/rock_new01.FBX","model/rock_new03.FBX"
+];
+const SCENE_ROCK_COUNT=20,MOBILE_ROCK_COUNT=18,ROCK_MIN_DISTANCE=.35,ROCK_PLAYER_CLEAR_RADIUS=2.5;
+
 const PLAYER_MODEL_URL="model/wanjia01.FBX";
 const PLAYER_BASE_COLOR_URL="model/tex/wanjia01_basecolor.PNG";
 const PLAYER_NORMAL_MAP_URL="model/tex/wanjia01_normalmap.PNG";
@@ -392,12 +508,12 @@ function init(){
 
   renderer=new THREE.WebGLRenderer({canvas:document.getElementById("game"),antialias:!(_isMobile&&window.innerWidth<=500),powerPreference:"high-performance"});
   renderer.setSize(window.innerWidth,window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio,_isMobile?1.0:1.6));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,_isMobile?1.0:1.25));
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure=_isMobile?1.08:1.02;
   renderer.shadowMap.enabled=!_isMobile;
-  renderer.shadowMap.type=_isMobile?THREE.BasicShadowMap:THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type=THREE.BasicShadowMap;
   renderer.shadowMap.autoUpdate=false;
 
   initSharedResources();
@@ -421,9 +537,24 @@ function init(){
 function _loadAllAssets(){
   _trackLoad(new Promise(resolve=>{createSkybox(resolve)}));
   createPlatformModel();
-  createDecorationRock();
-  loadCollisionRockModel();
   createPlayer();
+  loadRockModels();
+}
+
+function loadRockModels(){
+  rockMaterial=createPlatformMaterial();
+  for(const url of ROCK_NEW_MODEL_URLS){
+    _autoTrackFBX(url,fbx=>{
+      fbx.traverse(obj=>{
+        if(obj.isMesh||obj.isSkinnedMesh){
+          obj.material=rockMaterial;
+          obj.castShadow=!_isMobile;
+          obj.receiveShadow=true;
+        }
+      });
+      rockModels.push(fbx);
+    });
+  }
 }
 
 function loadMeta(){
@@ -509,15 +640,18 @@ function initSharedResources(){
   shared.geo.purpleBody=new THREE.SphereGeometry(.65*1.3,18,18);
   shared.geo.purpleHorn=new THREE.ConeGeometry(.32*1.3,.65*1.3,8);
   shared.geo.purpleAura=new THREE.TorusGeometry(.82*1.3,.045,8,30);
+  shared.geo.ghostBody=new THREE.SphereGeometry(.65*1.3*2,20,20);
+  shared.geo.ghostAura=new THREE.TorusGeometry(.82*1.3*2.2,.06,10,40);
+  shared.geo.ghostCore=new THREE.IcosahedronGeometry(.4*1.3*2,0);
   shared.geo.rock=new THREE.DodecahedronGeometry(1,0);
   shared.geo.speedFruit=new THREE.SphereGeometry(.45,16,16);
   shared.geo.speedRing=new THREE.TorusGeometry(.58,.035,8,24);
   shared.geo.healBox=new THREE.BoxGeometry(.85,.65,.85);
   shared.geo.healCrossA=new THREE.BoxGeometry(.52,.12,.08);
   shared.geo.healCrossB=new THREE.BoxGeometry(.12,.52,.08);
-  shared.geo.invCore=new THREE.IcosahedronGeometry(.5,1);
-  shared.geo.invAura1=new THREE.TorusGeometry(.72,.045,10,48);
-  shared.geo.invAura2=new THREE.TorusGeometry(.54,.035,10,48);
+  shared.geo.invCore=new THREE.IcosahedronGeometry(.7,1);
+  shared.geo.invAura1=new THREE.TorusGeometry(.95,.05,10,48);
+  shared.geo.invAura2=new THREE.TorusGeometry(.72,.04,10,48);
   shared.geo.crystal=new THREE.OctahedronGeometry(.65,0);
 
   shared.mat.enemyBody=new THREE.MeshStandardMaterial({color:0xff3333,emissive:0x660000,emissiveIntensity:.35,roughness:.5});
@@ -549,18 +683,18 @@ function createLights(){
   scene.add(target);
   sun.target=target;
 
-  const mapSize=_isMobile?512:2048;
+  const mapSize=_isMobile?512:1024;
   sun.shadow.mapSize.width=mapSize;
   sun.shadow.mapSize.height=mapSize;
   sun.shadow.camera.near=1;
   sun.shadow.camera.far=90;
-  sun.shadow.camera.left=-45;
-  sun.shadow.camera.right=45;
-  sun.shadow.camera.top=45;
-  sun.shadow.camera.bottom=-45;
+  sun.shadow.camera.left=-35;
+  sun.shadow.camera.right=35;
+  sun.shadow.camera.top=35;
+  sun.shadow.camera.bottom=-35;
   sun.shadow.bias=-0.00035;
   sun.shadow.normalBias=0.035;
-  sun.shadow.radius=isMobileLayout()?2:3;
+  sun.shadow.radius=isMobileLayout()?2:2;
   scene.add(sun);
 
   if(!isMobileLayout()){
@@ -588,7 +722,7 @@ function createSkybox(resolve){
       scene.add(skyboxMesh);
 
       if(!_isMobile){
-        const fogShellGeo=new THREE.SphereGeometry(460,48,24);
+        const fogShellGeo=new THREE.SphereGeometry(460,32,16);
         const fogShellAlpha=.55;
         const fogShellMat=new THREE.ShaderMaterial({
           uniforms:{uFogColor:{value:new THREE.Color(0xa8c0d8)}},
@@ -650,173 +784,157 @@ function loadTexture(url,options={}){
   return texture;
 }
 
-function createPlatformMaterials(){
-  const topTexture=loadTexture(PLATFORM_TOP_TEXTURE_URL,{colorSpace:THREE.SRGBColorSpace,repeatX:PLATFORM_TOP_TEXTURE_REPEAT_X,repeatY:PLATFORM_TOP_TEXTURE_REPEAT_Y,flipY:false,anisotropy:8});
-  const sideTexture=loadTexture(PLATFORM_SIDE_TEXTURE_URL,{colorSpace:THREE.SRGBColorSpace,repeatX:PLATFORM_SIDE_TEXTURE_REPEAT_X,repeatY:PLATFORM_SIDE_TEXTURE_REPEAT_Y,flipY:false,anisotropy:8});
-  const normalTexture=loadTexture(PLATFORM_NORMAL_TEXTURE_URL,{resizeHalf:false,colorSpace:THREE.NoColorSpace,repeatX:1,repeatY:1,flipY:false,anisotropy:8});
-  return [
-    new THREE.MeshStandardMaterial({map:topTexture,normalMap:normalTexture,normalScale:new THREE.Vector2(.35,.35),color:0xffffff,roughness:.88,metalness:.02}),
-    new THREE.MeshStandardMaterial({map:sideTexture,normalMap:normalTexture,normalScale:new THREE.Vector2(.45,.45),color:0xffffff,roughness:.92,metalness:.01}),
-    new THREE.MeshStandardMaterial({map:sideTexture,normalMap:normalTexture,normalScale:new THREE.Vector2(.45,.45),color:0xffffff,roughness:.96,metalness:0})
-  ];
+function createPlatformMaterial(){
+  const baseColor=loadTexture(PLATFORM_BASECOLOR_TEXTURE_URL,{colorSpace:THREE.SRGBColorSpace,flipY:true,anisotropy:16});
+  const roughness=loadTexture(PLATFORM_ROUGHNESS_TEXTURE_URL,{colorSpace:THREE.NoColorSpace,flipY:true,anisotropy:16});
+  const normal=loadTexture(PLATFORM_NORMAL_TEXTURE_URL,{colorSpace:THREE.NoColorSpace,flipY:true,anisotropy:16});
+  baseColor.magFilter=THREE.LinearFilter;
+  baseColor.minFilter=THREE.LinearMipmapLinearFilter;
+  normal.magFilter=THREE.LinearFilter;
+  normal.minFilter=THREE.LinearMipmapLinearFilter;
+  roughness.magFilter=THREE.LinearFilter;
+  roughness.minFilter=THREE.LinearMipmapLinearFilter;
+  return new THREE.MeshStandardMaterial({
+    name:"Sphere001_mat",
+    map:baseColor,
+    roughnessMap:roughness,
+    normalMap:normal,
+    normalScale:new THREE.Vector2(1,-1),
+    roughness:1,
+    metalness:0,
+    flatShading:false,
+    color:0xffffff
+  });
 }
 
 function createPlatformModel(){
-  _autoTrackFBX(PLATFORM_MODEL_URL,fbx=>{
-    platformModel=fbx;
-    platformMeshes=[];
-    scene.add(platformModel);
-    fitPlatformToWorld(platformModel);
-    const platformMaterials=createPlatformMaterials();
-    platformModel.traverse(obj=>{
+  _autoTrackFBX(PLATFORM_COL_MODEL_URL,colFbx=>{
+    platformCollisionModel=colFbx;
+    platformCollisionModel.rotation.set(Math.PI/2,Math.PI,Math.PI);
+    platformCollisionModel.scale.set(.025,.025,.025);
+    platformCollisionModel.position.set(0,0,0);
+    platformCollisionModel.updateMatrixWorld(true);
+    platformCollisionMeshes=[];
+    platformCollisionModel.traverse(obj=>{
       if(obj.isMesh||obj.isSkinnedMesh){
+        obj.visible=false;
         obj.castShadow=false;
-        obj.receiveShadow=true;
-        if(obj.geometry){obj.geometry.computeBoundingBox();obj.geometry.computeVertexNormals()}
-        applyTopSideBottomMaterialsWorld(obj,platformMaterials);
-        platformMeshes.push(obj);
+        obj.receiveShadow=false;
+        if(obj.geometry){
+          obj.geometry.computeBoundingBox();
+          obj.geometry.computeBoundingSphere();
+        }
+        if(obj.material){
+          obj.material=new THREE.MeshBasicMaterial({visible:false,side:THREE.DoubleSide});
+        }
+        obj.userData.isPlatformCollision=true;
+        platformCollisionMeshes.push(obj);
       }
     });
-    updatePlatformWalkBounds();
-    platformReady=true;
-    fitDecorationRockToPlatform();
-  });
-}
-
-function fitPlatformToWorld(object3D){
-  object3D.updateMatrixWorld(true);
-  let box=new THREE.Box3().setFromObject(object3D);
-  const size=new THREE.Vector3(),center=new THREE.Vector3();
-  box.getSize(size);box.getCenter(center);
-  const maxXZ=Math.max(size.x,size.z);
-  if(maxXZ>.001)object3D.scale.multiplyScalar(worldSize/maxXZ*PLATFORM_EXTRA_SCALE);
-  object3D.updateMatrixWorld(true);
-  box=new THREE.Box3().setFromObject(object3D);box.getCenter(center);
-  object3D.position.x-=center.x;object3D.position.z-=center.z;
-  object3D.updateMatrixWorld(true);
-  box=new THREE.Box3().setFromObject(object3D);
-  object3D.position.y+=PLATFORM_TOP_Y-box.max.y;
-  object3D.updateMatrixWorld(true);
-}
-
-function applyTopSideBottomMaterialsWorld(mesh,materials){
-  const geometry=mesh.geometry;
-  if(!geometry||!geometry.attributes||!geometry.attributes.position){mesh.material=materials[1];return}
-  if(!geometry.attributes.normal)geometry.computeVertexNormals();
-  geometry.clearGroups();
-  const posAttr=geometry.attributes.position,index=geometry.index,triCount=index?index.count/3:posAttr.count/3;
-  mesh.updateMatrixWorld(true);
-  const box=new THREE.Box3().setFromObject(mesh),height=Math.max(.001,box.max.y-box.min.y),topY=box.max.y;
-  const a=new THREE.Vector3(),b=new THREE.Vector3(),c=new THREE.Vector3(),ab=new THREE.Vector3(),ac=new THREE.Vector3(),normal=new THREE.Vector3(),center=new THREE.Vector3();
-  for(let i=0;i<triCount;i++){
-    let ia,ib,ic;
-    if(index){ia=index.getX(i*3);ib=index.getX(i*3+1);ic=index.getX(i*3+2)}
-    else{ia=i*3;ib=i*3+1;ic=i*3+2}
-    a.fromBufferAttribute(posAttr,ia).applyMatrix4(mesh.matrixWorld);
-    b.fromBufferAttribute(posAttr,ib).applyMatrix4(mesh.matrixWorld);
-    c.fromBufferAttribute(posAttr,ic).applyMatrix4(mesh.matrixWorld);
-    ab.subVectors(b,a);ac.subVectors(c,a);normal.crossVectors(ab,ac).normalize();
-    center.copy(a).add(b).add(c).multiplyScalar(1/3);
-    let materialIndex=1;
-    if((center.y>topY-height*.18&&normal.y>.28)||normal.y>.55)materialIndex=0;
-    else if(normal.y<-.45)materialIndex=2;
-    geometry.addGroup(i*3,3,materialIndex);
-  }
-  mesh.material=materials;
-}
-
-function createDecorationRock(){
-  const texture=loadTexture(DECORATION_ROCK_TEXTURE_URL,{colorSpace:THREE.SRGBColorSpace,repeatX:DECORATION_ROCK_TEXTURE_MIRROR_X?-1:1,repeatY:1,flipY:DECORATION_ROCK_TEXTURE_FLIP_Y,anisotropy:8});
-  if(DECORATION_ROCK_TEXTURE_MIRROR_X)texture.offset.x=1;
-  texture.needsUpdate=true;
-  const material=new THREE.MeshStandardMaterial({map:texture,color:0xffffff,roughness:.9,metalness:0});
-  _autoTrackFBX(DECORATION_ROCK_MODEL_URL,fbx=>{
-    decorationRockModel=fbx;
-    decorationRockModel.traverse(obj=>{
-      if(obj.isMesh||obj.isSkinnedMesh){
-        obj.castShadow=true;obj.receiveShadow=true;
-        if(obj.geometry){obj.geometry.computeBoundingBox();obj.geometry.computeVertexNormals()}
-        obj.material=material;obj.material.needsUpdate=true;
-      }
+    const colBox=new THREE.Box3().setFromObject(platformCollisionModel);
+    const colCenter=new THREE.Vector3();colBox.getCenter(colCenter);
+    platformCollisionModel.position.y+=PLATFORM_TOP_Y-colBox.max.y;
+    platformCollisionModel.updateMatrixWorld(true);
+    platformCollisionBox=new THREE.Box3().setFromObject(platformCollisionModel);
+    const colSize=new THREE.Vector3();platformCollisionBox.getSize(colSize);
+    const colCenter2=new THREE.Vector3();platformCollisionBox.getCenter(colCenter2);
+    platformCollisionCenterX=colCenter2.x;
+    platformCollisionCenterZ=colCenter2.z;
+    platformWalkRadiusX=colSize.x*.46;
+    platformWalkRadiusZ=colSize.z*.46;
+    platformTopY=platformCollisionBox.max.y;
+    scene.add(platformCollisionModel);
+    _autoTrackFBX(PLATFORM_MODEL_URL,fbx=>{
+      platformModel=fbx;
+      platformModel.rotation.set(Math.PI/2,Math.PI,Math.PI);
+      platformMeshes=[];
+      platformModel.position.set(0,0,0);
+      platformModel.scale.set(.025,.025,.025);
+      platformModel.updateMatrixWorld(true);
+      const platformMaterial=createPlatformMaterial();
+      platformModel.traverse(obj=>{
+        if(obj.isMesh||obj.isSkinnedMesh){
+          obj.castShadow=false;
+          obj.receiveShadow=true;
+          if(obj.geometry){obj.geometry.computeBoundingBox();obj.geometry.deleteAttribute("normal");obj.geometry=mergeVertices(obj.geometry);obj.geometry.computeVertexNormals();obj.geometry.computeTangents()}
+          obj.material=platformMaterial;
+          platformMeshes.push(obj);
+        }
+      });
+      platformModel.position.set(0,-0.6,0);
+      platformModel.updateMatrixWorld(true);
+      scene.add(platformModel);
+      platformReady=true;
     });
-    scene.add(decorationRockModel);
-    decorationRockReady=true;
-    fitDecorationRockToPlatform();
   });
-}
-
-function fitDecorationRockToPlatform(){
-  if(!platformReady||!platformModel||!decorationRockReady||!decorationRockModel)return;
-  platformModel.updateMatrixWorld(true);
-  decorationRockModel.scale.set(1,1,1);
-  decorationRockModel.position.set(0,0,0);
-  decorationRockModel.rotation.set(0,0,0);
-  decorationRockModel.updateMatrixWorld(true);
-  const platformBox=new THREE.Box3().setFromObject(platformModel),platformSize=new THREE.Vector3(),platformCenter=new THREE.Vector3();
-  platformBox.getSize(platformSize);platformBox.getCenter(platformCenter);
-  let rockBox=new THREE.Box3().setFromObject(decorationRockModel);
-  const rockSize=new THREE.Vector3(),rockCenter=new THREE.Vector3();
-  rockBox.getSize(rockSize);rockBox.getCenter(rockCenter);
-  const platformMaxXZ=Math.max(platformSize.x,platformSize.z),rockMaxXZ=Math.max(rockSize.x,rockSize.z);
-  if(rockMaxXZ>.001)decorationRockModel.scale.setScalar(platformMaxXZ*DECORATION_ROCK_PLATFORM_SIZE_RATIO*DECORATION_ROCK_EXTRA_SCALE/rockMaxXZ);
-  decorationRockModel.updateMatrixWorld(true);
-  rockBox=new THREE.Box3().setFromObject(decorationRockModel);rockBox.getCenter(rockCenter);
-  decorationRockModel.position.x+=platformCenter.x-rockCenter.x;
-  decorationRockModel.position.z+=platformCenter.z-rockCenter.z;
-  decorationRockModel.updateMatrixWorld(true);
-  rockBox=new THREE.Box3().setFromObject(decorationRockModel);
-  decorationRockModel.position.y+=platformBox.max.y+DECORATION_ROCK_TOP_OFFSET-rockBox.max.y;
-  decorationRockModel.updateMatrixWorld(true);
-}
-
-function loadCollisionRockModel(){
-  const texture=loadTexture(COLLISION_ROCK_TEXTURE_URL,{colorSpace:THREE.SRGBColorSpace,repeatX:1,repeatY:1,flipY:true,anisotropy:4});
-  const material=new THREE.MeshStandardMaterial({map:texture,color:0xffffff,roughness:.92,metalness:0});
-  _autoTrackFBX(COLLISION_ROCK_MODEL_URL,fbx=>{
-    collisionRockTemplate=fbx;
-    collisionRockTemplate.traverse(obj=>{
-      if(obj.isMesh||obj.isSkinnedMesh){
-        obj.castShadow=true;obj.receiveShadow=true;
-        if(obj.geometry){obj.geometry.computeBoundingBox();obj.geometry.computeVertexNormals()}
-        obj.material=material;
-      }
-    });
-    collisionRockReady=true;
-  });
-}
-
-function cloneCollisionRock(){
-  const clone=new THREE.Group();
-  collisionRockTemplate.traverse(child=>{
-    if(child.isMesh||child.isSkinnedMesh){
-      const m=new THREE.Mesh(child.geometry,child.material);
-      m.position.copy(child.position);
-      m.rotation.copy(child.rotation);
-      m.scale.copy(child.scale);
-      clone.add(m);
-    }
-  });
-  return clone;
 }
 
 function updatePlatformWalkBounds(){
-  if(!platformModel){platformWalkRadiusX=worldSize/2-1;platformWalkRadiusZ=worldSize/2-1;return}
-  platformModel.updateMatrixWorld(true);
-  const box=new THREE.Box3().setFromObject(platformModel),size=new THREE.Vector3();
-  box.getSize(size);
-  platformWalkRadiusX=Math.max(4,size.x*.46);
-  platformWalkRadiusZ=Math.max(4,size.z*.46);
+  const col=platformCollisionModel;
+  if(!col||platformCollisionMeshes.length===0){
+    if(platformModel){
+      platformModel.updateMatrixWorld(true);
+      const box=new THREE.Box3().setFromObject(platformModel),size=new THREE.Vector3();
+      box.getSize(size);
+      platformWalkRadiusX=size.x*.46;
+      platformWalkRadiusZ=size.z*.46;
+      platformTopY=box.max.y;
+      const ctr=new THREE.Vector3();box.getCenter(ctr);
+      platformCollisionCenterX=ctr.x;
+      platformCollisionCenterZ=ctr.z;
+    }else{
+      platformWalkRadiusX=worldSize/2-1;
+      platformWalkRadiusZ=worldSize/2-1;
+      platformTopY=PLATFORM_TOP_Y;
+      platformCollisionCenterX=0;
+      platformCollisionCenterZ=0;
+    }
+    return;
+  }
+  col.updateMatrixWorld(true);
+  platformCollisionBox=new THREE.Box3().setFromObject(col);
+  const size=new THREE.Vector3();platformCollisionBox.getSize(size);
+  const ctr=new THREE.Vector3();platformCollisionBox.getCenter(ctr);
+  platformCollisionCenterX=ctr.x;
+  platformCollisionCenterZ=ctr.z;
+  platformWalkRadiusX=size.x*.46;
+  platformWalkRadiusZ=size.z*.46;
+  platformTopY=platformCollisionBox.max.y;
 }
 
 function clampToPlatform(pos,margin=0){
-  const rx=Math.max(1,platformWalkRadiusX-margin),rz=Math.max(1,platformWalkRadiusZ-margin);
-  const nx=pos.x/rx,nz=pos.z/rz,len=Math.sqrt(nx*nx+nz*nz);
-  if(len>1){pos.x=nx/len*rx;pos.z=nz/len*rz}
+  const cx=platformCollisionCenterX,cz=platformCollisionCenterZ;
+  const rx=Math.max(.1,platformWalkRadiusX-margin),rz=Math.max(.1,platformWalkRadiusZ-margin);
+  const dx=pos.x-cx,dz=pos.z-cz;
+  const nx=dx/rx,nz=dz/rz,len=Math.sqrt(nx*nx+nz*nz);
+  if(len>1){pos.x=cx+nx/len*rx;pos.z=cz+nz/len*rz}
   pos.y=getPlatformHeightAt(pos.x,pos.z);
   return pos;
 }
 
-function getPlatformHeightAt(x,z){return PLATFORM_TOP_Y}
+function getPlatformHeightAt(x,z){
+  if(platformCollisionMeshes.length>0&&platformCollisionBox){
+    const rayY=platformCollisionBox.max.y+5;
+    _platformRayOrigin.set(x,rayY,z);
+    platformRaycaster.set(_platformRayOrigin,_platformDownDir);
+    platformRaycaster.far=Math.max(20,(platformCollisionBox.max.y-platformCollisionBox.min.y)+10);
+    const hits=platformRaycaster.intersectObjects(platformCollisionMeshes,false);
+    if(hits.length>0)return hits[0].point.y;
+    return platformTopY;
+  }
+  if(!platformModel)return PLATFORM_TOP_Y;
+  const dx=x-platformCollisionCenterX,dz=z-platformCollisionCenterZ;
+  const maxR=Math.max(platformWalkRadiusX,platformWalkRadiusZ)*1.05;
+  if(dx*dx+dz*dz>maxR*maxR)return PLATFORM_TOP_Y;
+  return platformTopY;
+}
+
+function isOnPlatform(x,z,extra=0){
+  const cx=platformCollisionCenterX,cz=platformCollisionCenterZ;
+  const rx=Math.max(.01,platformWalkRadiusX+extra),rz=Math.max(.01,platformWalkRadiusZ+extra);
+  const dx=x-cx,dz=z-cz;
+  return (dx*dx)/(rx*rx)+(dz*dz)/(rz*rz)<=1;
+}
 
 function snapObjectToPlatform(object3D,extraY=0){object3D.position.y=getPlatformHeightAt(object3D.position.x,object3D.position.z)+extraY}
 
@@ -840,16 +958,17 @@ function createPlayer(){
 
 function createPlayerLocatorHalo(){
   playerLocatorGroup=new THREE.Group();
-  const ringMat=new THREE.MeshBasicMaterial({color:0x00f0ff,transparent:true,opacity:.9,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
+  const ringMat=new THREE.MeshBasicMaterial({color:0x00f0ff,transparent:true,opacity:.85,side:THREE.DoubleSide,depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending});
   const ring=new THREE.Mesh(new THREE.RingGeometry(.78,1.05,72),ringMat);
-  ring.rotation.x=-Math.PI/2;ring.position.y=.035;playerLocatorGroup.add(ring);
-  const outerMat=new THREE.MeshBasicMaterial({color:0xb44dff,transparent:true,opacity:.58,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
+  ring.rotation.x=-Math.PI/2;ring.position.y=.035;ring.renderOrder=-1;playerLocatorGroup.add(ring);
+  const outerMat=new THREE.MeshBasicMaterial({color:0xb44dff,transparent:true,opacity:.55,side:THREE.DoubleSide,depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending});
   const outerRing=new THREE.Mesh(new THREE.RingGeometry(1.12,1.2,72),outerMat);
-  outerRing.rotation.x=-Math.PI/2;outerRing.position.y=.04;playerLocatorGroup.add(outerRing);
-  const discMat=new THREE.MeshBasicMaterial({color:0x00f0ff,transparent:true,opacity:.12,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
+  outerRing.rotation.x=-Math.PI/2;outerRing.position.y=.04;outerRing.renderOrder=-1;playerLocatorGroup.add(outerRing);
+  const discMat=new THREE.MeshBasicMaterial({color:0x00f0ff,transparent:true,opacity:.12,side:THREE.DoubleSide,depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending});
   const disc=new THREE.Mesh(new THREE.CircleGeometry(.72,72),discMat);
-  disc.rotation.x=-Math.PI/2;disc.position.y=.025;playerLocatorGroup.add(disc);
+  disc.rotation.x=-Math.PI/2;disc.position.y=.025;disc.renderOrder=-1;playerLocatorGroup.add(disc);
   player.add(playerLocatorGroup);
+  playerLocatorGroup.renderOrder=-1;
 }
 
 function updatePlayerLocatorHalo(dt){
@@ -1172,13 +1291,14 @@ function initPlatformAirParticles(){
     size:1.14,
     transparent:true,
     depthWrite:false,
-    depthTest:true,
+    depthTest:false,
     blending:THREE.NormalBlending,
     sizeAttenuation:true,
     opacity:.75,
     alphaTest:.05,
   });
   platformAirPointSystem=new THREE.Points(geometry,material);
+  platformAirPointSystem.renderOrder=1;
   scene.add(platformAirPointSystem);
 }
 
@@ -1427,28 +1547,6 @@ function clearPlayerActions(){
   currentPlayerAnim="";
 }
 
-function createRocks(){
-  rocks.forEach(r=>scene.remove(r.mesh));
-  rocks=[];
-  if(!collisionRockReady){return}
-  const rockCount=isMobileLayout()?5:8;
-  for(let i=0;i<rockCount;i++){
-    let pos=randomPosition();
-    if(dist2DSq(pos.x,pos.z,player.position.x,player.position.z)<25){i--;continue}
-    const radius=1.1+Math.random()*1.2;
-    const group=cloneCollisionRock();
-    group.position.set(pos.x,PLATFORM_TOP_Y-radius*.15,pos.z);
-    group.rotation.set(0,Math.random()*Math.PI*2,0);
-    group.scale.setScalar(radius*.85/3);
-    const bb=new THREE.Box3().setFromObject(group);
-    const sz=new THREE.Vector3();bb.getSize(sz);
-    const modelRadius=Math.max(sz.x,sz.y,sz.z)*.45;
-    group.traverse(obj=>{if(obj.isMesh||obj.isSkinnedMesh){obj.castShadow=!isMobileLayout();obj.receiveShadow=true}});
-    scene.add(group);
-    rocks.push({mesh:group,radius:modelRadius});
-  }
-}
-
 function startGame(){
   forceLandscape();
 
@@ -1460,18 +1558,19 @@ function startGame(){
   gameOverPending=false;
   playerIsDead=false;
   document.getElementById("scanlines").style.display=isMobileLayout()?"none":"block";
+  document.getElementById("pauseBtn").style.display="flex";
 
   startScreen.style.display="none";
   gameOverScreen.style.display="none";
   setHUDVisible(true);
   tip.style.display="none";
 
-  score=0;hp=maxHp;aliveTime=0;speedBuffTimer=0;invincibleTimer=0;invincibleVisualActive=false;damageFlashTimer=0;lowHpWarningTimer=0;playerHitAnimTimer=0;knockbackVelocity.set(0,0,0);
-  enemySpawnTimer=0;crystalSpawnTimer=0;fruitSpawnTimer=0;purpleEnemySpawnTimer=0;invincibleFruitSpawnTimer=0;
-  nextPurpleEnemySpawnTime=randomInt(15,35);nextInvincibleFruitSpawnTime=randomInt(40,70);enemySpawnQueue.length=0;
+  score=0;hp=maxHp;aliveTime=0;speedBuffTimer=0;speedStackLevel=0;invincibleTimer=0;invincibleVisualActive=false;damageFlashTimer=0;lowHpWarningTimer=0;playerHitAnimTimer=0;knockbackVelocity.set(0,0,0);
+  enemySpawnTimer=0;crystalSpawnTimer=0;fruitSpawnTimer=0;purpleEnemySpawnTimer=0;invincibleFruitSpawnTimer=0;ghostBossSpawnTimer=0;
+    nextPurpleEnemySpawnTime=randomInt(15,35);nextInvincibleFruitSpawnTime=THREE.MathUtils.randFloat(6,8);enemySpawnQueue.length=0;
   _cachedTier=null;_tierCacheScore=-1;_prevTierHex=-1;
 
-  player.position.set(0,PLATFORM_TOP_Y,0);
+  player.position.set(platformCollisionCenterX,getPlatformHeightAt(platformCollisionCenterX,platformCollisionCenterZ),platformCollisionCenterZ);
   player.rotation.set(0,0,0);
 
   clearPlayerActions();
@@ -1494,10 +1593,11 @@ function startGame(){
   clearCrystalBursts();
   clearPlatformAirParticles();
   clearPlayerSideEffects();
-  createRocks();
+  prewarmPurpleEnemyPool();
 
   const initialCrystals=isMobileLayout()?MOBILE_INITIAL_CRYSTALS:INITIAL_CRYSTAL_COUNT;
   for(let i=0;i<initialCrystals;i++)spawnCrystal();
+  spawnSceneRocks();
   spawnEnemyGroup(isMobileLayout()?2:4);
   initPlatformAirParticles();
 
@@ -1542,16 +1642,73 @@ function getEnemyGroupSize(){
 }
 function getEnemySpawnInterval(){return THREE.MathUtils.lerp(3.4,isMobileLayout()?2.0:1.65,getEnemyDifficultyProgress())}
 function getPurpleEnemyCount(){return enemies.filter(e=>e.type==="purple").length}
+function getPurpleMaxCount(){
+  if(aliveTime<purpleStartTime)return 0;
+  const p=THREE.MathUtils.clamp((aliveTime-purpleStartTime)/(60-purpleStartTime),0,1);
+  return Math.min(maxPurpleEnemies,Math.floor(THREE.MathUtils.lerp(1,maxPurpleEnemies,p)));
+}
+function getPurpleSpawnInterval(){
+  if(aliveTime<purpleStartTime)return Infinity;
+  const p=THREE.MathUtils.clamp((aliveTime-purpleStartTime)/(60-purpleStartTime),0,1);
+  return THREE.MathUtils.lerp(20,8,p);
+}
 
 function spawnCrystal(){
   const t=getTier();
   const pos=findSafePosition(1.2);
   const mat=new THREE.MeshStandardMaterial({color:t.crystalColor,emissive:t.crystalColor,emissiveIntensity:.55,roughness:.25,metalness:.15});
   const mesh=new THREE.Mesh(shared.geo.crystal,mat);
-  mesh.position.set(pos.x,PLATFORM_TOP_Y+.8,pos.z);
+  mesh.position.set(pos.x,getPlatformHeightAt(pos.x,pos.z)+.8,pos.z);
   mesh.castShadow=true;
   scene.add(mesh);
-  crystals.push({mesh,radius:.75,value:t.crystalValue,mat});
+  crystals.push({mesh,radius:.75,value:t.crystalValue,mat,baseY:getPlatformHeightAt(pos.x,pos.z)+.8});
+}
+
+function spawnSceneRocks(){
+  if(rockModels.length===0)return;
+  clearSceneRocks();
+  const count=isMobileLayout()?MOBILE_ROCK_COUNT:SCENE_ROCK_COUNT;
+  const placed=[];
+  const minDist2=ROCK_MIN_DISTANCE*ROCK_MIN_DISTANCE;
+  for(let attempt=0;attempt<count*8&&placed.length<count;attempt++){
+    const pos=randomPosition();
+    const tooClosePlayer=distance2D(pos,new THREE.Vector3(platformCollisionCenterX,0,platformCollisionCenterZ))<ROCK_PLAYER_CLEAR_RADIUS;
+    if(tooClosePlayer)continue;
+    let tooClose=false;
+    for(const p of placed){
+      if(dist2DSq(pos.x,pos.z,p.position.x,p.position.z) < minDist2){tooClose=true;break}
+    }
+    if(tooClose)continue;
+    if(!isOnPlatform(pos.x,pos.z,-.05))continue;
+    const srcModel=rockModels[Math.floor(Math.random()*rockModels.length)];
+    const rockClone=srcModel.clone(true);
+    const scale=.005+Math.random()*.006;
+    rockClone.scale.setScalar(scale);
+    rockClone.rotation.set((Math.random()-.5)*.3,Math.random()*Math.PI*2,0);
+    rockClone.updateMatrixWorld(true);
+    rockClone.traverse(obj=>{
+      if(obj.isMesh||obj.isSkinnedMesh){
+        obj.material=rockMaterial;
+        obj.castShadow=!_isMobile;
+        obj.receiveShadow=true;
+      }
+    });
+    const rockBox=new THREE.Box3().setFromObject(rockClone);
+    const rockSize=new THREE.Vector3();rockBox.getSize(rockSize);
+    const radius=Math.max(rockSize.x,rockSize.z)*.5+.05;
+    const groundY=getPlatformHeightAt(pos.x,pos.z);
+    rockClone.position.set(pos.x,groundY-rockBox.min.y,pos.z);
+    scene.add(rockClone);
+    placed.push(rockClone);
+    rocks.push({mesh:rockClone,radius});
+  }
+}
+
+function clearSceneRocks(){
+  for(const rock of rocks){
+    if(rock.mesh)scene.remove(rock.mesh);
+  }
+  rocks.length=0;
 }
 
 function spawnEnemyGroup(count){
@@ -1591,9 +1748,23 @@ function spawnEnemyAt(pos){
 }
 
 function spawnPurpleEnemy(){
-  if(getPurpleEnemyCount()>=maxPurpleEnemies)return;
+  if(getPurpleEnemyCount()>=getPurpleMaxCount())return;
   const t=getTier();
   const pos=randomEdgePosition();
+  let group;
+  if(purpleEnemyPool.length>0){
+    group=purpleEnemyPool.pop();
+  }else{
+    group=createPurpleEnemyMesh();
+  }
+  group.position.set(pos.x,getPlatformHeightAt(pos.x,pos.z),pos.z);
+  group.visible=true;
+  scene.add(group);
+  enemies.push({mesh:group,type:"purple",radius:.7*1.3,speed:t.enemySpeed*ENEMY_SPEED_MULTIPLIER*1.1,damage:8,spawnTime:performance.now(),active:false,agility:1.45,stuckTimer:0,lastCheckPos:group.position.clone(),lastDir:new THREE.Vector3(0,0,0)});
+  playSfx("purple");
+}
+
+function createPurpleEnemyMesh(){
   const group=new THREE.Group();
   const body=new THREE.Mesh(shared.geo.purpleBody,shared.mat.purpleBody);
   body.position.y=.75*1.3;body.castShadow=!isMobileLayout();body.receiveShadow=true;group.add(body);
@@ -1605,20 +1776,83 @@ function spawnPurpleEnemy(){
     const glow=new THREE.PointLight(0xb14cff,1.8,8);
     glow.position.set(0,1.2*1.3,0);group.add(glow);
   }
-  group.position.set(pos.x,getPlatformHeightAt(pos.x,pos.z),pos.z);
+  return group;
+}
+
+function returnPurpleEnemyToPool(group){
+  scene.remove(group);
+  group.visible=false;
+  purpleEnemyPool.push(group);
+}
+
+function prewarmPurpleEnemyPool(){
+  const count=isMobileLayout()?2:3;
+  while(purpleEnemyPool.length<count){
+    const group=createPurpleEnemyMesh();
+    group.visible=false;
+    purpleEnemyPool.push(group);
+  }
+}
+
+function createGhostBossMesh(){
+  const group=new THREE.Group();
+  const bodyMat=new THREE.MeshStandardMaterial({color:0xaaccff,emissive:0x334466,emissiveIntensity:.4,roughness:.6,metalness:0,transparent:true,opacity:.5,depthWrite:false});
+  const body=new THREE.Mesh(shared.geo.ghostBody,bodyMat);
+  body.position.y=1.0;group.add(body);
+  const coreMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.8,depthWrite:false});
+  const core=new THREE.Mesh(shared.geo.ghostCore,coreMat);
+  core.position.y=1.0;group.add(core);
+  const auraMat1=new THREE.MeshBasicMaterial({color:0x88bbff,transparent:true,opacity:.7,blending:THREE.AdditiveBlending,depthWrite:false});
+  const aura1=new THREE.Mesh(shared.geo.ghostAura,auraMat1);
+  aura1.position.y=1.0;aura1.rotation.x=Math.PI/2;group.add(aura1);
+  const auraMat2=new THREE.MeshBasicMaterial({color:0xccddff,transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false});
+  const aura2=new THREE.Mesh(shared.geo.ghostAura,auraMat2);
+  aura2.position.y=1.0;aura2.rotation.y=Math.PI/2;group.add(aura2);
+  if(!isMobileLayout()){
+    const glow=new THREE.PointLight(0x88aaff,.9,12);
+    glow.position.set(0,1.2,0);group.add(glow);
+    const particlesGeo=new THREE.SphereGeometry(.3,6,6);
+    for(let i=0;i<8;i++){
+      const pMat=new THREE.MeshBasicMaterial({color:0xaaddff,transparent:true,opacity:.4,depthWrite:false,blending:THREE.AdditiveBlending});
+      const particle=new THREE.Mesh(particlesGeo,pMat);
+      const angle=(i/8)*Math.PI*2;
+      particle.position.set(Math.cos(angle)*1.8,1+Math.sin(i*2.5)*.5,Math.sin(angle)*1.8);
+      group.add(particle);
+    }
+  }
+  group.userData={bodyMat,auraMat1,auraMat2,coreMat};
+  return group;
+}
+
+function spawnGhostBoss(){
+  const t=getTier();
+  const group=createGhostBossMesh();
+  const centerX=0,centerZ=0;
+  group.position.set(centerX,getPlatformHeightAt(centerX,centerZ),centerZ);
   scene.add(group);
-  const angle=Math.random()*Math.PI*2;
-  enemies.push({mesh:group,type:"purple",mode:"wander",radius:.7*1.3,speed:t.enemySpeed*ENEMY_SPEED_MULTIPLIER*1.1,damage:8,spawnTime:performance.now(),active:false,agility:1.45,detectRange:purpleDetectRange,wanderDir:new THREE.Vector3(Math.cos(angle),0,Math.sin(angle)),wanderTimer:THREE.MathUtils.randFloat(1.5,3.5),stuckTimer:0,lastCheckPos:group.position.clone(),lastDir:new THREE.Vector3(0,0,0)});
+  enemies.push({mesh:group,type:"ghost",radius:.65*1.3*2.2,speed:t.enemySpeed*ENEMY_SPEED_MULTIPLIER*0.5,damage:GHOST_BOSS_DAMAGE,spawnTime:performance.now(),active:true,life:GHOST_BOSS_LIFETIME,agility:0.8,stuckTimer:0,lastCheckPos:group.position.clone(),lastDir:new THREE.Vector3(0,0,0)});
   playSfx("purple");
 }
 
-function getFruitSpawnInterval(){if(aliveTime<25)return Infinity;if(aliveTime>=120)return 1.25;if(aliveTime>=60)return 2.2;return 4.2}
+function getFruitSpawnInterval(){if(aliveTime<5)return Infinity;if(aliveTime>=90)return 0.5;if(aliveTime>=60)return 0.8;if(aliveTime>=25)return 1.2;return 1.5}
+function getSpeedFruitCount(){return fruits.filter(f=>f.type==="speed").length}
+function getHealFruitCount(){return fruits.filter(f=>f.type==="heal").length}
 function chooseFruitType(){if(aliveTime<45)return"speed";return Math.random()<.55?"speed":"heal"}
 
 function spawnFruit(){
-  const maxFruitCount=isMobileLayout()?MOBILE_MAX_FRUITS:maxFruits;
-  if(aliveTime<25||fruits.length>=maxFruitCount)return;
+  if(aliveTime<5||fruits.length>=maxFruits)return;
   const type=chooseFruitType();
+  if(type==="speed"&&getSpeedFruitCount()>=maxSpeedFruits){
+    if(getHealFruitCount()<maxHealFruits){spawnFruitOfType("heal")}
+    return;
+  }
+  if(type==="heal"&&getHealFruitCount()>=maxHealFruits){
+    if(getSpeedFruitCount()<maxSpeedFruits){spawnFruitOfType("speed")}
+    return;
+  }
+  spawnFruitOfType(type);
+}
+function spawnFruitOfType(type){
   const pos=findSafePosition(1.0);
   const group=createFruitMesh(type);
   group.position.set(pos.x,getPlatformHeightAt(pos.x,pos.z),pos.z);
@@ -1643,27 +1877,30 @@ function createFruitMesh(type){
     crossB.position.set(0,.58,.44);group.add(crossB);
   }
   if(type==="invincible"){
-    const core=new THREE.Mesh(shared.geo.invCore,shared.mat.invCore);
+    const coreMat=new THREE.MeshStandardMaterial({color:0xfff36a,emissive:0xff66ff,emissiveIntensity:.75,roughness:.18,metalness:.2});
+    const core=new THREE.Mesh(shared.geo.invCore,coreMat);
     core.position.y=.7;group.add(core);
-    if(!isMobileLayout()){
-      const aura1=new THREE.Mesh(shared.geo.invAura1,shared.mat.invAura1);
-      aura1.position.y=.7;aura1.rotation.x=Math.PI/2;group.add(aura1);
-      const aura2=new THREE.Mesh(shared.geo.invAura2,shared.mat.invAura2);
-      aura2.position.y=.7;aura2.rotation.y=Math.PI/2;group.add(aura2);
-      const light=new THREE.PointLight(0xfff36a,1.2,5);
-      light.position.y=.9;group.add(light);
-    }
+    const aura1Mat=new THREE.MeshBasicMaterial({color:0x66ffff,transparent:true,opacity:.9,blending:THREE.AdditiveBlending,depthWrite:false});
+    const aura1=new THREE.Mesh(shared.geo.invAura1,aura1Mat);
+    aura1.position.y=.7;aura1.rotation.x=Math.PI/2;group.add(aura1);
+    const aura2Mat=new THREE.MeshBasicMaterial({color:0xff66ff,transparent:true,opacity:.75,blending:THREE.AdditiveBlending,depthWrite:false});
+    const aura2=new THREE.Mesh(shared.geo.invAura2,aura2Mat);
+    aura2.position.y=.7;aura2.rotation.y=Math.PI/2;group.add(aura2);
+    const light=new THREE.PointLight(0xfff36a,1.2,5);
+    light.position.y=.9;group.add(light);
+    group.userData={coreMat,aura1Mat,aura2Mat};
   }
   return group;
 }
 
-function spawnInvincibleFruitPair(){for(let i=0;i<INVINCIBLE_FRUIT_COUNT;i++)spawnInvincibleFruit();playSfx("invincibleSpawn")}
+function getInvincibleFruitCount(){return fruits.filter(f=>f.type==="invincible").length}
 function spawnInvincibleFruit(){
+  if(getInvincibleFruitCount()>=INVINCIBLE_FRUIT_COUNT)return;
   const pos=findSafePosition(1.0);
   const group=createFruitMesh("invincible");
   group.position.set(pos.x,getPlatformHeightAt(pos.x,pos.z),pos.z);
   scene.add(group);
-  fruits.push({mesh:group,radius:.82,type:"invincible",life:INVINCIBLE_FRUIT_LIFE});
+  fruits.push({mesh:group,radius:1.1,type:"invincible",life:INVINCIBLE_FRUIT_LIFE});
 }
 function activateInvincible(){invincibleTimer=INVINCIBLE_DURATION;invincibleVisualActive=true;spawnPlayerSideEffect("invincible");playSfx("invincible")}
 
@@ -1695,6 +1932,407 @@ function updateFog(){
   scene.fog.density=(isMobileLayout()? .0006:.001)*(.45+.55*heightFactor);
 }
 
+function togglePause(){
+  if(!gameRunning)return;
+  isPaused=!isPaused;
+  const btn=document.getElementById("pauseBtn");
+  const overlay=document.getElementById("debugOverlay");
+  if(isPaused){
+    btn.classList.add("is-paused");
+    overlay.classList.add("active");
+    enterDebugCameraMode();
+  }else{
+    btn.classList.remove("is-paused");
+    overlay.classList.remove("active");
+    exitDebugCameraMode();
+    clearDebugHighlight();
+    updateDebugInfoPanel(null);
+  }
+}
+
+function enterDebugCameraMode(){
+  if(!debugCameraMode){
+    originalCameraState={
+      position:camera.position.clone(),
+      target:new THREE.Vector3().copy(player?player.position:new THREE.Vector3()),
+      rotation:camera.rotation.clone()
+    };
+  }
+  debugCameraMode=true;
+  if(scene.fog)scene.fog.density=isMobileLayout()?.00045:.0007;
+  collectDebugHighlightObjects();
+  if(debugHighlightEnabled)applyDebugHighlight();
+}
+
+function exitDebugCameraMode(){
+  debugCameraMode=false;
+  toggleCollisionVisibility(false);
+  const colToggle=document.getElementById("dbgCollisionToggle");
+  if(colToggle)colToggle.checked=false;
+  if(scene.fog)scene.fog.density=(isMobileLayout()?.0006:.001)*(.45+.55*Math.exp(-Math.max(camera.position.y,.2)*.04));
+  clearDebugHighlight();
+  debugSelectedObject=null;
+}
+
+function updateDebugCamera(dt){
+  if(!debugCameraMode||!isPaused)return;
+  const speed=debugCameraSpeed;
+  const moveDir=new THREE.Vector3();
+  const forward=new THREE.Vector3();
+  camera.getWorldDirection(forward);
+  const right=new THREE.Vector3().crossVectors(forward,new THREE.Vector3(0,1,0)).normalize();
+  if(keys["KeyW"])moveDir.add(forward);
+  if(keys["KeyS"])moveDir.sub(forward);
+  if(keys["KeyA"])moveDir.sub(right);
+  if(keys["KeyD"])moveDir.add(right);
+  if(keys["KeyQ"])moveDir.y-=1;
+  if(keys["KeyE"])moveDir.y+=1;
+  if(keys["ShiftLeft"]||keys["ShiftRight"])moveDir.multiplyScalar(2.5);
+  if(moveDir.lengthSq()>0){
+    moveDir.normalize().multiplyScalar(speed*dt);
+    camera.position.add(moveDir);
+  }
+  if(debugMouseRight||keys["KeyR"]){
+    debugCameraSpherical.theta-=(mouseDX||0)*.005;
+    debugCameraSpherical.phi-=(mouseDY||0)*.005;
+    debugCameraSpherical.phi=Math.max(.05,Math.min(Math.PI-.05,debugCameraSpherical.phi));
+    debugCameraTarget.copy(camera.position).addScaledVector(forward,debugCameraSpherical.radius);
+    camera.position.set(
+      debugCameraTarget.x+debugCameraSpherical.radius*Math.sin(debugCameraSpherical.phi)*Math.cos(debugCameraSpherical.theta),
+      debugCameraTarget.y+debugCameraSpherical.radius*Math.cos(debugCameraSpherical.phi),
+      debugCameraTarget.z+debugCameraSpherical.radius*Math.sin(debugCameraSpherical.phi)*Math.sin(debugCameraSpherical.theta)
+    );
+    camera.lookAt(debugCameraTarget);
+  }
+  updateDebugTooltip();
+}
+
+let mouseDX=0,mouseDY=0;
+function setupDebugInput(){
+  const canvas=document.getElementById("game");
+  canvas.addEventListener("contextmenu",e=>{if(debugCameraMode&&isPaused)e.preventDefault()});
+  window.addEventListener("mousedown",e=>{
+    if(!debugCameraMode||!isPaused)return;
+    if(e.button===2){debugMouseRight=true;debugPrevMouse.set(e.clientX,e.clientY)}
+    if(e.button===0){
+      debugMouseDown=true;
+      debugPrevMouse.set(e.clientX,e.clientY);
+      updateDebugTooltip();
+    }
+  });
+  window.addEventListener("mouseup",e=>{
+    if(!debugCameraMode||!isPaused){debugMouseDown=false;debugMouseRight=false;return}
+    if(e.button===2)debugMouseRight=false;
+    if(e.button===0){
+      if(Math.abs(e.clientX-debugPrevMouse.x)<3&&Math.abs(e.clientY-debugPrevMouse.y)<3){
+        if(!e.target.closest("#debugOverlay")){
+          pickDebugObject(e.clientX,e.clientY);
+        }
+      }
+      debugMouseDown=false;
+    }
+  });
+  window.addEventListener("mousemove",e=>{
+    if(!debugCameraMode||!isPaused){debugMouseDown=false;debugMouseRight=false;return}
+    mouseDX=e.clientX-debugPrevMouse.x;
+    mouseDY=e.clientY-debugPrevMouse.y;
+    debugPrevMouse.set(e.clientX,e.clientY);
+    if(!debugMouseRight){mouseDX=0;mouseDY=0}
+    if(debugMouseDown&&!debugMouseRight){
+      updateDebugTooltip();
+    }
+  });
+  window.addEventListener("wheel",e=>{
+    if(!debugCameraMode||!isPaused)return;
+    debugCameraSpeed=Math.max(.5,Math.min(200,debugCameraSpeed*(e.deltaY>0?1.15:.87)));
+  },{passive:true});
+  document.querySelectorAll(".dbg-speed-btn").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      document.querySelectorAll(".dbg-speed-btn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      debugSpeedIndex=parseInt(btn.dataset.speed);
+      debugCameraSpeed=debugSpeedPresets[debugSpeedIndex];
+    });
+  });
+  document.getElementById("dbgHighlightToggle").addEventListener("change",e=>{
+    debugHighlightEnabled=e.target.checked;
+    if(debugHighlightEnabled)applyDebugHighlight();
+    else clearDebugHighlight();
+  });
+  document.getElementById("dbgWireframeToggle").addEventListener("change",e=>{
+    debugWireframeEnabled=e.target.checked;
+    applyDebugWireframe();
+  });
+  document.getElementById("dbgCollisionToggle").addEventListener("change",e=>{
+    toggleCollisionVisibility(e.target.checked);
+  });
+  document.getElementById("pauseBtn").addEventListener("click",togglePause);
+}
+
+function collectDebugHighlightObjects(){
+  clearDebugHighlight();
+  debugHighlightObjects=[];
+  debugHighlightOriginal={};
+  scene.traverse(obj=>{
+    if(obj.isMesh&&!obj.isSprite&&obj!==skyboxMesh&&obj.visible){
+      debugHighlightObjects.push(obj);
+    }
+  });
+}
+
+function applyDebugHighlight(){
+  if(!debugHighlightEnabled)return;
+  debugHighlightObjects.forEach((obj,i)=>{
+    const key=i;
+    const materials=Array.isArray(obj.material)?obj.material:[obj.material];
+    if(!debugHighlightOriginal[key]){
+      debugHighlightOriginal[key]=materials.map(m=>({
+        emissive:m.emissive?m.emissive.getHex():0,
+        emissiveIntensity:m.emissiveIntensity||0
+      }));
+    }
+    materials.forEach(m=>{
+      if(m.emissive)m.emissive.setHex(0x00a0cc);
+      m.emissiveIntensity=.15;
+    });
+  });
+}
+
+function clearDebugHighlight(){
+  Object.keys(debugHighlightOriginal).forEach(key=>{
+    const obj=debugHighlightObjects[parseInt(key)];
+    if(obj&&obj.material){
+      const materials=Array.isArray(obj.material)?obj.material:[obj.material];
+      const saved=debugHighlightOriginal[key];
+      if(Array.isArray(saved)){
+        materials.forEach((m,i)=>{
+          if(i<saved.length){
+            if(m.emissive)m.emissive.setHex(saved[i].emissive);
+            m.emissiveIntensity=saved[i].emissiveIntensity;
+          }
+        });
+      }
+    }
+  });
+  debugHighlightOriginal={};
+  debugHighlightObjects=[];
+}
+
+function applyDebugWireframe(){
+  debugHighlightObjects.forEach(obj=>{
+    const materials=Array.isArray(obj.material)?obj.material:[obj.material];
+    materials.forEach(m=>{
+      if(m.wireframe!==undefined)m.wireframe=debugWireframeEnabled;
+    });
+  });
+}
+
+function collectAllCollisionEntities(){
+  debugCollisionEntities=[];
+  if(platformCollisionModel){
+    platformCollisionModel.traverse(obj=>{if(obj.isMesh||obj.isSkinnedMesh)debugCollisionEntities.push({mesh:obj,type:'平台碰撞',color:0xff2d55,group:platformCollisionModel,radius:platformWalkRadiusX})});
+  }
+  if(player){
+    player.traverse(obj=>{if((obj.isMesh||obj.isSkinnedMesh)&&obj.material&&!obj.material.isPointsMaterial)debugCollisionEntities.push({mesh:obj,type:'玩家',color:0x00ff88,group:player,radius:playerRadius})});
+  }
+  for(const e of enemies){
+    e.mesh.traverse(obj=>{if(obj.isMesh||obj.isSkinnedMesh)debugCollisionEntities.push({mesh:obj,type:e.type==='ghost'?'幽灵Boss':e.type==='purple'?'紫色怪':'普通敌人',color:e.type==='ghost'?0x00f0ff:e.type==='purple'?0xb44dff:0xff8800,group:e.mesh,radius:e.radius})});
+  }
+  for(const c of crystals){
+    debugCollisionEntities.push({mesh:c.mesh,type:'晶石',color:0x00ccff,group:c.mesh,radius:c.radius,value:c.value});
+  }
+  for(const f of fruits){
+    f.mesh.traverse(obj=>{if(obj.isMesh||obj.isSkinnedMesh)debugCollisionEntities.push({mesh:obj,type:f.type==='invincible'?'无敌果实':f.type==='speed'?'加速果实':'治愈果实',color:f.type==='invincible'?0xff00ff:f.type==='speed'?0xffcc00:0x44ff44,group:f.mesh,radius:f.radius})});
+  }
+}
+
+function toggleCollisionVisibility(show){
+  if(show){
+    collectAllCollisionEntities();
+    debugCollisionSaved=[];
+    const colorMatCache={};
+    for(const ent of debugCollisionEntities){
+      if(!colorMatCache[ent.color]){
+        colorMatCache[ent.color]=new THREE.MeshBasicMaterial({color:ent.color,wireframe:true,transparent:true,opacity:.82,depthTest:true});
+      }
+      const mat=colorMatCache[ent.color];
+      if(ent.mesh.material)debugCollisionSaved.push({mesh:ent.mesh,material:ent.mesh.material});
+      else debugCollisionSaved.push({mesh:ent.mesh,material:null});
+      ent.mesh.visible=true;
+      ent.mesh.material=mat;
+    }
+    const types={};for(const e of debugCollisionEntities){types[e.type]=(types[e.type]||0)+1}
+    const summary=Object.entries(types).map(([k,v])=>`${k}:${v}`).join(' ');
+    const bar=document.getElementById("debugTopBar");
+    if(bar)bar.innerHTML='<span class="dbg-dot" style="background:var(--c-red)"></span>SCENE DEBUG · PAUSED · 碰撞 '+debugCollisionEntities.length+' ('+summary+')';
+    collectDebugHighlightObjects();
+    if(debugHighlightEnabled)applyDebugHighlight();
+  }else{
+    for(const saved of debugCollisionSaved){
+      if(saved.material)saved.mesh.material=saved.material;
+      else saved.mesh.material=null;
+      if(platformCollisionModel&&isChildOf(saved.mesh,platformCollisionModel))saved.mesh.visible=false;
+    }
+    debugCollisionSaved=[];
+    debugCollisionEntities=[];
+    const bar=document.getElementById("debugTopBar");
+    if(bar)bar.innerHTML='<span class="dbg-dot"></span>SCENE DEBUG · PAUSED';
+    collectDebugHighlightObjects();
+    if(debugHighlightEnabled)applyDebugHighlight();
+  }
+}
+
+function pickDebugObject(clientX,clientY){
+  const canvas=document.getElementById("game");
+  const rect=canvas.getBoundingClientRect();
+  const mouse=new THREE.Vector2(
+    ((clientX-rect.left)/rect.width)*2-1,
+    -((clientY-rect.top)/rect.height)*2+1
+  );
+  debugRaycaster.setFromCamera(mouse,camera);
+  const intersects=debugRaycaster.intersectObjects(debugHighlightObjects,false);
+  if(intersects.length>0){
+    const obj=intersects[0].object;
+    updateDebugInfoPanel(obj);
+    highlightSelectedObject(obj);
+  }else{
+    updateDebugInfoPanel(null);
+    clearSelectedObject();
+  }
+}
+
+function highlightSelectedObject(obj){
+  clearSelectedObject();
+  if(!obj||!obj.material)return;
+  debugSelectedObject=obj;
+  const materials=Array.isArray(obj.material)?obj.material:[obj.material];
+  const original=materials.map(m=>({
+    emissive:m.emissive?m.emissive.getHex():0,
+    emissiveIntensity:m.emissiveIntensity||0
+  }));
+  debugHighlightOriginal["_selected"]={obj,original};
+  materials.forEach(m=>{
+    if(m.emissive)m.emissive.setHex(0xff2d95);
+    m.emissiveIntensity=.45;
+  });
+}
+
+function clearSelectedObject(){
+  if(!debugHighlightOriginal["_selected"])return;
+  const {obj,original}=debugHighlightOriginal["_selected"];
+  if(obj&&obj.material){
+    const materials=Array.isArray(obj.material)?obj.material:[obj.material];
+    if(Array.isArray(original)){
+      materials.forEach((m,i)=>{
+        if(i<original.length){
+          if(m.emissive)m.emissive.setHex(original[i].emissive);
+          m.emissiveIntensity=original[i].emissiveIntensity;
+        }
+      });
+    }
+  }
+  delete debugHighlightOriginal["_selected"];
+  debugSelectedObject=null;
+}
+
+function updateDebugInfoPanel(obj){
+  const body=document.getElementById("debugInfoBody");
+  if(!obj){
+    body.innerHTML='<div class="dbg-empty">点击模型查看属性</div>';
+    return;
+  }
+  const bbox=new THREE.Box3().setFromObject(obj);
+  const size=new THREE.Vector3();bbox.getSize(size);
+  const center=new THREE.Vector3();bbox.getCenter(center);
+  const vertCount=obj.geometry?.attributes?.position?.count||0;
+  const faceCount=obj.geometry?.index?obj.geometry.index.count/3:vertCount/3;
+  const matName=Array.isArray(obj.material)?`${obj.material.length}材质`:(obj.material?.name||"未命名");
+  const geoType=obj.geometry?.type||"未知";
+  const meshType=obj.type||"Mesh";
+  const worldPos=new THREE.Vector3();obj.getWorldPosition(worldPos);
+  const scale=new THREE.Vector3();obj.getWorldScale(scale);
+  const isCollision=isChildOf(obj,platformCollisionModel);
+  const colBadge=isCollision?'<span style="display:inline-block;padding:1px 8px;margin-left:4px;border-radius:4px;background:#ff2d55;color:#07071e;font-size:10px;font-weight:700">碰撞体</span>':'';
+  let colInfo='';
+  const colEntity=debugCollisionEntities.find(e=>e.mesh===obj);
+  if(colEntity){
+    colInfo=`
+      <div class="dbg-kv" style="color:#ff2d55;font-weight:700">碰撞实体</div>
+      <div class="dbg-kv">类别 <span style="color:${'#'+colEntity.color.toString(16).padStart(6,'0')}">${colEntity.type}</span></div>
+      <div class="dbg-kv">碰撞半径 <span>${(colEntity.radius||0).toFixed(3)}</span></div>
+      ${colEntity.value!==undefined?`<div class="dbg-kv">分值 <span>${colEntity.value}</span></div>`:''}
+      ${colEntity.damage!==undefined?`<div class="dbg-kv">伤害 <span>${colEntity.damage}</span></div>`:''}
+      ${colEntity.life!==undefined?`<div class="dbg-kv">存活时间 <span>${colEntity.life.toFixed(1)}s</span></div>`:''}
+    `;
+  }
+  body.innerHTML=`
+    <div class="dbg-kv">类型 <span>${meshType}${colBadge}</span></div>
+    <div class="dbg-kv">名称 <span>${obj.name||"未命名"}</span></div>
+    <div class="dbg-kv">UUID <span style="font-size:10px;word-break:break-all">${obj.uuid}</span></div>
+    <div class="dbg-kv">几何体 <span>${geoType}</span></div>
+    <div class="dbg-kv">面数 <span>${Math.round(faceCount)}</span></div>
+    <div class="dbg-kv">顶点 <span>${vertCount}</span></div>
+    <div class="dbg-kv">材质 <span>${matName}</span></div>
+    <div class="dbg-kv">包围盒 <span>${size.x.toFixed(2)} × ${size.y.toFixed(2)} × ${size.z.toFixed(2)}</span></div>
+    <div class="dbg-kv">位置 <span>${worldPos.x.toFixed(2)}, ${worldPos.y.toFixed(2)}, ${worldPos.z.toFixed(2)}</span></div>
+    <div class="dbg-kv">缩放 <span>${scale.x.toFixed(2)}, ${scale.y.toFixed(2)}, ${scale.z.toFixed(2)}</span></div>
+    <div class="dbg-kv">可见 <span>${obj.visible?"是":"否"}</span></div>
+    ${colInfo}
+    ${(()=>{const mats=Array.isArray(obj.material)?obj.material:[obj.material];const hasNorm=mats.some(m=>m.normalMap);if(!hasNorm)return'';const firstNorm=mats.find(m=>m.normalMap&&m.normalMap!==null);const ns=firstNorm?firstNorm.normalScale:new THREE.Vector2(1,1);const flipX=ns.x<0,flipY=ns.y<0;return`
+      <label class="dbg-toggle" style="margin-top:6px"><input type="checkbox" id="dbgNormalToggle" ${mats.some(m=>m.normalMap&&m.normalMap!==null)?'checked':''} />法线贴图</label>
+      <label class="dbg-toggle"><input type="checkbox" id="dbgNormalFlipX" ${flipX?'checked':''} />法线 反转X</label>
+      <label class="dbg-toggle"><input type="checkbox" id="dbgNormalFlipY" ${flipY?'checked':''} />法线 反转Y</label>
+    `})()}
+  `;
+  const normalToggle=document.getElementById("dbgNormalToggle");
+  if(normalToggle){
+    normalToggle.addEventListener("change",()=>{
+      const mats=Array.isArray(obj.material)?obj.material:[obj.material];
+      mats.forEach(m=>{
+        if(normalToggle.checked){m.normalMap=m.userData._savedNormalMap||m.normalMap;m.needsUpdate=true}
+        else{m.userData._savedNormalMap=m.normalMap;m.normalMap=null;m.needsUpdate=true}
+      });
+    });
+  }
+  const flipXToggle=document.getElementById("dbgNormalFlipX");
+  if(flipXToggle){
+    flipXToggle.addEventListener("change",()=>{
+      const mats=Array.isArray(obj.material)?obj.material:[obj.material];
+      mats.forEach(m=>{if(m.normalScale){m.normalScale.x=flipXToggle.checked?-Math.abs(m.normalScale.x):Math.abs(m.normalScale.x);m.needsUpdate=true}});
+    });
+  }
+  const flipYToggle=document.getElementById("dbgNormalFlipY");
+  if(flipYToggle){
+    flipYToggle.addEventListener("change",()=>{
+      const mats=Array.isArray(obj.material)?obj.material:[obj.material];
+      mats.forEach(m=>{if(m.normalScale){m.normalScale.y=flipYToggle.checked?-Math.abs(m.normalScale.y):Math.abs(m.normalScale.y);m.needsUpdate=true}});
+    });
+  }
+}
+
+function updateDebugTooltip(){
+  const tooltip=document.getElementById("debugTooltip");
+  if(!debugHighlightEnabled||!isPaused||!debugCameraMode||typeof mouseDX!=="number"){tooltip.style.display="none";return}
+  const canvas=document.getElementById("game");
+  const rect=canvas.getBoundingClientRect();
+  const mouseX=(debugPrevMouse.x-rect.left)/rect.width*2-1;
+  const mouseY=-(debugPrevMouse.y-rect.top)/rect.height*2+1;
+  const mouse=new THREE.Vector2(mouseX,mouseY);
+  debugRaycaster.setFromCamera(mouse,camera);
+  const intersects=debugRaycaster.intersectObjects(debugHighlightObjects,false);
+  if(intersects.length>0){
+    const obj=intersects[0].object;
+    tooltip.style.display="block";
+    tooltip.style.left=(debugPrevMouse.x+16)+"px";
+    tooltip.style.top=(debugPrevMouse.y-12)+"px";
+    const name=obj.name||"未命名";
+    const type=obj.type||"Mesh";
+    tooltip.innerHTML=`<b>${name}</b> &middot; ${type}<br><span style="opacity:.65">点击查看详情</span>`;
+  }else{
+    tooltip.style.display="none";
+  }
+}
+
 function animate(){
   requestAnimationFrame(animate);
   _frameCount++;
@@ -1708,6 +2346,11 @@ function animate(){
   }
   if(skyboxMesh&&camera)skyboxMesh.position.copy(camera.position);
   updateFog();
+  if(isPaused){
+    updateDebugCamera(dt);
+    renderer.render(scene,camera);
+    return;
+  }
   processEnemySpawnQueue();
   if(renderer.shadowMap.enabled&&(gameRunning||player))renderer.shadowMap.needsUpdate=true;
   updatePerformance(dt);
@@ -1723,10 +2366,10 @@ function updatePerformance(dt){
     performanceCheckCounter=0;
     const avgFrameTime=frameTimeHistory.reduce((a,b)=>a+b,0)/frameTimeHistory.length;
     frameTimeHistory=[];
-    if(avgFrameTime>.033&&performanceLevel<3){
+    if(avgFrameTime>.028&&performanceLevel<3){
       performanceLevel++;
       applyPerformanceLevel();
-    } else if(avgFrameTime<.022&&performanceLevel>1){
+    } else if(avgFrameTime<.018&&performanceLevel>1){
       performanceLevel--;
       applyPerformanceLevel();
     }
@@ -1748,7 +2391,7 @@ function applyPerformanceLevel(){
 
 function update(dt){
   aliveTime+=dt;
-  if(speedBuffTimer>0)speedBuffTimer-=dt;
+  if(speedBuffTimer>0){speedBuffTimer-=dt;if(speedBuffTimer<=0){speedBuffTimer=0;speedStackLevel=0}}
   if(lowHpWarningTimer>0){lowHpWarningTimer-=dt;warning.style.display="block"}else warning.style.display="none";
   updateInvincibleState(dt);
   updatePlayer(dt);
@@ -1779,7 +2422,7 @@ function updatePlayer(dt){
   if(keys["KeyD"]||keys["ArrowRight"])_v2a.x+=1;
   _v2a.x+=moveInput.x;_v2a.y+=moveInput.y;
   if(_v2a.length()>1)_v2a.normalize();
-  const speed=basePlayerSpeed*(speedBuffTimer>0?1.65:1)*(invincibleTimer>0?INVINCIBLE_SPEED_MULTIPLIER:1);
+  const speed=basePlayerSpeed*(speedBuffTimer>0?1+speedStackLevel*0.15:1)*(invincibleTimer>0?INVINCIBLE_SPEED_MULTIPLIER:1);
   _v3a.set(_v2a.x,0,_v2a.y).multiplyScalar(speed*dt);
   if(_v3a.lengthSq()>0){
     playerMovingThisFrame=true;
@@ -1828,7 +2471,7 @@ function updateCrystals(dt){
   for(let i=crystals.length-1;i>=0;i--){
     const c=crystals[i];
     c.mesh.rotation.y+=dt*2.2;c.mesh.rotation.x+=dt*.8;
-    c.mesh.position.y=PLATFORM_TOP_Y+.85+Math.sin(aliveTime*3+i)*.12;
+    c.mesh.position.y=(c.baseY!=null?c.baseY:getPlatformHeightAt(c.mesh.position.x,c.mesh.position.z)+.8)+Math.sin(aliveTime*3+i)*.12;
     if(dist2DSq(player.position.x,player.position.z,c.mesh.position.x,c.mesh.position.z)<(playerRadius+c.radius)*(playerRadius+c.radius)){
       const addValue=c.value;
       score+=addValue;
@@ -1852,15 +2495,33 @@ function updateEnemies(dt){
     if(!e.active){const s=1+Math.sin(now*.03)*.08;e.mesh.scale.setScalar(s);continue}
     const epx=e.mesh.position.x,epz=e.mesh.position.z;
     if(e.type==="purple"){
-      const dSq=dist2DSq(player.position.x,player.position.z,e.mesh.position.x,e.mesh.position.z),detect=e.detectRange;
-      if(dSq<=detect*detect)e.mode="chase";
-      else if(dSq>detect*detect*1.35*1.35)e.mode="wander";
       e.mesh.scale.setScalar(1+Math.sin(aliveTime*6+i)*.035);
       for(const child of e.mesh.children){
         if(child.geometry&&child.geometry.type==="TorusGeometry")child.rotation.z+=dt*3.5;
       }
     }
-    let dir=e.type==="purple"&&e.mode==="wander"?getPurpleWanderDirection(e,dt):getEnemySteeringDirection(e);
+    if(e.type==="ghost"){
+      e.life-=dt;
+      if(e.life<=0){scene.remove(e.mesh);enemies.splice(i,1);continue}
+      e.mesh.position.y=getPlatformHeightAt(e.mesh.position.x,e.mesh.position.z)+2.5+Math.sin(aliveTime*4+i)*.6;
+      e.mesh.scale.setScalar(1+Math.sin(aliveTime*2+i)*.08);
+      for(const child of e.mesh.children){
+        if(child.geometry&&child.geometry.type==="TorusGeometry")child.rotation.z+=dt*4.5;
+      }
+      if(e.mesh.userData.bodyMat){e.mesh.userData.bodyMat.opacity=.35+Math.sin(aliveTime*3)*.15}
+      const dir=getEnemySteeringDirection(e);
+      if(dir.lengthSq()>.001){
+        e.mesh.position.addScaledVector(dir,e.speed*dt);
+        clampToWorld(e.mesh.position);
+        snapObjectToPlatform(e.mesh,0);
+        e.mesh.rotation.y=Math.atan2(dir.x,dir.z);
+      }
+      if(dist2DSq(player.position.x,player.position.z,e.mesh.position.x,e.mesh.position.z)<(playerRadius+e.radius)*(playerRadius+e.radius)){
+        applyPlayerDamage(e.damage,e.mesh.position);
+      }
+      continue;
+    }
+    const dir=getEnemySteeringDirection(e);
     if(dir.lengthSq()>.001){
       _v3a.copy(e.mesh.position);
       e.mesh.position.addScaledVector(dir,e.speed*dt);
@@ -1882,22 +2543,22 @@ function updateEnemies(dt){
             clampToWorld(e.mesh.position);
             snapObjectToPlatform(e.mesh,0);
             if(collidesWithRocks(e.mesh.position,e.radius)){e.mesh.position.copy(_v3a);snapObjectToPlatform(e.mesh,0)}
-          }
         }
-        if(e.type==="purple"&&e.mode==="wander")resetPurpleWander(e);
+      }
       }
       e.mesh.rotation.y=Math.atan2(dir.x,dir.z);
     }else snapObjectToPlatform(e.mesh,0);
     updateEnemyStuckState(e,dt,epx,epz);
     if(e.stuckTimer>=ENEMY_STUCK_DESTROY_TIME){
-      scene.remove(e.mesh);
+      if(e.type==="purple")returnPurpleEnemyToPool(e.mesh);
+      else scene.remove(e.mesh);
       enemies.splice(i,1);
       continue;
     }
     if(dist2DSq(player.position.x,player.position.z,e.mesh.position.x,e.mesh.position.z)<(playerRadius+e.radius)*(playerRadius+e.radius)){
-      if(e.type==="purple"&&e.mode!=="chase")continue;
       applyPlayerDamage(e.damage,e.mesh.position);
-      scene.remove(e.mesh);
+      if(e.type==="purple")returnPurpleEnemyToPool(e.mesh);
+      else scene.remove(e.mesh);
       enemies.splice(i,1);
     }
   }
@@ -2044,10 +2705,21 @@ function updateFruits(dt){
     for(const child of f.mesh.children){
       if(child.geometry&&child.geometry.type==="TorusGeometry")child.rotation.z+=dt*(f.type==="invincible"?5:2.5);
     }
-    f.mesh.position.y=PLATFORM_TOP_Y+Math.sin(aliveTime*4+i)*.12;
+    if(f.type==="invincible"&&f.mesh.userData.coreMat){
+      const hue=(aliveTime*1.2+f.mesh.id*0.7)%1;
+      const coreC=new THREE.Color().setHSL(hue,.9,.58);
+      const emC=new THREE.Color().setHSL((hue+.35)%1,.95,.45);
+      const aura1C=new THREE.Color().setHSL((hue+.15)%1,1,.6);
+      const aura2C=new THREE.Color().setHSL((hue+.5)%1,1,.55);
+      f.mesh.userData.coreMat.color.copy(coreC);
+      f.mesh.userData.coreMat.emissive.copy(emC);
+      f.mesh.userData.aura1Mat.color.copy(aura1C);
+      f.mesh.userData.aura2Mat.color.copy(aura2C);
+    }
+    f.mesh.position.y=getPlatformHeightAt(f.mesh.position.x,f.mesh.position.z)+Math.sin(aliveTime*4+i)*.12;
     if(f.life<=0){scene.remove(f.mesh);fruits.splice(i,1);continue}
     if(dist2DSq(player.position.x,player.position.z,f.mesh.position.x,f.mesh.position.z)<(playerRadius+f.radius)*(playerRadius+f.radius)){
-      if(f.type==="speed"){speedBuffTimer=Math.min(speedBuffTimer+2.5,8.0);spawnPlayerSideEffect("speed")}
+      if(f.type==="speed"){speedStackLevel=Math.min(speedStackLevel+1,5);speedBuffTimer=2.5;spawnPlayerSideEffect("speed")}
       if(f.type==="heal"){hp=Math.min(maxHp,hp+HEAL_AMOUNT);spawnPlayerSideEffect("heal")}
       if(f.type==="invincible")activateInvincible();
       scene.remove(f.mesh);
@@ -2057,23 +2729,28 @@ function updateFruits(dt){
 }
 
 function updateSpawns(dt){
-  crystalSpawnTimer+=dt;enemySpawnTimer+=dt;fruitSpawnTimer+=dt;purpleEnemySpawnTimer+=dt;invincibleFruitSpawnTimer+=dt;
+  crystalSpawnTimer+=dt;enemySpawnTimer+=dt;fruitSpawnTimer+=dt;purpleEnemySpawnTimer+=dt;invincibleFruitSpawnTimer+=dt;ghostBossSpawnTimer+=dt;
   const maxCrystalCount=isMobileLayout()?MOBILE_MAX_CRYSTALS:maxCrystals;
-  const maxFruitCount=isMobileLayout()?MOBILE_MAX_FRUITS:maxFruits;
   if(crystalSpawnTimer>CRYSTAL_SPAWN_INTERVAL&&crystals.length<maxCrystalCount){crystalSpawnTimer=0;spawnCrystal()}
   if(enemySpawnTimer>getEnemySpawnInterval()){enemySpawnTimer=0;spawnEnemyGroup(getEnemyGroupSize())}
-  if(purpleEnemySpawnTimer>nextPurpleEnemySpawnTime){
-    purpleEnemySpawnTimer=0;nextPurpleEnemySpawnTime=randomInt(15,35);
-    if(getPurpleEnemyCount()<maxPurpleEnemies)spawnPurpleEnemy();
+  const purpleInterval=getPurpleSpawnInterval();
+  if(purpleInterval<Infinity&&purpleEnemySpawnTimer>purpleInterval){
+    purpleEnemySpawnTimer=0;
+    if(getPurpleEnemyCount()<getPurpleMaxCount())spawnPurpleEnemy();
   }
   if(invincibleFruitSpawnTimer>nextInvincibleFruitSpawnTime){
-    invincibleFruitSpawnTimer=0;nextInvincibleFruitSpawnTime=randomInt(40,70);spawnInvincibleFruitPair();
+    invincibleFruitSpawnTimer=0;nextInvincibleFruitSpawnTime=THREE.MathUtils.randFloat(6,8);
+    spawnInvincibleFruit();
   }
   const fruitInterval=getFruitSpawnInterval();
-  if(fruitSpawnTimer>fruitInterval&&fruits.length<maxFruitCount){
+  if(fruitSpawnTimer>fruitInterval&&fruits.length<maxFruits){
     fruitSpawnTimer=0;
     const count=aliveTime>=120?randomInt(1,2):1;
-    for(let i=0;i<count;i++){if(fruits.length<maxFruitCount)spawnFruit()}
+    for(let i=0;i<count;i++){if(fruits.length<maxFruits)spawnFruit()}
+  }
+  if(ghostBossSpawnTimer>GHOST_BOSS_SPAWN_INTERVAL){
+    ghostBossSpawnTimer=0;
+    spawnGhostBoss();
   }
 }
 
@@ -2086,11 +2763,12 @@ function updateHUD(){
   setBind("enemyLevel",t.enemyLevel);
   setBind("enemyCount",enemies.length);
   setBind("purpleCount",getPurpleEnemyCount());
+  setBind("ghostBossCount",enemies.filter(e=>e.type==="ghost").length);
   setBind("speedBuff",Math.max(0,speedBuffTimer).toFixed(1));
   setBind("invincibleBuff",Math.max(0,invincibleTimer).toFixed(1));
   setBind("fps",fps);
   const invincibleNext=Math.max(0,Math.ceil(nextInvincibleFruitSpawnTime-invincibleFruitSpawnTimer));
-  if(aliveTime<25)setBind("fruitInfo",`25秒后加速果实 / 无敌${invincibleNext}s`);
+  if(aliveTime<5)setBind("fruitInfo",`5秒后加速果实 / 无敌${invincibleNext}s`);
   else if(aliveTime<45)setBind("fruitInfo",`加速果实 / 无敌${invincibleNext}s`);
   else if(aliveTime<60)setBind("fruitInfo",`加速+加血 / 无敌${invincibleNext}s`);
   else if(aliveTime<120)setBind("fruitInfo",`果实加快 / 无敌${invincibleNext}s`);
@@ -2101,6 +2779,17 @@ function endGame(){
   if(gameOverPending)return;
   gameOverPending=true;
   gameRunning=false;
+  if(isPaused){
+    isPaused=false;
+    const btn=document.getElementById("pauseBtn");
+    const overlay=document.getElementById("debugOverlay");
+    btn.classList.remove("is-paused");
+    overlay.classList.remove("active");
+    exitDebugCameraMode();
+    clearDebugHighlight();
+    updateDebugInfoPanel(null);
+  }
+  document.getElementById("pauseBtn").style.display="none";
   document.getElementById("scanlines").style.display="none";
 
   stopBGM();
@@ -2137,36 +2826,69 @@ function endGame(){
 }
 
 function randomPosition(){
-  const margin=2.2,rx=Math.max(2,platformWalkRadiusX-margin),rz=Math.max(2,platformWalkRadiusZ-margin);
+  const cx=platformCollisionCenterX,cz=platformCollisionCenterZ;
+  const margin=platformWalkRadiusX*.08,rx=Math.max(.01,platformWalkRadiusX-margin),rz=Math.max(.01,platformWalkRadiusZ-margin);
   const angle=Math.random()*Math.PI*2,radius=Math.sqrt(Math.random());
-  const x=Math.cos(angle)*rx*radius,z=Math.sin(angle)*rz*radius,y=getPlatformHeightAt(x,z);
+  const x=cx+Math.cos(angle)*rx*radius,z=cz+Math.sin(angle)*rz*radius,y=getPlatformHeightAt(x,z);
   return new THREE.Vector3(x,y,z);
 }
 function randomEdgePosition(){
-  const margin=1.8,rx=Math.max(3,platformWalkRadiusX-margin),rz=Math.max(3,platformWalkRadiusZ-margin);
-  const angle=Math.random()*Math.PI*2,x=Math.cos(angle)*rx,z=Math.sin(angle)*rz,y=getPlatformHeightAt(x,z);
+  const cx=platformCollisionCenterX,cz=platformCollisionCenterZ;
+  const margin=platformWalkRadiusX*.06,rx=Math.max(.01,platformWalkRadiusX-margin),rz=Math.max(.01,platformWalkRadiusZ-margin);
+  const angle=Math.random()*Math.PI*2,x=cx+Math.cos(angle)*rx,z=cz+Math.sin(angle)*rz,y=getPlatformHeightAt(x,z);
   return new THREE.Vector3(x,y,z);
 }
 function findSafePosition(radius){
+  const minDist=Math.max(radius+.5,platformWalkRadiusX*.15);
+  const avoidDist=Math.max(radius+.3,platformWalkRadiusX*.1);
   for(let i=0;i<90;i++){
     const pos=randomPosition();
-    if(distance2D(pos,player.position)<4.5)continue;
+    if(distance2D(pos,player.position)<minDist)continue;
     if(collidesWithRocks(pos,radius))continue;
     let tooClose=false;
-    for(const c of crystals){if(distance2D(pos,c.mesh.position)<3){tooClose=true;break}}
-    for(const f of fruits){if(distance2D(pos,f.mesh.position)<3){tooClose=true;break}}
+    for(const c of crystals){if(distance2D(pos,c.mesh.position)<avoidDist){tooClose=true;break}}
+    for(const f of fruits){if(distance2D(pos,f.mesh.position)<avoidDist){tooClose=true;break}}
     if(!tooClose)return pos;
   }
   return randomPosition();
 }
-function collidesWithRocks(pos,radius){for(const r of rocks){const limit=radius+r.radius;if(dist2DSq(pos.x,pos.z,r.mesh.position.x,r.mesh.position.z)<limit*limit)return true}return false}
-function clampToWorld(pos){clampToPlatform(pos,.8)}
+function collidesWithRocks(pos,radius){
+  for(const rock of rocks){
+    if(!rock.mesh)continue;
+    const d=distance2D(pos,rock.mesh.position);
+    if(d<radius+rock.radius)return true;
+  }
+  return false;
+}
+function isChildOf(child,parent){if(!parent)return false;let c=child;while(c){if(c===parent)return true;c=c.parent}return false}
+function countAllFaces(obj){let count=0;obj.traverse(c=>{if(c.isMesh&&c.geometry){const v=c.geometry.attributes?.position?.count||0;const idx=c.geometry.index;count+=idx?idx.count/3:v/3}});return Math.round(count)}
+function clampToWorld(pos){clampToPlatform(pos,platformWalkRadiusX*.03)}
 function distance2D(a,b){const dx=a.x-b.x,dz=a.z-b.z;return Math.sqrt(dx*dx+dz*dz)}
 function randomInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
 
 function setupControls(){
-  window.addEventListener("keydown",e=>keys[e.code]=true);
-  window.addEventListener("keyup",e=>keys[e.code]=false);
+  window.addEventListener("keydown",e=>{
+    if(e.code==="KeyP"||e.code==="Escape"){
+      e.preventDefault();
+      togglePause();
+      return;
+    }
+    if(isPaused&&debugCameraMode){
+      keys[e.code]=true;
+      return;
+    }
+    if(isPaused)return;
+    keys[e.code]=true;
+  });
+  window.addEventListener("keyup",e=>{
+    if(isPaused&&debugCameraMode){
+      keys[e.code]=false;
+      return;
+    }
+    if(isPaused)return;
+    keys[e.code]=false;
+  });
+  setupDebugInput();
 }
 
 function setupJoystick(){
@@ -2175,6 +2897,7 @@ function setupJoystick(){
   let active=false,center={x:0,y:0},maxDist=42;
 
   joystick.addEventListener("pointerdown",e=>{
+    if(isPaused)return;
     active=true;
     unlockAudio();
     const rect=joystick.getBoundingClientRect();
@@ -2185,7 +2908,7 @@ function setupJoystick(){
     updateStick(e.clientX,e.clientY);
   });
 
-  joystick.addEventListener("pointermove",e=>{if(active)updateStick(e.clientX,e.clientY)});
+  joystick.addEventListener("pointermove",e=>{if(!isPaused&&active)updateStick(e.clientX,e.clientY)});
   joystick.addEventListener("pointerup",()=>{active=false;moveInput.set(0,0);resetStick()});
   joystick.addEventListener("pointercancel",()=>{active=false;moveInput.set(0,0);resetStick()});
 
@@ -2213,7 +2936,7 @@ function onResize(){
   camera.aspect=window.innerWidth/window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth,window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio,_isMobile?1.0:1.6));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,_isMobile?1.0:1.25));
   updatePlayerHeadUIScale();
   if(gameRunning)setHUDVisible(true);
 }
