@@ -417,13 +417,12 @@ function disposeSpriteSafe(sprite){if(!sprite||!sprite.material)return;sprite.ma
 function disposeObj(obj){if(obj.geometry)obj.geometry.dispose();disposeMaterial(obj.material)}
 function disposeGroup(group,parent){parent.remove(group);group.traverse(obj=>disposeObj(obj))}
 
-const worldSize=42,maxHp=50,maxCrystals=20,INITIAL_CRYSTAL_COUNT=8,CRYSTAL_SPAWN_INTERVAL=0.9;
+const worldSize=42,maxHp=50,maxCrystals=60,INITIAL_CRYSTAL_COUNT=30,CRYSTAL_SPAWN_INTERVAL=0.35;
 const maxFruits=24,maxSpeedFruits=14,maxHealFruits=10;
 const maxPurpleEnemies=5,purpleStartTime=15,basePlayerSpeed=5.0;
 const HEAL_AMOUNT=8;
 const ENEMY_SPEED_MULTIPLIER=1.15,ENEMY_MAX_DIFFICULTY_TIME=120,MAX_SCENE_ENEMIES=24;
 const ENEMY_STUCK_DESTROY_TIME=2.0,ENEMY_STUCK_MOVE_EPSILON=0.08;
-const MOBILE_MAX_CRYSTALS=15,MOBILE_INITIAL_CRYSTALS=6;
 const INVINCIBLE_FRUIT_COUNT=2,INVINCIBLE_FRUIT_LIFE=4.0,INVINCIBLE_DURATION=5.0,INVINCIBLE_SPEED_MULTIPLIER=2.0;
 const GHOST_BOSS_SPAWN_INTERVAL=60,GHOST_BOSS_LIFETIME=10,GHOST_BOSS_DAMAGE=20;
 
@@ -439,7 +438,7 @@ const OBSTACLE_COLOR=0x9F7448;
 const ROCK_NEW_MODEL_URLS=[
   "model/rock_new01.FBX","model/rock_new03.FBX"
 ];
-const SCENE_ROCK_COUNT=20,MOBILE_ROCK_COUNT=18,ROCK_MIN_DISTANCE=.35,ROCK_PLAYER_CLEAR_RADIUS=2.5;
+const SCENE_ROCK_COUNT=8,MOBILE_ROCK_COUNT=6,ROCK_MIN_DISTANCE=.35,ROCK_PLAYER_CLEAR_RADIUS=2.5;
 
 const PLAYER_MODEL_URL="model/wanjia01.FBX";
 const PLAYER_BASE_COLOR_URL="model/tex/wanjia01_basecolor.PNG";
@@ -463,23 +462,23 @@ const finalTime=document.getElementById("finalTime");
 
 const RANKS=[
   {name:"星尘新手",score:0,icon:"✨"},
-  {name:"蓝晶猎手",score:80,icon:"💎"},
-  {name:"星环游侠",score:180,icon:"🪐"},
-  {name:"银河先锋",score:360,icon:"🌌"},
-  {name:"星界传说",score:650,icon:"👑"},
-  {name:"永恒星王",score:1000,icon:"🏆"}
+  {name:"蓝晶猎手",score:200,icon:"💎"},
+  {name:"星环游侠",score:450,icon:"🪐"},
+  {name:"银河先锋",score:900,icon:"🌌"},
+  {name:"星界传说",score:1625,icon:"👑"},
+  {name:"永恒星王",score:2500,icon:"🏆"}
 ];
 
 const ACHIEVEMENTS=[
   {id:"firstCrystal",icon:"💎",name:"第一颗晶石",desc:"获得任意积分",check:s=>s.bestScore>=5},
-  {id:"score100",icon:"🌟",name:"百分突破",desc:"最高分达到100",check:s=>s.bestScore>=100},
-  {id:"score300",icon:"🚀",name:"星环冲刺",desc:"最高分达到300",check:s=>s.bestScore>=300},
-  {id:"score650",icon:"👑",name:"星界传说",desc:"最高分达到650",check:s=>s.bestScore>=650},
+  {id:"score100",icon:"🌟",name:"百分突破",desc:"最高分达到250",check:s=>s.bestScore>=250},
+  {id:"score300",icon:"🚀",name:"星环冲刺",desc:"最高分达到750",check:s=>s.bestScore>=750},
+  {id:"score650",icon:"👑",name:"星界传说",desc:"最高分达到1625",check:s=>s.bestScore>=1625},
   {id:"survive60",icon:"⏱️",name:"坚持一分钟",desc:"存活60秒",check:s=>s.bestTime>=60},
   {id:"survive120",icon:"🛡️",name:"两分钟试炼",desc:"存活120秒",check:s=>s.bestTime>=120},
   {id:"play5",icon:"🔥",name:"再来一局",desc:"累计游玩5局",check:s=>s.gamesPlayed>=5},
   {id:"play15",icon:"⚡",name:"停不下来",desc:"累计游玩15局",check:s=>s.gamesPlayed>=15},
-  {id:"rankKing",icon:"🏆",name:"永恒星王",desc:"达到1000分",check:s=>s.bestScore>=1000}
+  {id:"rankKing",icon:"🏆",name:"永恒星王",desc:"达到2500分",check:s=>s.bestScore>=2500}
 ];
 
 init();
@@ -634,14 +633,14 @@ function forceLandscape(){
 }
 
 function initSharedResources(){
-  shared.geo.enemyBody=new THREE.SphereGeometry(.65,14,14);
-  shared.geo.enemyHorn=new THREE.ConeGeometry(.25,.5,8);
-  shared.geo.enemyEye=new THREE.SphereGeometry(.08,8,8);
-  shared.geo.purpleBody=new THREE.SphereGeometry(.65*1.3,18,18);
-  shared.geo.purpleHorn=new THREE.ConeGeometry(.32*1.3,.65*1.3,8);
-  shared.geo.purpleAura=new THREE.TorusGeometry(.82*1.3,.045,8,30);
-  shared.geo.ghostBody=new THREE.SphereGeometry(.65*1.3*2,20,20);
-  shared.geo.ghostAura=new THREE.TorusGeometry(.82*1.3*2.2,.06,10,40);
+  shared.geo.enemyBody=new THREE.SphereGeometry(.65,10,8);
+  shared.geo.enemyHorn=new THREE.ConeGeometry(.25,.5,6);
+  shared.geo.enemyEye=new THREE.SphereGeometry(.08,6,5);
+  shared.geo.purpleBody=new THREE.SphereGeometry(.65*1.3,12,10);
+  shared.geo.purpleHorn=new THREE.ConeGeometry(.32*1.3,.65*1.3,6);
+  shared.geo.purpleAura=new THREE.TorusGeometry(.82*1.3,.045,6,20);
+  shared.geo.ghostBody=new THREE.SphereGeometry(.65*1.3*2,14,12);
+  shared.geo.ghostAura=new THREE.TorusGeometry(.82*1.3*2.2,.06,8,24);
   shared.geo.ghostCore=new THREE.IcosahedronGeometry(.4*1.3*2,0);
   shared.geo.rock=new THREE.DodecahedronGeometry(1,0);
   shared.geo.speedFruit=new THREE.SphereGeometry(.45,16,16);
@@ -1595,10 +1594,10 @@ function startGame(){
   clearPlayerSideEffects();
   prewarmPurpleEnemyPool();
 
-  const initialCrystals=isMobileLayout()?MOBILE_INITIAL_CRYSTALS:INITIAL_CRYSTAL_COUNT;
+  const initialCrystals=INITIAL_CRYSTAL_COUNT;
   for(let i=0;i<initialCrystals;i++)spawnCrystal();
   spawnSceneRocks();
-  spawnEnemyGroup(isMobileLayout()?2:4);
+  spawnEnemyGroup(4);
   initPlatformAirParticles();
 
   updateHUD();
@@ -1613,13 +1612,13 @@ function clearObjects(arr,dispose=false){
 function getTier(){
   if(_cachedTier&&_tierCacheScore===score&&_frameCount===_tierCacheFrame)return _cachedTier;
   let t;
-  if(score>=520)t={crystalColor:0xffffff,crystalName:"星白色",crystalValue:80,enemyLevel:7,enemySpeed:7.0,enemyDamage:20};
-  else if(score>=320)t={crystalColor:0xfff1a8,crystalName:"金色",crystalValue:50,enemyLevel:6,enemySpeed:6.4,enemyDamage:15};
-  else if(score>=200)t={crystalColor:0xff8c00,crystalName:"橙色",crystalValue:30,enemyLevel:5,enemySpeed:5.8,enemyDamage:12};
-  else if(score>=120)t={crystalColor:0x001f8f,crystalName:"深蓝色",crystalValue:20,enemyLevel:4,enemySpeed:5.2,enemyDamage:10};
-  else if(score>=70)t={crystalColor:0xff3030,crystalName:"红色",crystalValue:10,enemyLevel:3,enemySpeed:4.5,enemyDamage:5};
-  else if(score>=35)t={crystalColor:0xb14cff,crystalName:"紫色",crystalValue:8,enemyLevel:2,enemySpeed:3.8,enemyDamage:5};
-  else if(score>=15)t={crystalColor:0x2ecc71,crystalName:"绿色",crystalValue:6,enemyLevel:1,enemySpeed:3.3,enemyDamage:5};
+  if(score>=1300)t={crystalColor:0xffffff,crystalName:"星白色",crystalValue:80,enemyLevel:7,enemySpeed:7.0,enemyDamage:20};
+  else if(score>=800)t={crystalColor:0xfff1a8,crystalName:"金色",crystalValue:50,enemyLevel:6,enemySpeed:6.4,enemyDamage:15};
+  else if(score>=500)t={crystalColor:0xff8c00,crystalName:"橙色",crystalValue:30,enemyLevel:5,enemySpeed:5.8,enemyDamage:12};
+  else if(score>=300)t={crystalColor:0x001f8f,crystalName:"深蓝色",crystalValue:20,enemyLevel:4,enemySpeed:5.2,enemyDamage:10};
+  else if(score>=175)t={crystalColor:0xff3030,crystalName:"红色",crystalValue:10,enemyLevel:3,enemySpeed:4.5,enemyDamage:5};
+  else if(score>=88)t={crystalColor:0xb14cff,crystalName:"紫色",crystalValue:8,enemyLevel:2,enemySpeed:3.8,enemyDamage:5};
+  else if(score>=38)t={crystalColor:0x2ecc71,crystalName:"绿色",crystalValue:6,enemyLevel:1,enemySpeed:3.3,enemyDamage:5};
   else t={crystalColor:0x48a8ff,crystalName:"蓝色",crystalValue:5,enemyLevel:1,enemySpeed:3.0,enemyDamage:5};
   _cachedTier=t;_tierCacheScore=score;_tierCacheFrame=_frameCount;
   return t;
@@ -1628,19 +1627,19 @@ function getTier(){
 function getEnemyDifficultyProgress(){return THREE.MathUtils.clamp(aliveTime/ENEMY_MAX_DIFFICULTY_TIME,0,1)}
 function getMaxEnemies(){
   const p=getEnemyDifficultyProgress();
-  const maxEnemies=isMobileLayout()?16:MAX_SCENE_ENEMIES;
-  const initialCount=isMobileLayout()?5:7;
+  const maxEnemies=MAX_SCENE_ENEMIES;
+  const initialCount=7;
   return Math.min(maxEnemies,Math.floor(THREE.MathUtils.lerp(initialCount,maxEnemies,p)));
 }
 function getEnemyGroupSize(){
   const p=getEnemyDifficultyProgress();
-  if(p>=1)return randomInt(isMobileLayout()?2:4,isMobileLayout()?3:6);
-  if(p>=.75)return randomInt(isMobileLayout()?2:3,isMobileLayout()?3:5);
-  if(p>=.5)return randomInt(isMobileLayout()?2:3,isMobileLayout()?2:4);
-  if(p>=.25)return randomInt(isMobileLayout()?1:2,isMobileLayout()?2:4);
-  return randomInt(isMobileLayout()?1:2,isMobileLayout()?2:3);
+  if(p>=1)return randomInt(4,6);
+  if(p>=.75)return randomInt(3,5);
+  if(p>=.5)return randomInt(2,4);
+  if(p>=.25)return randomInt(2,4);
+  return randomInt(2,3);
 }
-function getEnemySpawnInterval(){return THREE.MathUtils.lerp(3.4,isMobileLayout()?2.0:1.65,getEnemyDifficultyProgress())}
+function getEnemySpawnInterval(){return THREE.MathUtils.lerp(3.4,1.65,getEnemyDifficultyProgress())}
 function getPurpleEnemyCount(){return enemies.filter(e=>e.type==="purple").length}
 function getPurpleMaxCount(){
   if(aliveTime<purpleStartTime)return 0;
@@ -1661,7 +1660,7 @@ function spawnCrystal(){
   mesh.position.set(pos.x,getPlatformHeightAt(pos.x,pos.z)+.8,pos.z);
   mesh.castShadow=true;
   scene.add(mesh);
-  crystals.push({mesh,radius:.75,value:t.crystalValue,mat,baseY:getPlatformHeightAt(pos.x,pos.z)+.8});
+  crystals.push({mesh,radius:.75,value:t.crystalValue,mat,baseY:getPlatformHeightAt(pos.x,pos.z)+.8,rotY:THREE.MathUtils.randFloat(.4,1.2),rotX:THREE.MathUtils.randFloat(.15,.45)});
 }
 
 function spawnSceneRocks(){
@@ -1724,7 +1723,7 @@ function spawnEnemyGroup(count){
 }
 
 function processEnemySpawnQueue(){
-  const perFrame=isMobileLayout()?1:2;
+  const perFrame=2;
   for(let i=0;i<perFrame&&enemySpawnQueue.length>0;i++){
     if(enemies.length>=getMaxEnemies()){enemySpawnQueue.length=0;return}
     spawnEnemyAt(enemySpawnQueue.shift());
@@ -1744,7 +1743,7 @@ function spawnEnemyAt(pos){
   eye2.position.set(.2,.85,.58);group.add(eye2);
   group.position.set(pos.x,getPlatformHeightAt(pos.x,pos.z),pos.z);
   scene.add(group);
-  enemies.push({mesh:group,type:"normal",radius:.7,speed:t.enemySpeed*ENEMY_SPEED_MULTIPLIER,damage:t.enemyDamage,spawnTime:performance.now(),active:false,agility:1.0,stuckTimer:0,lastCheckPos:group.position.clone(),lastDir:new THREE.Vector3(0,0,0)});
+  enemies.push({mesh:group,type:"normal",radius:.7,speed:t.enemySpeed*ENEMY_SPEED_MULTIPLIER,damage:5,spawnTime:performance.now(),active:false,agility:1.0,stuckTimer:0,lastCheckPos:group.position.clone(),lastDir:new THREE.Vector3(0,0,0)});
 }
 
 function spawnPurpleEnemy(){
@@ -1786,7 +1785,7 @@ function returnPurpleEnemyToPool(group){
 }
 
 function prewarmPurpleEnemyPool(){
-  const count=isMobileLayout()?2:3;
+  const count=3;
   while(purpleEnemyPool.length<count){
     const group=createPurpleEnemyMesh();
     group.visible=false;
@@ -2470,7 +2469,7 @@ function updateCrystals(dt){
   }
   for(let i=crystals.length-1;i>=0;i--){
     const c=crystals[i];
-    c.mesh.rotation.y+=dt*2.2;c.mesh.rotation.x+=dt*.8;
+    c.mesh.rotation.y+=dt*c.rotY;c.mesh.rotation.x+=dt*c.rotX;
     c.mesh.position.y=(c.baseY!=null?c.baseY:getPlatformHeightAt(c.mesh.position.x,c.mesh.position.z)+.8)+Math.sin(aliveTime*3+i)*.12;
     if(dist2DSq(player.position.x,player.position.z,c.mesh.position.x,c.mesh.position.z)<(playerRadius+c.radius)*(playerRadius+c.radius)){
       const addValue=c.value;
@@ -2730,7 +2729,7 @@ function updateFruits(dt){
 
 function updateSpawns(dt){
   crystalSpawnTimer+=dt;enemySpawnTimer+=dt;fruitSpawnTimer+=dt;purpleEnemySpawnTimer+=dt;invincibleFruitSpawnTimer+=dt;ghostBossSpawnTimer+=dt;
-  const maxCrystalCount=isMobileLayout()?MOBILE_MAX_CRYSTALS:maxCrystals;
+  const maxCrystalCount=maxCrystals;
   if(crystalSpawnTimer>CRYSTAL_SPAWN_INTERVAL&&crystals.length<maxCrystalCount){crystalSpawnTimer=0;spawnCrystal()}
   if(enemySpawnTimer>getEnemySpawnInterval()){enemySpawnTimer=0;spawnEnemyGroup(getEnemyGroupSize())}
   const purpleInterval=getPurpleSpawnInterval();
@@ -2738,7 +2737,7 @@ function updateSpawns(dt){
     purpleEnemySpawnTimer=0;
     if(getPurpleEnemyCount()<getPurpleMaxCount())spawnPurpleEnemy();
   }
-  if(invincibleFruitSpawnTimer>nextInvincibleFruitSpawnTime){
+  if(aliveTime>=10&&invincibleFruitSpawnTimer>nextInvincibleFruitSpawnTime){
     invincibleFruitSpawnTimer=0;nextInvincibleFruitSpawnTime=THREE.MathUtils.randFloat(6,8);
     spawnInvincibleFruit();
   }
