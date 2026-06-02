@@ -64,11 +64,15 @@ button::after{content:'';position:absolute;top:0;left:10%;right:10%;height:50%;b
 #warning{position:fixed;top:50%;left:50%;z-index:20;transform:translate(-50%,-50%);padding:16px 32px;border-radius:8px;background:rgba(255,17,68,.15);border:2px solid var(--c-red);color:var(--c-red);font-family:var(--font-d);font-size:26px;font-weight:900;display:none;animation:warnPulse .5s infinite alternate;pointer-events:none;text-shadow:0 0 20px rgba(255,17,68,.5);box-shadow:0 0 30px rgba(255,17,68,.2),inset 0 0 30px rgba(255,17,68,.1);letter-spacing:4px}
 @keyframes warnPulse{from{transform:translate(-50%,-50%) scale(1);opacity:.7;box-shadow:0 0 20px rgba(255,17,68,.15)}to{transform:translate(-50%,-50%) scale(1.1);opacity:1;box-shadow:0 0 50px rgba(255,17,68,.35)}}
 
+/* ===== Start Toast ===== */
+#startToast{position:fixed;top:12%;left:50%;z-index:30;transform:translate(-50%,0);padding:14px 36px;border-radius:8px;background:rgba(0,0,0,.65);border:1px solid rgba(0,240,255,.25);color:#e0f4ff;font-family:var(--font-d);font-size:22px;font-weight:700;display:none;pointer-events:none;text-align:center;white-space:nowrap;text-shadow:0 0 14px rgba(0,240,255,.35);box-shadow:0 0 30px rgba(0,240,255,.08)}
+@keyframes toastFade{0%{opacity:0;transform:translate(-50%,-10px)}12%{opacity:1;transform:translate(-50%,0)}88%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-6px)}}
+
 /* ===== Damage Overlay ===== */
 #damageOverlay{position:fixed;inset:0;z-index:9;background:radial-gradient(ellipse at center,rgba(255,17,68,.25),transparent 70%);pointer-events:none;opacity:0;transition:opacity .06s linear}
 
 /* ===== Joystick ===== */
-#joystick{position:fixed;left:22px;bottom:28px;width:126px;height:126px;z-index:12;display:none;border-radius:50%;background:rgba(0,240,255,.04);border:2px solid rgba(0,240,255,.15);touch-action:none;box-shadow:0 0 24px rgba(0,240,255,.04),inset 0 0 30px rgba(0,240,255,.03)}
+#joystick{position:fixed;left:22px;bottom:36px;width:126px;height:126px;z-index:12;display:none;border-radius:50%;background:rgba(0,240,255,.04);border:2px solid rgba(0,240,255,.15);touch-action:none;box-shadow:0 0 24px rgba(0,240,255,.04),inset 0 0 30px rgba(0,240,255,.03)}
 #joystick::before{content:'';position:absolute;inset:4px;border-radius:50%;border:1px dashed rgba(0,240,255,.08);pointer-events:none}
 #stick{position:absolute;left:36px;top:36px;width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,rgba(0,240,255,.85),rgba(180,77,255,.7));box-shadow:0 0 24px rgba(0,240,255,.5),0 0 60px rgba(0,240,255,.15);border:2px solid rgba(255,255,255,.15);transition:none}
 #stick::after{content:'';position:absolute;inset:8px;border-radius:50%;border:1.5px solid rgba(255,255,255,.12);pointer-events:none}
@@ -102,13 +106,14 @@ button::after{content:'';position:absolute;top:0;left:10%;right:10%;height:50%;b
 @media(max-width:768px){
 #hudDesktop{display:none!important}
 #hudMobile{transform:scale(.88)}
-#joystick{display:block;left:50%;bottom:14px;transform:translateX(-50%);width:132px;height:132px;background:rgba(0,240,255,.03);border:2px solid rgba(0,240,255,.12)}
+#joystick{display:block;left:50%;bottom:18px;transform:translateX(-50%);width:132px;height:132px;background:rgba(0,240,255,.03);border:2px solid rgba(0,240,255,.12)}
 #stick{left:38px;top:38px;width:56px;height:56px}
 .panel{width:min(94vw,560px);padding:14px 16px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .panel h1{font-size:20px;margin-bottom:6px}
 .panel p{font-size:12px;margin:4px 0}
 button{font-size:14px;padding:10px 22px;margin-top:12px}
 #warning{font-size:18px;padding:12px 20px}
+#startToast{font-size:16px;padding:10px 22px;top:10%}
 .achievements{grid-template-columns:repeat(2,1fr);gap:4px;margin-top:6px}
 .achievement{padding:5px 4px;font-size:9px;border-radius:6px}
 .achievement .icon{font-size:14px;margin-bottom:1px}
@@ -124,7 +129,7 @@ button{font-size:14px;padding:10px 22px;margin-top:12px}
 /* ===== Responsive: <=420px ===== */
 @media(max-width:420px){
 #hudMobile{transform:scale(.76);top:6px;left:6px}
-#joystick{width:120px;height:120px;bottom:10px}
+#joystick{width:120px;height:120px;bottom:13px}
 #stick{left:33px;top:33px;width:54px;height:54px}
 .panel{padding:10px 12px}
 .panel h1{font-size:18px}
@@ -150,6 +155,16 @@ button{font-size:13px;padding:8px 18px;margin-top:10px}
 #pauseBtn.is-paused .pb-bar{display:none}
 #pauseBtn .pb-play{display:none;width:0;height:0;border-style:solid;border-width:9px 0 9px 14px;border-color:transparent transparent transparent var(--c-cyan);filter:drop-shadow(0 0 4px rgba(0,240,255,.5));margin-left:3px}
 #pauseBtn.is-paused .pb-play{display:inline-block}
+
+/* ===== Restart Button ===== */
+#restartGameBtn{position:fixed;top:64px;right:12px;z-index:50;width:46px;height:46px;padding:0;margin:0;display:none;align-items:center;justify-content:center;border-radius:50%;background:rgba(7,7,30,.72);border:2px solid rgba(0,240,255,.35);box-shadow:0 0 16px rgba(0,240,255,.18),inset 0 0 18px rgba(180,77,255,.08);backdrop-filter:blur(8px);cursor:pointer;font-size:20px;color:var(--c-cyan);text-shadow:0 0 8px rgba(0,240,255,.4);transition:transform .12s,box-shadow .12s,width .2s,border-radius .2s;letter-spacing:0;overflow:hidden;white-space:nowrap;gap:6px}
+#restartGameBtn:hover{transform:scale(1.08);box-shadow:0 0 24px rgba(0,240,255,.32),inset 0 0 18px rgba(180,77,255,.12)}
+#restartGameBtn:active{transform:scale(.94)}
+#restartGameBtn::after{display:none}
+#restartGameBtn .rg-icon{display:inline-block;font-size:22px;line-height:1;flex-shrink:0;transform:scaleX(-1)}
+#restartGameBtn .rg-label{display:none;font-family:var(--font-d);font-size:13px;font-weight:700;opacity:0;transition:opacity .2s}
+#restartGameBtn:hover .rg-label,#restartGameBtn:active .rg-label{display:inline-block;opacity:1}
+#restartGameBtn:hover{width:auto;padding:0 16px 0 10px;border-radius:999px}
 
 /* ===== Debug Overlay ===== */
 #debugOverlay{position:fixed;inset:0;z-index:48;display:none;pointer-events:none;font-family:var(--font-b);color:var(--c-text)}
@@ -196,6 +211,9 @@ button{font-size:13px;padding:8px 18px;margin-top:10px}
 
 @media(max-width:768px){
   #pauseBtn{width:42px;height:42px;top:8px;right:8px}
+  #restartGameBtn{width:42px;height:42px;top:56px;right:8px;font-size:18px}
+  #restartGameBtn .rg-icon{font-size:19px}
+  #restartGameBtn:hover{width:auto;padding:0 14px 0 8px}
   #debugHelp{width:200px;font-size:11px;left:8px;top:56px;padding:9px 10px;max-height:calc(100vh - 76px)}
   #debugInfo{width:200px;font-size:11px;right:8px;top:56px;padding:9px 10px}
   #debugTopBar{font-size:11px;padding:6px 14px;top:10px}
@@ -251,11 +269,16 @@ button{font-size:13px;padding:8px 18px;margin-top:10px}
 </div>
 
 <div id="warning">警告：生命值过低！</div>
+<div id="startToast">您已来到阿尔法星球，请存活下去并收集更多的晶石。</div>
 <div id="tip"></div>
 <div id="joystick"><div id="stick"></div></div>
 
 <button id="pauseBtn" type="button" title="暂停 (P / ESC)" aria-label="暂停游戏">
   <span class="pb-bar"></span><span class="pb-bar"></span><span class="pb-play"></span>
+</button>
+
+<button id="restartGameBtn" type="button" title="重新开始" aria-label="重新开始">
+  <span class="rg-icon">&#8635;</span><span class="rg-label">重新开始</span>
 </button>
 
 <div id="debugOverlay">
@@ -349,7 +372,8 @@ let playerActions={},currentPlayerAnim="",playerHitAnimTimer=0,playerIsDead=fals
 let playerTintTargets=[],playerLocatorGroup=null;
 let playerHeadUISprite=null,playerHeadUICanvas=null,playerHeadUIContext=null,playerHeadUITexture=null;
 let playerHeadScoreSprite=null,playerHeadScoreCanvas=null,playerHeadScoreContext=null,playerHeadScoreTexture=null,lastHeadUIScore=-1,lastHeadUIHp=-1;
-let playerSideEffects=[],crystalScorePopups=[],playerBaseColorTexture=null,playerNormalTexture=null;
+let playerSideEffects=[],crystalScorePopups=[],playerBaseColorTexture=null,playerRoughnessTexture=null,playerMetalnessTexture=null,playerNormalTexture=null,playerSpeedColorTexture=null;
+let speedTextureActive=false,speedEndTransitionTimer=0;
 
 let playerRadius=.65,clock=new THREE.Clock();
 let gameRunning=false,gameOverPending=false,score=0,hp=50,aliveTime=0;
@@ -385,6 +409,8 @@ let performanceCheckCounter=0;
 
 let fps=0,fpsFrameCount=0,fpsAccumTime=0;
 
+let playerStatusSprite=null,playerStatusCanvas=null,playerStatusCtx=null,playerStatusTexture=null,playerStatusTimer=0,playerStatusType="";
+
 let _isMobile=false;
 let _cachedTier=null;
 let _tierCacheScore=-1;
@@ -418,7 +444,7 @@ function disposeObj(obj){if(obj.geometry)obj.geometry.dispose();disposeMaterial(
 function disposeGroup(group,parent){parent.remove(group);group.traverse(obj=>disposeObj(obj))}
 
 const worldSize=42,maxHp=50,maxCrystals=60,INITIAL_CRYSTAL_COUNT=30,CRYSTAL_SPAWN_INTERVAL=0.35;
-const maxFruits=24,maxSpeedFruits=14,maxHealFruits=10;
+const maxFruits=48,maxSpeedFruits=30,maxHealFruits=18;
 const maxPurpleEnemies=5,purpleStartTime=15,basePlayerSpeed=5.0;
 const HEAL_AMOUNT=8;
 const ENEMY_SPEED_MULTIPLIER=1.15,ENEMY_MAX_DIFFICULTY_TIME=120,MAX_SCENE_ENEMIES=24;
@@ -438,11 +464,14 @@ const OBSTACLE_COLOR=0x9F7448;
 const ROCK_NEW_MODEL_URLS=[
   "model/rock_new01.FBX","model/rock_new03.FBX"
 ];
-const SCENE_ROCK_COUNT=8,MOBILE_ROCK_COUNT=6,ROCK_MIN_DISTANCE=.35,ROCK_PLAYER_CLEAR_RADIUS=2.5;
+const SCENE_ROCK_COUNT=8,MOBILE_ROCK_COUNT=6,ROCK_MIN_DISTANCE=.35,ROCK_PLAYER_CLEAR_RADIUS=4.5;
 
 const PLAYER_MODEL_URL="model/wanjia01.FBX";
 const PLAYER_BASE_COLOR_URL="model/tex/wanjia01_basecolor.PNG";
+const PLAYER_ROUGHNESS_URL="model/tex/wanjia01_r.png";
+const PLAYER_METALNESS_URL="model/tex/wanjia01_m.png";
 const PLAYER_NORMAL_MAP_URL="model/tex/wanjia01_normalmap.PNG";
+const PLAYER_SPEED_COLOR_URL="model/tex/wanjia01_basecolor_zhuangtai.PNG";
 const PLAYER_IDLE_ANIM_URL="model/ani/wanjia01_idle.FBX";
 const PLAYER_RUN_ANIM_URL="model/ani/wanjia01_run.fbx";
 const PLAYER_ATTACKED_ANIM_URL="model/ani/wanjia01_attacked.fbx";
@@ -457,6 +486,7 @@ const damageOverlay=document.getElementById("damageOverlay");
 const startScreen=document.getElementById("startScreen");
 const gameOverScreen=document.getElementById("gameOverScreen");
 const tip=document.getElementById("tip");
+const startToast=document.getElementById("startToast");
 const finalScore=document.getElementById("finalScore");
 const finalTime=document.getElementById("finalTime");
 
@@ -502,16 +532,18 @@ function init(){
   scene=new THREE.Scene();
   scene.fog=new THREE.FogExp2(0xa8c0d8,_isMobile? .0006:.001);
   camera=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,.1,1000);
-  camera.position.set(0,18,18);
+  const camYStart=isMobileLayout()?22:18;
+  const camZStart=isMobileLayout()?26:18;
+  camera.position.set(0,camYStart,camZStart);
   camera.lookAt(0,0,0);
 
-  renderer=new THREE.WebGLRenderer({canvas:document.getElementById("game"),antialias:!(_isMobile&&window.innerWidth<=500),powerPreference:"high-performance"});
+  renderer=new THREE.WebGLRenderer({canvas:document.getElementById("game"),antialias:true,powerPreference:"high-performance"});
   renderer.setSize(window.innerWidth,window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio,_isMobile?1.0:1.25));
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure=_isMobile?1.08:1.02;
-  renderer.shadowMap.enabled=!_isMobile;
+  renderer.shadowMap.enabled=true;
   renderer.shadowMap.type=THREE.BasicShadowMap;
   renderer.shadowMap.autoUpdate=false;
 
@@ -528,6 +560,7 @@ function init(){
 
   document.getElementById("startBtn").onclick=startGame;
   document.getElementById("restartBtn").onclick=startGame;
+  document.getElementById("restartGameBtn").onclick=startGame;
 
   forceLandscape();
   animate();
@@ -632,6 +665,35 @@ function forceLandscape(){
   }catch(e){}
 }
 
+function setPlayerStatusText(type,duration){
+  playerStatusType=type;
+  playerStatusTimer=duration;
+  if(!playerStatusCanvas){playerStatusCanvas=document.createElement("canvas");playerStatusCanvas.width=3072;playerStatusCanvas.height=1536;playerStatusCtx=playerStatusCanvas.getContext("2d")}
+  const ctx=playerStatusCtx;
+  ctx.clearRect(0,0,playerStatusCanvas.width,playerStatusCanvas.height);
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="900 460px Orbitron, Exo 2, Microsoft YaHei, Arial";
+  let text="";
+  if(type==="speed")text="正在加速";
+  else if(type==="invincible")text="正处于无敌中";
+  else if(type==="heal")text=`已经加血${HEAL_AMOUNT}值`;
+  ctx.fillStyle="#ffffff";
+  ctx.fillText(text,playerStatusCanvas.width/2,playerStatusCanvas.height/2);
+  ctx.restore();
+  if(!playerStatusTexture){playerStatusTexture=new THREE.CanvasTexture(playerStatusCanvas);playerStatusTexture.colorSpace=THREE.SRGBColorSpace;playerStatusTexture.minFilter=THREE.LinearMipmapLinearFilter;playerStatusTexture.magFilter=THREE.LinearFilter}else playerStatusTexture.needsUpdate=true;
+  if(!playerStatusSprite){const mat2=new THREE.SpriteMaterial({map:playerStatusTexture,transparent:true,opacity:1,depthWrite:false,depthTest:false});playerStatusSprite=new THREE.Sprite(mat2);playerStatusSprite.scale.set(isMobileLayout()?246:216,isMobileLayout()?123:108,1);player.add(playerStatusSprite)}
+  playerStatusSprite.position.set(0,isMobileLayout()?6.0:5.0,0);
+  playerStatusSprite.visible=true;
+}
+
+function updatePlayerStatusText(dt){
+  if(!playerStatusSprite||playerStatusTimer<=0)return;
+  playerStatusTimer-=dt;
+  if(playerStatusSprite.material)playerStatusSprite.material.opacity=THREE.MathUtils.clamp(playerStatusTimer/.3,0,1);
+  if(playerStatusTimer<=0){playerStatusSprite.visible=false;playerStatusType=""}
+}
+
 function initSharedResources(){
   shared.geo.enemyBody=new THREE.SphereGeometry(.65,10,8);
   shared.geo.enemyHorn=new THREE.ConeGeometry(.25,.5,6);
@@ -667,6 +729,13 @@ function initSharedResources(){
   shared.mat.invCore=new THREE.MeshStandardMaterial({color:0xfff36a,emissive:0xff66ff,emissiveIntensity:.75,roughness:.18,metalness:.2});
   shared.mat.invAura1=new THREE.MeshBasicMaterial({color:0x66ffff,transparent:true,opacity:.9,blending:THREE.AdditiveBlending,depthWrite:false});
   shared.mat.invAura2=new THREE.MeshBasicMaterial({color:0xff66ff,transparent:true,opacity:.75,blending:THREE.AdditiveBlending,depthWrite:false});
+
+  shared.mat.ghostBody=new THREE.MeshStandardMaterial({color:0xaaccff,emissive:0x334466,emissiveIntensity:.4,roughness:.6,metalness:0,transparent:true,opacity:.5,depthWrite:false});
+  shared.mat.ghostCore=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.8,depthWrite:false});
+  shared.mat.ghostAura1=new THREE.MeshBasicMaterial({color:0x88bbff,transparent:true,opacity:.7,blending:THREE.AdditiveBlending,depthWrite:false});
+  shared.mat.ghostAura2=new THREE.MeshBasicMaterial({color:0xccddff,transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false});
+  shared.geo.ghostParticle=new THREE.SphereGeometry(.3,6,6);
+  shared.mat.ghostParticle=new THREE.MeshBasicMaterial({color:0xaaddff,transparent:true,opacity:.4,depthWrite:false,blending:THREE.AdditiveBlending});
 }
 
 function createLights(){
@@ -685,15 +754,16 @@ function createLights(){
   const mapSize=_isMobile?512:1024;
   sun.shadow.mapSize.width=mapSize;
   sun.shadow.mapSize.height=mapSize;
+  const shadowRange=isMobileLayout()?18:35;
   sun.shadow.camera.near=1;
-  sun.shadow.camera.far=90;
-  sun.shadow.camera.left=-35;
-  sun.shadow.camera.right=35;
-  sun.shadow.camera.top=35;
-  sun.shadow.camera.bottom=-35;
+  sun.shadow.camera.far=isMobileLayout()?24:90;
+  sun.shadow.camera.left=-shadowRange;
+  sun.shadow.camera.right=shadowRange;
+  sun.shadow.camera.top=shadowRange;
+  sun.shadow.camera.bottom=-shadowRange;
   sun.shadow.bias=-0.00035;
   sun.shadow.normalBias=0.035;
-  sun.shadow.radius=isMobileLayout()?2:2;
+  sun.shadow.radius=isMobileLayout()?1.2:2;
   scene.add(sun);
 
   if(!isMobileLayout()){
@@ -860,7 +930,7 @@ function createPlatformModel(){
           platformMeshes.push(obj);
         }
       });
-      platformModel.position.set(0,-0.6,0);
+      platformModel.position.set(0,0,0);
       platformModel.updateMatrixWorld(true);
       scene.add(platformModel);
       platformReady=true;
@@ -912,6 +982,9 @@ function clampToPlatform(pos,margin=0){
 }
 
 function getPlatformHeightAt(x,z){
+  const dx=x-platformCollisionCenterX,dz=z-platformCollisionCenterZ;
+  const rx=Math.max(.01,platformWalkRadiusX*1.05),rz=Math.max(.01,platformWalkRadiusZ*1.05);
+  if(dx*dx/(rx*rx)+dz*dz/(rz*rz)<=1)return platformTopY;
   if(platformCollisionMeshes.length>0&&platformCollisionBox){
     const rayY=platformCollisionBox.max.y+5;
     _platformRayOrigin.set(x,rayY,z);
@@ -919,12 +992,7 @@ function getPlatformHeightAt(x,z){
     platformRaycaster.far=Math.max(20,(platformCollisionBox.max.y-platformCollisionBox.min.y)+10);
     const hits=platformRaycaster.intersectObjects(platformCollisionMeshes,false);
     if(hits.length>0)return hits[0].point.y;
-    return platformTopY;
   }
-  if(!platformModel)return PLATFORM_TOP_Y;
-  const dx=x-platformCollisionCenterX,dz=z-platformCollisionCenterZ;
-  const maxR=Math.max(platformWalkRadiusX,platformWalkRadiusZ)*1.05;
-  if(dx*dx+dz*dz>maxR*maxR)return PLATFORM_TOP_Y;
   return platformTopY;
 }
 
@@ -1011,6 +1079,7 @@ function createPlayerHeadUI(){
 function updatePlayerHeadUIScale(){
   if(playerHeadUISprite)playerHeadUISprite.scale.set(isMobileLayout()?3.8:3.4,isMobileLayout()?3.6:3.2,1);
   if(playerHeadScoreSprite)playerHeadScoreSprite.scale.set(isMobileLayout()?151.2:133.2,isMobileLayout()?56.7:51.3,1);
+  if(playerStatusSprite){playerStatusSprite.scale.set(isMobileLayout()?246:216,isMobileLayout()?123:108,1);playerStatusSprite.position.set(0,isMobileLayout()?6.0:5.0,0)}
 }
 
 function drawRoundRect(ctx,x,y,w,h,r){
@@ -1185,19 +1254,19 @@ function spawnCrystalBurst(){
   const t=getTier();
   ensurePlatformCloudTexture();
   const pos=_v3a.copy(player.position);pos.y+=.5;
-  const count=isMobileLayout()?4:8;
+  const count=20;
   const particles=[];
   for(let i=0;i<count;i++){
-    const size=.25+Math.random()*.35;
+    const size=(.25+Math.random()*.35)*4;
     const sprite=createCloudParticleMesh(size,platformCloudTexture);
     sprite.material.color.set(t.crystalColor);
     const angle=Math.random()*Math.PI*2;
     const upAngle=Math.random()*Math.PI*.45;
     const speed=.3+Math.random()*.6;
     sprite.position.copy(pos);
-    sprite.position.x+=Math.cos(angle)*Math.sin(upAngle)*.4;
-    sprite.position.z+=Math.sin(angle)*Math.sin(upAngle)*.4;
-    sprite.position.y+=Math.cos(upAngle)*.4+.2;
+    sprite.position.x+=Math.cos(angle)*Math.sin(upAngle)*1.8;
+    sprite.position.z+=Math.sin(angle)*Math.sin(upAngle)*1.8;
+    sprite.position.y+=Math.cos(upAngle)*1.8+.2;
     sprite.material.opacity=.65+Math.random()*.35;
     scene.add(sprite);
     particles.push({
@@ -1238,7 +1307,7 @@ function updateCrystalBursts(dt){
       p.sprite.position.y=p.baseY+Math.sin(aliveTime*3.5+p.phase)*.15;
       const fade=THREE.MathUtils.clamp(p.life/p.maxLife,0,1);
       if(p.sprite.material)p.sprite.material.opacity=fade*.65;
-      p.sprite.scale.setScalar(p.sprite.scale.x*(1+dt*.35));
+      p.sprite.scale.setScalar(p.sprite.scale.x*(1+dt*1.4));
       if(p.life<=0){
         scene.remove(p.sprite);disposeSpriteSafe(p.sprite);
         burst.particles.splice(j,1);
@@ -1341,7 +1410,7 @@ function clearPlatformAirParticles(){
 function spawnPlayerSideEffect(type){
   if(!player)return;
   const group=new THREE.Group();
-  const isHeal=type==="heal",isInvincible=type==="invincible",isShield=type==="shield";
+  const isHeal=type==="heal",isInvincible=type==="invincible",isShield=type==="shield",isSpeed=type==="speed";
   let mainColor=0x6ffcff,secondColor=0xE59F3E,text="加速!",textColor="#6ffcff";
   if(isHeal){mainColor=0x66ff8a;secondColor=0xffffff;text=`+${HEAL_AMOUNT} HP`;textColor="#74ff9b"}
   if(isInvincible){mainColor=0xfff36a;secondColor=0x8effff;text="无敌!";textColor="#fff36a"}
@@ -1351,9 +1420,12 @@ function spawnPlayerSideEffect(type){
   const ring=new THREE.Mesh(new THREE.RingGeometry(.75,1.18,72),ringMat);
   ring.rotation.x=-Math.PI/2;ring.position.set(1.25,.28,.05);group.add(ring);
 
-  const pulseMat=new THREE.MeshBasicMaterial({color:secondColor,transparent:true,opacity:.5,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
-  const pulse=new THREE.Mesh(new THREE.CircleGeometry(.88,72),pulseMat);
-  pulse.rotation.x=-Math.PI/2;pulse.position.set(1.25,.26,.05);group.add(pulse);
+  let pulse=null;
+  if(!isSpeed){
+    const pulseMat=new THREE.MeshBasicMaterial({color:secondColor,transparent:true,opacity:.5,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
+    pulse=new THREE.Mesh(new THREE.CircleGeometry(.88,72),pulseMat);
+    pulse.rotation.x=-Math.PI/2;pulse.position.set(1.25,.26,.05);group.add(pulse);
+  }
 
   const sprite=createTextSprite(text,textColor);
   sprite.position.set(1.25,1.75,.05);group.add(sprite);
@@ -1389,13 +1461,57 @@ function clearPlayerSideEffects(){
 function loadPlayerTextures(onDone){
   const textureLoader=new THREE.TextureLoader();
   let loadedCount=0;
-  function doneOne(){loadedCount++;if(loadedCount>=2)onDone()}
+  function doneOne(){loadedCount++;if(loadedCount>=5)onDone()}
   textureLoader.load(PLAYER_BASE_COLOR_URL,texture=>{texture.colorSpace=THREE.SRGBColorSpace;texture.flipY=PLAYER_TEXTURE_FLIP_Y;texture.anisotropy=8;playerBaseColorTexture=texture;doneOne()},undefined,err=>{console.warn("玩家颜色贴图加载失败：",PLAYER_BASE_COLOR_URL,err);doneOne()});
   textureLoader.load(PLAYER_NORMAL_MAP_URL,texture=>{texture.colorSpace=THREE.NoColorSpace;texture.flipY=PLAYER_TEXTURE_FLIP_Y;texture.anisotropy=8;playerNormalTexture=texture;doneOne()},undefined,err=>{console.warn("玩家法线贴图加载失败：",PLAYER_NORMAL_MAP_URL,err);doneOne()});
+  textureLoader.load(PLAYER_ROUGHNESS_URL,texture=>{texture.colorSpace=THREE.NoColorSpace;texture.flipY=PLAYER_TEXTURE_FLIP_Y;texture.anisotropy=8;playerRoughnessTexture=texture;doneOne()},undefined,err=>{console.warn("玩家粗糙度贴图加载失败：",PLAYER_ROUGHNESS_URL,err);doneOne()});
+  textureLoader.load(PLAYER_METALNESS_URL,texture=>{texture.colorSpace=THREE.NoColorSpace;texture.flipY=PLAYER_TEXTURE_FLIP_Y;texture.anisotropy=8;playerMetalnessTexture=texture;doneOne()},undefined,err=>{console.warn("玩家金属度贴图加载失败：",PLAYER_METALNESS_URL,err);doneOne()});
+  textureLoader.load(PLAYER_SPEED_COLOR_URL,texture=>{texture.colorSpace=THREE.SRGBColorSpace;texture.flipY=PLAYER_TEXTURE_FLIP_Y;texture.anisotropy=8;playerSpeedColorTexture=texture;doneOne()},undefined,err=>{console.warn("玩家加速状态贴图加载失败：",PLAYER_SPEED_COLOR_URL,err);doneOne()});
 }
 
 function createPlayerMaterial(){
-  return new THREE.MeshStandardMaterial({map:playerBaseColorTexture||null,normalMap:playerNormalTexture||null,normalScale:new THREE.Vector2(1,1),color:0xffffff,roughness:.58,metalness:.02,emissive:0x000000,emissiveIntensity:0});
+  return new THREE.MeshStandardMaterial({map:playerBaseColorTexture||null,roughnessMap:playerRoughnessTexture||null,metalnessMap:playerMetalnessTexture||null,normalMap:playerNormalTexture||null,normalScale:new THREE.Vector2(1,1),color:0xffffff,roughness:.8,metalness:.3,emissive:0x000000,emissiveIntensity:0});
+}
+
+function applyPlayerSpeedTexture(active){
+  const texture=active?playerSpeedColorTexture:playerBaseColorTexture;
+  if(!texture)return;
+  for(const target of playerTintTargets){
+    if(target.mat&&target.mat.map!==undefined){
+      target.mat.map=texture;
+      target.mat.needsUpdate=true;
+    }
+  }
+}
+
+function updateSpeedTextureTransition(dt){
+  if(!speedTextureActive&&speedEndTransitionTimer<=0)return;
+  if(speedEndTransitionTimer>0){
+    speedEndTransitionTimer-=dt;
+    const midPoint=.25,total=0.5;
+    const progress=1-speedEndTransitionTimer/total;
+    let glow=0;
+    if(progress<.5)glow=progress*2*.45;
+    else glow=(1-progress)*2*.45;
+    for(const target of playerTintTargets){
+      if(target.mat&&target.mat.emissive){
+        target.mat.emissive.set(0x66ffff);
+        target.mat.emissiveIntensity=glow;
+      }
+    }
+    if(progress>=.5&&speedTextureActive){
+      speedTextureActive=false;
+      applyPlayerSpeedTexture(false);
+    }
+    if(speedEndTransitionTimer<=0){
+      for(const target of playerTintTargets){
+        if(target.mat&&target.mat.emissive){
+          target.mat.emissive.set(0x000000);
+          target.mat.emissiveIntensity=0;
+        }
+      }
+    }
+  }
 }
 
 function registerPlayerTintTarget(mesh){
@@ -1558,13 +1674,19 @@ function startGame(){
   playerIsDead=false;
   document.getElementById("scanlines").style.display=isMobileLayout()?"none":"block";
   document.getElementById("pauseBtn").style.display="flex";
+  document.getElementById("restartGameBtn").style.display="flex";
 
   startScreen.style.display="none";
   gameOverScreen.style.display="none";
   setHUDVisible(true);
   tip.style.display="none";
 
-  score=0;hp=maxHp;aliveTime=0;speedBuffTimer=0;speedStackLevel=0;invincibleTimer=0;invincibleVisualActive=false;damageFlashTimer=0;lowHpWarningTimer=0;playerHitAnimTimer=0;knockbackVelocity.set(0,0,0);
+  startToast.style.animation="none";
+  void startToast.offsetWidth;
+  startToast.style.display="block";
+  startToast.style.animation="toastFade 4.5s forwards";
+
+  score=0;hp=maxHp;aliveTime=0;speedBuffTimer=0;speedStackLevel=0;speedTextureActive=false;speedEndTransitionTimer=0;applyPlayerSpeedTexture(false);invincibleTimer=0;invincibleVisualActive=false;damageFlashTimer=0;lowHpWarningTimer=0;playerHitAnimTimer=0;knockbackVelocity.set(0,0,0);
   enemySpawnTimer=0;crystalSpawnTimer=0;fruitSpawnTimer=0;purpleEnemySpawnTimer=0;invincibleFruitSpawnTimer=0;ghostBossSpawnTimer=0;
     nextPurpleEnemySpawnTime=randomInt(15,35);nextInvincibleFruitSpawnTime=THREE.MathUtils.randFloat(6,8);enemySpawnQueue.length=0;
   _cachedTier=null;_tierCacheScore=-1;_prevTierHex=-1;
@@ -1592,6 +1714,7 @@ function startGame(){
   clearCrystalBursts();
   clearPlatformAirParticles();
   clearPlayerSideEffects();
+  if(playerStatusSprite){playerStatusSprite.visible=false}playerStatusTimer=0;playerStatusType="";
   prewarmPurpleEnemyPool();
 
   const initialCrystals=INITIAL_CRYSTAL_COUNT;
@@ -1669,16 +1792,18 @@ function spawnSceneRocks(){
   const count=isMobileLayout()?MOBILE_ROCK_COUNT:SCENE_ROCK_COUNT;
   const placed=[];
   const minDist2=ROCK_MIN_DISTANCE*ROCK_MIN_DISTANCE;
-  for(let attempt=0;attempt<count*8&&placed.length<count;attempt++){
+  const playerStartX=player.position.x,playerStartZ=player.position.z;
+  const safeDist2=(ROCK_PLAYER_CLEAR_RADIUS+playerRadius+.12)*(ROCK_PLAYER_CLEAR_RADIUS+playerRadius+.12);
+  for(let attempt=0;attempt<count*16&&placed.length<count;attempt++){
     const pos=randomPosition();
-    const tooClosePlayer=distance2D(pos,new THREE.Vector3(platformCollisionCenterX,0,platformCollisionCenterZ))<ROCK_PLAYER_CLEAR_RADIUS;
-    if(tooClosePlayer)continue;
+    if(!isOnPlatform(pos.x,pos.z,-.05))continue;
+    const dx=pos.x-playerStartX,dz=pos.z-playerStartZ;
+    if(dx*dx+dz*dz<safeDist2)continue;
     let tooClose=false;
     for(const p of placed){
       if(dist2DSq(pos.x,pos.z,p.position.x,p.position.z) < minDist2){tooClose=true;break}
     }
     if(tooClose)continue;
-    if(!isOnPlatform(pos.x,pos.z,-.05))continue;
     const srcModel=rockModels[Math.floor(Math.random()*rockModels.length)];
     const rockClone=srcModel.clone(true);
     const scale=.005+Math.random()*.006;
@@ -1695,8 +1820,7 @@ function spawnSceneRocks(){
     const rockBox=new THREE.Box3().setFromObject(rockClone);
     const rockSize=new THREE.Vector3();rockBox.getSize(rockSize);
     const radius=Math.max(rockSize.x,rockSize.z)*.5+.05;
-    const groundY=getPlatformHeightAt(pos.x,pos.z);
-    rockClone.position.set(pos.x,groundY-rockBox.min.y,pos.z);
+    rockClone.position.set(pos.x,0,pos.z);
     scene.add(rockClone);
     placed.push(rockClone);
     rocks.push({mesh:rockClone,radius});
@@ -1795,31 +1919,26 @@ function prewarmPurpleEnemyPool(){
 
 function createGhostBossMesh(){
   const group=new THREE.Group();
-  const bodyMat=new THREE.MeshStandardMaterial({color:0xaaccff,emissive:0x334466,emissiveIntensity:.4,roughness:.6,metalness:0,transparent:true,opacity:.5,depthWrite:false});
+  const bodyMat=shared.mat.ghostBody.clone();
   const body=new THREE.Mesh(shared.geo.ghostBody,bodyMat);
   body.position.y=1.0;group.add(body);
-  const coreMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.8,depthWrite:false});
-  const core=new THREE.Mesh(shared.geo.ghostCore,coreMat);
+  const core=new THREE.Mesh(shared.geo.ghostCore,shared.mat.ghostCore);
   core.position.y=1.0;group.add(core);
-  const auraMat1=new THREE.MeshBasicMaterial({color:0x88bbff,transparent:true,opacity:.7,blending:THREE.AdditiveBlending,depthWrite:false});
-  const aura1=new THREE.Mesh(shared.geo.ghostAura,auraMat1);
+  const aura1=new THREE.Mesh(shared.geo.ghostAura,shared.mat.ghostAura1);
   aura1.position.y=1.0;aura1.rotation.x=Math.PI/2;group.add(aura1);
-  const auraMat2=new THREE.MeshBasicMaterial({color:0xccddff,transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false});
-  const aura2=new THREE.Mesh(shared.geo.ghostAura,auraMat2);
+  const aura2=new THREE.Mesh(shared.geo.ghostAura,shared.mat.ghostAura2);
   aura2.position.y=1.0;aura2.rotation.y=Math.PI/2;group.add(aura2);
   if(!isMobileLayout()){
     const glow=new THREE.PointLight(0x88aaff,.9,12);
     glow.position.set(0,1.2,0);group.add(glow);
-    const particlesGeo=new THREE.SphereGeometry(.3,6,6);
     for(let i=0;i<8;i++){
-      const pMat=new THREE.MeshBasicMaterial({color:0xaaddff,transparent:true,opacity:.4,depthWrite:false,blending:THREE.AdditiveBlending});
-      const particle=new THREE.Mesh(particlesGeo,pMat);
+      const particle=new THREE.Mesh(shared.geo.ghostParticle,shared.mat.ghostParticle);
       const angle=(i/8)*Math.PI*2;
       particle.position.set(Math.cos(angle)*1.8,1+Math.sin(i*2.5)*.5,Math.sin(angle)*1.8);
       group.add(particle);
     }
   }
-  group.userData={bodyMat,auraMat1,auraMat2,coreMat};
+  group.userData={bodyMat,aura1Mat:shared.mat.ghostAura1,aura2Mat:shared.mat.ghostAura2,coreMat:shared.mat.ghostCore};
   return group;
 }
 
@@ -1833,7 +1952,7 @@ function spawnGhostBoss(){
   playSfx("purple");
 }
 
-function getFruitSpawnInterval(){if(aliveTime<5)return Infinity;if(aliveTime>=90)return 0.5;if(aliveTime>=60)return 0.8;if(aliveTime>=25)return 1.2;return 1.5}
+function getFruitSpawnInterval(){if(aliveTime<5)return Infinity;if(aliveTime>=90)return 0.25;if(aliveTime>=60)return 0.4;if(aliveTime>=25)return 0.6;return 0.8}
 function getSpeedFruitCount(){return fruits.filter(f=>f.type==="speed").length}
 function getHealFruitCount(){return fruits.filter(f=>f.type==="heal").length}
 function chooseFruitType(){if(aliveTime<45)return"speed";return Math.random()<.55?"speed":"heal"}
@@ -2353,7 +2472,7 @@ function animate(){
   processEnemySpawnQueue();
   if(renderer.shadowMap.enabled&&(gameRunning||player))renderer.shadowMap.needsUpdate=true;
   updatePerformance(dt);
-  if(gameRunning)update(dt);
+  if(gameRunning){update(dt);updatePlayerStatusText(dt)}
   else if(playerMixer)playerMixer.update(dt);
   renderer.render(scene,camera);
 }
@@ -2377,8 +2496,7 @@ function updatePerformance(dt){
 
 function applyPerformanceLevel(){
   if(performanceLevel===1){
-    if(_isMobile)renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.25));
-    if(_isMobile)renderer.shadowMap.enabled=false;
+    if(_isMobile)renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.0));
   } else if(performanceLevel===2){
     renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.0));
     renderer.shadowMap.enabled=false;
@@ -2390,8 +2508,9 @@ function applyPerformanceLevel(){
 
 function update(dt){
   aliveTime+=dt;
-  if(speedBuffTimer>0){speedBuffTimer-=dt;if(speedBuffTimer<=0){speedBuffTimer=0;speedStackLevel=0}}
+  if(speedBuffTimer>0){speedBuffTimer-=dt;if(speedBuffTimer<=0){speedBuffTimer=0;speedStackLevel=0;if(speedTextureActive){speedEndTransitionTimer=.5}}}
   if(lowHpWarningTimer>0){lowHpWarningTimer-=dt;warning.style.display="block"}else warning.style.display="none";
+  updateSpeedTextureTransition(dt);
   updateInvincibleState(dt);
   updatePlayer(dt);
   updatePlayerHeadUI();
@@ -2421,7 +2540,7 @@ function updatePlayer(dt){
   if(keys["KeyD"]||keys["ArrowRight"])_v2a.x+=1;
   _v2a.x+=moveInput.x;_v2a.y+=moveInput.y;
   if(_v2a.length()>1)_v2a.normalize();
-  const speed=basePlayerSpeed*(speedBuffTimer>0?1+speedStackLevel*0.15:1)*(invincibleTimer>0?INVINCIBLE_SPEED_MULTIPLIER:1);
+  const speed=Math.min(basePlayerSpeed*(speedBuffTimer>0?1+speedStackLevel*0.5:1)*(invincibleTimer>0?INVINCIBLE_SPEED_MULTIPLIER:1),12);
   _v3a.set(_v2a.x,0,_v2a.y).multiplyScalar(speed*dt);
   if(_v3a.lengthSq()>0){
     playerMovingThisFrame=true;
@@ -2449,8 +2568,8 @@ function updateDamageFeedback(dt){
 }
 
 function updateCamera(dt){
-  const camYOff=isMobileLayout()?21:17;
-  const camZOff=isMobileLayout()?22:18;
+  const camYOff=isMobileLayout()?24:17;
+  const camZOff=isMobileLayout()?28:18;
   _v3c.set(player.position.x,player.position.y+camYOff,player.position.z+camZOff);
   camera.position.lerp(_v3c,1-Math.pow(.001,dt));
   camera.lookAt(player.position.x,player.position.y,player.position.z);
@@ -2718,9 +2837,9 @@ function updateFruits(dt){
     f.mesh.position.y=getPlatformHeightAt(f.mesh.position.x,f.mesh.position.z)+Math.sin(aliveTime*4+i)*.12;
     if(f.life<=0){scene.remove(f.mesh);fruits.splice(i,1);continue}
     if(dist2DSq(player.position.x,player.position.z,f.mesh.position.x,f.mesh.position.z)<(playerRadius+f.radius)*(playerRadius+f.radius)){
-      if(f.type==="speed"){speedStackLevel=Math.min(speedStackLevel+1,5);speedBuffTimer=2.5;spawnPlayerSideEffect("speed")}
-      if(f.type==="heal"){hp=Math.min(maxHp,hp+HEAL_AMOUNT);spawnPlayerSideEffect("heal")}
-      if(f.type==="invincible")activateInvincible();
+      if(f.type==="speed"){speedStackLevel=Math.min(speedStackLevel+1,5);speedBuffTimer=2.5;speedEndTransitionTimer=0;if(!speedTextureActive){speedTextureActive=true;applyPlayerSpeedTexture(true)}spawnPlayerSideEffect("speed");setPlayerStatusText("speed",2.5)}
+      if(f.type==="heal"){hp=Math.min(maxHp,hp+HEAL_AMOUNT);spawnPlayerSideEffect("heal");setPlayerStatusText("heal",2.0)}
+      if(f.type==="invincible"){activateInvincible();setPlayerStatusText("invincible",INVINCIBLE_DURATION)}
       scene.remove(f.mesh);
       fruits.splice(i,1);
     }
@@ -2744,7 +2863,7 @@ function updateSpawns(dt){
   const fruitInterval=getFruitSpawnInterval();
   if(fruitSpawnTimer>fruitInterval&&fruits.length<maxFruits){
     fruitSpawnTimer=0;
-    const count=aliveTime>=120?randomInt(1,2):1;
+    const count=aliveTime>=120?randomInt(3,4):aliveTime>=60?randomInt(2,3):aliveTime>=25?randomInt(1,2):1;
     for(let i=0;i<count;i++){if(fruits.length<maxFruits)spawnFruit()}
   }
   if(ghostBossSpawnTimer>GHOST_BOSS_SPAWN_INTERVAL){
@@ -2789,6 +2908,7 @@ function endGame(){
     updateDebugInfoPanel(null);
   }
   document.getElementById("pauseBtn").style.display="none";
+  document.getElementById("restartGameBtn").style.display="none";
   document.getElementById("scanlines").style.display="none";
 
   stopBGM();
@@ -2808,6 +2928,7 @@ function endGame(){
   clearPlatformAirParticles();
   enemySpawnQueue.length=0;
   restorePlayerTint();
+  if(playerStatusSprite){playerStatusSprite.visible=false}playerStatusTimer=0;playerStatusType="";
 
   clearPlayerActions();
   playPlayerAnim("idle",.15,true);
