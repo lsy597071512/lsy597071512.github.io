@@ -1,0 +1,235 @@
+<style>
+:root{
+--c-mars:#e85d3a;
+--c-ember:#ff8c42;
+--c-dust:#f4a460;
+--c-rust:#c0392b;
+--c-gold:#ffd700;
+--c-green:#4ade80;
+--c-red:#ff3333;
+--c-deep:#1a0a05;
+--c-surface:#2d1208;
+--c-panel:rgba(40,16,8,.9);
+--c-text:#fdf0e8;
+--c-muted:rgba(244,164,96,.5);
+--font-d:'Orbitron','Exo 2','Microsoft YaHei',sans-serif;
+--font-b:'Exo 2','Microsoft YaHei',Arial,sans-serif;
+--glow-mars:0 0 20px rgba(232,93,58,.35),0 0 60px rgba(232,93,58,.1);
+--glow-ember:0 0 16px rgba(255,140,66,.3)
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;font-family:var(--font-b);background:var(--c-deep);color:var(--c-text)}
+#game{width:100vw;height:100vh;display:block}
+
+/* Cartoon Starfield Background */
+#startScreen,#gameOverScreen{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 30%,rgba(232,93,58,.2) 0%,transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(192,57,43,.12) 0%,transparent 45%),linear-gradient(180deg,#1a0a05 0%,#2d1208 50%,#1a0a05 100%)}
+#startScreen::after,#gameOverScreen::after{content:'';position:absolute;inset:0;z-index:-1;background:url(TEX/01_d.png) center/cover no-repeat;opacity:.55;pointer-events:none}
+/* Cartoon twinkling stars */
+#startScreen::before,#gameOverScreen::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:
+radial-gradient(3px 3px at 15% 18%,rgba(255,200,100,.9),transparent),
+radial-gradient(2px 2px at 25% 55%,rgba(255,220,150,.8),transparent),
+radial-gradient(4px 4px at 35% 12%,rgba(255,200,100,.95),transparent),
+radial-gradient(2px 2px at 45% 72%,rgba(255,180,80,.7),transparent),
+radial-gradient(3px 3px at 55% 35%,rgba(255,220,150,.85),transparent),
+radial-gradient(2px 2px at 65% 82%,rgba(255,200,100,.75),transparent),
+radial-gradient(4px 4px at 78% 22%,rgba(255,180,80,.9),transparent),
+radial-gradient(2px 2px at 88% 62%,rgba(255,200,100,.7),transparent),
+radial-gradient(3px 3px at 10% 90%,rgba(255,220,150,.8),transparent),
+radial-gradient(2px 2px at 92% 45%,rgba(255,180,80,.65),transparent);
+background-size:300px 300px;animation:twinkle 3s ease-in-out infinite alternate}
+@keyframes twinkle{0%,100%{opacity:.6}50%{opacity:1}}
+
+/* HUD Desktop */
+#hudDesktop{position:fixed;top:16px;left:16px;z-index:10;display:none;flex-direction:column;gap:6px;font-size:13px;font-family:var(--font-b);pointer-events:none}
+#hudDesktop .hud-line{position:relative;padding:6px 32px 6px 14px;border-radius:10px;background:rgba(26,10,5,.7);border:2px solid rgba(232,93,58,.2);border-left:4px solid var(--c-mars);box-shadow:0 0 16px rgba(232,93,58,.08),inset 0 0 20px rgba(255,140,66,.03);backdrop-filter:blur(8px);font-weight:700;color:rgba(253,240,232,.6)}
+#hudDesktop .hud-line::after{content:'●';position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:8px;color:var(--c-mars);text-shadow:0 0 8px var(--c-mars)}
+#hudDesktop .hud-line span{color:var(--c-text);font-family:var(--font-d);font-weight:700;text-shadow:0 0 10px rgba(232,93,58,.35)}
+
+/* HUD Mobile */
+#hudMobile{position:fixed;top:12px;left:12px;z-index:10;display:none;width:195px;pointer-events:none;transform-origin:top left}
+.mobile-hud-panel{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:7px;border-radius:14px;background:rgba(26,10,5,.85);border:2px solid rgba(232,93,58,.18);box-shadow:0 0 24px rgba(232,93,58,.06),inset 0 0 30px rgba(255,140,66,.03);backdrop-filter:blur(8px)}
+.mobile-hud-item{position:relative;min-height:32px;padding:5px 8px;border-radius:8px;background:rgba(232,93,58,.06);border:1.5px solid rgba(232,93,58,.1);overflow:hidden}
+.mobile-hud-label{display:block;font-size:9px;line-height:1;font-family:var(--font-b);font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:rgba(244,164,96,.7)}
+.mobile-hud-value{display:block;margin-top:2px;font-size:11px;font-weight:800;font-family:var(--font-d);line-height:1.1;color:var(--c-text);text-shadow:0 0 8px rgba(232,93,58,.25)}
+.mobile-hud-wide{grid-column:span 2}
+.mobile-hud-item::before{content:'';position:absolute;top:2px;left:2px;width:3px;height:calc(100% - 4px);background:linear-gradient(180deg,var(--c-mars),var(--c-ember));opacity:.5;border-radius:2px}
+
+/* Cartoon Panel with Thick Border */
+.panel{position:relative;width:min(94vw,760px);max-height:94vh;overflow:auto;padding:40px 36px;text-align:center;background:var(--c-panel);border:3px solid rgba(232,93,58,.25);border-radius:24px;box-shadow:0 0 50px rgba(232,93,58,.1),0 20px 80px rgba(0,0,0,.7),inset 0 0 120px rgba(255,140,66,.04);backdrop-filter:blur(14px)}
+.panel::before{content:'';position:absolute;inset:-3px;border-radius:26px;padding:3px;background:conic-gradient(from 0deg,var(--c-mars),var(--c-gold),var(--c-ember),var(--c-rust),var(--c-mars));-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.5;animation:rotateBorder 4s linear infinite}
+@keyframes rotateBorder{to{transform:rotate(360deg)}}
+.panel h1{margin:0 0 12px;font-family:var(--font-d);font-size:38px;font-weight:900;color:var(--c-text);text-shadow:0 0 30px rgba(232,93,58,.45),0 0 80px rgba(232,93,58,.12);-webkit-text-stroke:1.5px rgba(232,93,58,.15);letter-spacing:1px}
+.panel h2{font-family:var(--font-d);font-size:22px;color:var(--c-ember);text-shadow:0 0 14px rgba(255,140,66,.35)}
+.panel p{margin:10px 0;line-height:1.6;font-family:var(--font-b);color:rgba(253,240,232,.75);font-size:15px}
+
+/* Cartoon Buttons */
+button{position:relative;margin-top:24px;padding:16px 52px;border:3px solid rgba(255,200,100,.15);border-radius:999px;font-family:var(--font-d);font-size:20px;font-weight:800;cursor:pointer;color:#1a0a05;background:linear-gradient(135deg,var(--c-mars),var(--c-ember));box-shadow:0 0 32px rgba(232,93,58,.3),0 8px 24px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:3px;transition:transform .15s,box-shadow .15s}
+button:hover{transform:scale(1.06) translateY(-2px);box-shadow:0 0 48px rgba(232,93,58,.5),0 12px 32px rgba(0,0,0,.5);border-color:rgba(255,200,100,.3)}
+button:active{transform:scale(.94) translateY(1px);box-shadow:0 0 20px rgba(232,93,58,.2),0 2px 12px rgba(0,0,0,.35)}
+button::after{content:'';position:absolute;top:0;left:8%;right:8%;height:52%;background:linear-gradient(180deg,rgba(255,255,255,.28),transparent);border-radius:999px 999px 50% 50%;pointer-events:none}
+
+/* Warning - Cartoon Style */
+#warning{position:fixed;top:50%;left:50%;z-index:20;transform:translate(-50%,-50%);padding:18px 36px;border-radius:16px;background:rgba(255,51,51,.18);border:3px solid var(--c-red);color:var(--c-red);font-family:var(--font-d);font-size:28px;font-weight:900;display:none;animation:warnPulse .5s infinite alternate;pointer-events:none;text-shadow:0 0 24px rgba(255,51,51,.5);box-shadow:0 0 40px rgba(255,51,51,.25),inset 0 0 40px rgba(255,51,51,.1);letter-spacing:4px}
+@keyframes warnPulse{from{transform:translate(-50%,-50%) scale(1);opacity:.7;box-shadow:0 0 24px rgba(255,51,51,.15)}to{transform:translate(-50%,-50%) scale(1.08);opacity:1;box-shadow:0 0 60px rgba(255,51,51,.4)}}
+
+/* Start Toast */
+#startToast{position:fixed;top:12%;left:50%;z-index:30;transform:translate(-50%,0);padding:16px 40px;border-radius:14px;background:rgba(26,10,5,.75);border:2px solid rgba(255,140,66,.3);color:var(--c-text);font-family:var(--font-d);font-size:22px;font-weight:700;display:none;pointer-events:none;text-align:center;white-space:nowrap;text-shadow:0 0 16px rgba(232,93,58,.4);box-shadow:0 0 40px rgba(232,93,58,.1)}
+@keyframes toastFade{0%{opacity:0;transform:translate(-50%,-12px)}12%{opacity:1;transform:translate(-50%,0)}88%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-8px)}}
+
+/* Damage Overlay */
+#damageOverlay{position:fixed;inset:0;z-index:9;background:radial-gradient(ellipse at center,rgba(255,51,51,.3),transparent 70%);pointer-events:none;opacity:0;transition:opacity .06s linear}
+
+/* Cartoon Joystick */
+#joystick{position:fixed;left:24px;bottom:40px;width:136px;height:136px;z-index:12;display:none;border-radius:50%;background:rgba(232,93,58,.06);border:3px solid rgba(232,93,58,.18);touch-action:none;box-shadow:0 0 32px rgba(232,93,58,.06),inset 0 0 40px rgba(232,93,58,.04)}
+#joystick::before{content:'';position:absolute;inset:5px;border-radius:50%;border:2px dashed rgba(232,93,58,.1);pointer-events:none}
+#joystick::after{content:'★';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:14px;color:rgba(244,164,96,.12);pointer-events:none}
+#stick{position:absolute;left:39px;top:39px;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,rgba(232,93,58,.92),rgba(255,140,66,.7));box-shadow:0 0 32px rgba(232,93,58,.55),0 0 70px rgba(232,93,58,.15);border:3px solid rgba(255,200,100,.2);transition:none}
+#stick::after{content:'';position:absolute;inset:9px;border-radius:50%;border:2px solid rgba(255,255,255,.12);pointer-events:none}
+
+/* Tip */
+#tip{display:none!important}
+
+/* Achievement Panel - Cartoon */
+.achievement-panel{margin:20px auto 0;padding:18px;border-radius:16px;background:rgba(232,93,58,.04);border:2px solid rgba(232,93,58,.12);box-shadow:inset 0 0 50px rgba(255,140,66,.04);position:relative;overflow:hidden}
+.achievement-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--c-mars),var(--c-gold),transparent);opacity:.4}
+.achievement-panel::after{content:'✦';position:absolute;top:6px;right:12px;font-size:16px;color:rgba(255,215,0,.15);pointer-events:none}
+
+/* Rank - Cartoon Badge */
+.rank-row{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.rank-badge{padding:8px 20px;border-radius:999px;font-size:15px;font-weight:800;font-family:var(--font-d);color:#1a0a05;background:linear-gradient(135deg,#ffd700,#ff8c00);box-shadow:0 0 28px rgba(255,215,0,.3);border:3px solid rgba(255,255,255,.15);text-transform:uppercase;letter-spacing:1.5px}
+.rank-stat{padding:7px 12px;border-radius:8px;background:rgba(0,0,0,.35);font-size:13px;font-family:var(--font-b);font-weight:700;color:var(--c-text);border:1.5px solid rgba(232,93,58,.1)}
+
+/* Progress - Mars Cartoon */
+.progress-wrap{height:12px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;margin:10px auto 12px;max-width:580px;border:2px solid rgba(232,93,58,.1);position:relative}
+.progress-wrap::after{content:'';position:absolute;inset:0;border-radius:999px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,rgba(255,255,255,.025) 5px,rgba(255,255,255,.025) 6px);pointer-events:none}
+.progress-bar{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--c-mars),var(--c-ember),var(--c-gold));position:relative;transition:width .4s ease}
+.progress-bar::after{content:'';position:absolute;top:0;left:0;right:0;height:55%;background:linear-gradient(180deg,rgba(255,255,255,.3),transparent);border-radius:999px 999px 50% 50%}
+
+/* Achievements Grid */
+.achievements{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}
+.achievement{padding:9px 7px;border-radius:10px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.07);font-size:11px;font-family:var(--font-b);color:rgba(253,240,232,.45);transition:all .3s}
+.achievement.unlocked{background:linear-gradient(135deg,rgba(232,93,58,.12),rgba(255,140,66,.08));color:var(--c-text);border-color:rgba(232,93,58,.18);box-shadow:0 0 20px rgba(232,93,58,.1),inset 0 0 24px rgba(255,140,66,.05)}
+.achievement .icon{display:block;font-size:20px;margin-bottom:3px}
+.new-achievement{margin:12px 0 0;padding:10px 16px;border-radius:10px;font-family:var(--font-b);font-weight:700;color:var(--c-gold);background:rgba(255,215,0,.08);border:1.5px solid rgba(255,215,0,.18);text-shadow:0 0 10px rgba(255,215,0,.25)}
+
+/* Pause Button - Cartoon */
+#pauseBtn{position:fixed;top:16px;right:16px;z-index:50;width:50px;height:50px;padding:0;margin:0;display:none;align-items:center;justify-content:center;border-radius:50%;background:rgba(26,10,5,.78);border:2.5px solid rgba(232,93,58,.35);box-shadow:0 0 22px rgba(232,93,58,.2),inset 0 0 24px rgba(255,140,66,.06);backdrop-filter:blur(8px);cursor:pointer;font-size:18px;color:var(--c-mars);text-shadow:0 0 10px rgba(232,93,58,.45);transition:transform .12s,box-shadow .12s;letter-spacing:0}
+#pauseBtn:hover{transform:scale(1.1);box-shadow:0 0 32px rgba(232,93,58,.38),inset 0 0 24px rgba(255,140,66,.1)}
+#pauseBtn:active{transform:scale(.92)}
+#pauseBtn::after{display:none}
+#pauseBtn .pb-bar{display:inline-block;width:5px;height:20px;margin:0 2.5px;border-radius:3px;background:linear-gradient(180deg,var(--c-mars),var(--c-ember));box-shadow:0 0 8px rgba(232,93,58,.5)}
+#pauseBtn.is-paused .pb-bar{display:none}
+#pauseBtn .pb-play{display:none;width:0;height:0;border-style:solid;border-width:10px 0 10px 16px;border-color:transparent transparent transparent var(--c-mars);filter:drop-shadow(0 0 6px rgba(232,93,58,.5));margin-left:3px}
+#pauseBtn.is-paused .pb-play{display:inline-block}
+
+/* Restart Button - Cartoon */
+#restartGameBtn{position:fixed;top:76px;right:16px;z-index:50;width:50px;height:50px;padding:0;margin:0;display:none;align-items:center;justify-content:center;border-radius:50%;background:rgba(26,10,5,.78);border:2.5px solid rgba(232,93,58,.35);box-shadow:0 0 22px rgba(232,93,58,.2),inset 0 0 24px rgba(255,140,66,.06);backdrop-filter:blur(8px);cursor:pointer;font-size:20px;color:var(--c-mars);text-shadow:0 0 10px rgba(232,93,58,.45);transition:transform .12s,box-shadow .12s,width .25s,border-radius .25s;letter-spacing:0;overflow:hidden;white-space:nowrap;gap:6px}
+#restartGameBtn:hover{transform:scale(1.1);box-shadow:0 0 32px rgba(232,93,58,.38),inset 0 0 24px rgba(255,140,66,.1)}
+#restartGameBtn:active{transform:scale(.92)}
+#restartGameBtn::after{display:none}
+#restartGameBtn .rg-icon{display:inline-block;font-size:23px;line-height:1;flex-shrink:0;transform:scaleX(-1)}
+#restartGameBtn .rg-label{display:none;font-family:var(--font-d);font-size:13px;font-weight:700;opacity:0;transition:opacity .2s}
+#restartGameBtn:hover .rg-label,#restartGameBtn:active .rg-label{display:inline-block;opacity:1}
+#restartGameBtn:hover{width:auto;padding:0 18px 0 10px;border-radius:999px}
+
+/* Debug Overlay - Mars Theme */
+#debugOverlay{position:fixed;inset:0;z-index:48;display:none;pointer-events:none;font-family:var(--font-b);color:var(--c-text)}
+#debugOverlay.active{display:block}
+#debugOverlay .dbg-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 40%,rgba(26,10,5,.6) 100%);mix-blend-mode:multiply}
+#debugOverlay .dbg-grid-overlay{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(232,93,58,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(232,93,58,.08) 1px,transparent 1px);background-size:48px 48px;mask:radial-gradient(circle at 50% 50%,#000 20%,transparent 80%);-webkit-mask:radial-gradient(circle at 50% 50%,#000 20%,transparent 80%)}
+#debugOverlay .dbg-corner{position:absolute;width:40px;height:40px;border:2.5px solid var(--c-mars);box-shadow:0 0 14px rgba(232,93,58,.45);pointer-events:none}
+#debugOverlay .dbg-tl{top:10px;left:10px;border-right:none;border-bottom:none}
+#debugOverlay .dbg-tr{top:10px;right:10px;border-left:none;border-bottom:none}
+#debugOverlay .dbg-bl{bottom:10px;left:10px;border-right:none;border-top:none}
+#debugOverlay .dbg-br{bottom:10px;right:10px;border-left:none;border-top:none}
+#debugTopBar{position:absolute;top:14px;left:50%;transform:translateX(-50%);padding:8px 20px;border-radius:999px;background:rgba(26,10,5,.66);border:2px solid rgba(232,93,58,.3);box-shadow:0 0 22px rgba(232,93,58,.12);backdrop-filter:blur(8px);font-family:var(--font-d);font-size:13px;font-weight:700;color:var(--c-mars);letter-spacing:2px;text-shadow:0 0 10px rgba(232,93,58,.45);pointer-events:auto;display:flex;align-items:center;gap:10px}
+#debugTopBar .dbg-dot{width:8px;height:8px;border-radius:50%;background:var(--c-red);box-shadow:0 0 10px rgba(255,51,51,.65);animation:dbgPulse 1.4s infinite}
+@keyframes dbgPulse{0%,100%{opacity:.55;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
+#debugHelp{position:absolute;left:14px;top:64px;width:240px;max-height:calc(100vh - 90px);overflow:auto;padding:12px 14px;border-radius:12px;background:rgba(26,10,5,.66);border:2px solid rgba(232,93,58,.22);box-shadow:0 0 22px rgba(232,93,58,.08),inset 0 0 36px rgba(255,140,66,.04);backdrop-filter:blur(8px);pointer-events:auto;font-size:12px;line-height:1.5}
+#debugHelp h4{margin:0 0 8px;font-family:var(--font-d);font-size:12px;color:var(--c-mars);letter-spacing:1.5px;text-transform:uppercase;text-shadow:0 0 8px rgba(232,93,58,.35)}
+#debugHelp ul{margin:0 0 8px;padding:0;list-style:none}
+#debugHelp li{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px dashed rgba(232,93,58,.1);color:rgba(253,240,232,.75)}
+#debugHelp li:last-child{border-bottom:none}
+#debugHelp li b{font-family:var(--font-d);font-weight:700;color:var(--c-text);text-shadow:0 0 8px rgba(232,93,58.25)}
+#debugHelp .dbg-row{display:flex;align-items:center;gap:6px;margin-top:6px}
+#debugHelp .dbg-speed-btn{flex:1;padding:6px 0;border-radius:8px;background:rgba(232,93,58,.08);border:1.5px solid rgba(232,93,58,.2);color:var(--c-text);font-family:var(--font-d);font-weight:700;font-size:11px;cursor:pointer;transition:all .15s;letter-spacing:1px}
+#debugHelp .dbg-speed-btn.active{background:linear-gradient(135deg,var(--c-mars),var(--c-ember));color:#1a0a05;box-shadow:0 0 14px rgba(232,93,58,.3)}
+#debugHelp .dbg-toggle{display:flex;align-items:center;gap:6px;padding:7px 9px;margin-top:6px;border-radius:8px;background:rgba(232,93,58,.06);border:1.5px solid rgba(232,93,58,.12);cursor:pointer}
+#debugHelp .dbg-toggle input{accent-color:var(--c-mars)}
+#debugInfo{position:absolute;right:14px;top:64px;width:260px;padding:12px 14px;border-radius:12px;background:rgba(26,10,5,.66);border:2px solid rgba(232,93,58,.22);box-shadow:0 0 22px rgba(232,93,58,.08);backdrop-filter:blur(8px);pointer-events:auto;font-size:12px;line-height:1.5}
+#debugInfo h4{margin:0 0 8px;font-family:var(--font-d);font-size:12px;color:var(--c-ember);letter-spacing:1.5px;text-transform:uppercase;text-shadow:0 0 8px rgba(255,140,66,.35)}
+#debugInfo .dbg-kv{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px dashed rgba(255,140,66,.12);color:rgba(253,240,232,.78)}
+#debugInfo .dbg-kv:last-child{border-bottom:none}
+#debugInfo .dbg-kv span{font-family:var(--font-d);font-weight:700;color:var(--c-text)}
+#debugInfo .dbg-empty{color:rgba(253,240,232,.45);font-style:italic;text-align:center;padding:6px 0}
+#debugTooltip{position:absolute;display:none;padding:8px 12px;border-radius:10px;background:rgba(26,10,5,.85);border:2px solid rgba(232,93,58,.35);box-shadow:0 0 16px rgba(232,93,58,.18);backdrop-filter:blur(6px);pointer-events:none;font-size:11px;line-height:1.4;color:var(--c-text);white-space:nowrap;z-index:60}
+#debugTooltip b{color:var(--c-mars);font-family:var(--font-d);text-shadow:0 0 8px rgba(232,93,58,.35)}
+#debugCrosshair{position:absolute;left:50%;top:50%;width:20px;height:20px;transform:translate(-50%,-50%);pointer-events:none;display:none}
+#debugCrosshair::before,#debugCrosshair::after{content:'';position:absolute;background:rgba(232,93,58,.7);box-shadow:0 0 8px rgba(232,93,58,.5)}
+#debugCrosshair::before{left:50%;top:0;width:1.5px;height:100%;transform:translateX(-50%)}
+#debugCrosshair::after{top:50%;left:0;height:1.5px;width:100%;transform:translateY(-50%)}
+#debugOverlay.active #debugCrosshair{display:block}
+
+/* Loading Screen - Mars Cartoon */
+#loadingScreen{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1a0a05}
+#loadingScreen .l-bg{position:absolute;inset:0;background:url(TEX/loading_d.png) center/cover no-repeat;opacity:.45;filter:blur(1.5px)}
+#loadingScreen .l-wrap{position:relative;z-index:1;text-align:center}
+#loadingScreen .l-title{font-family:var(--font-d);font-size:clamp(18px,5vw,28px);font-weight:900;color:var(--c-text);text-shadow:0 0 24px rgba(232,93,58,.45);margin-bottom:24px;letter-spacing:3px}
+#loadingScreen .l-spinner{width:30px;height:30px;border:3px solid rgba(232,93,58,.15);border-top-color:var(--c-mars);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loadingScreen .l-bar-outer{width:min(80vw,380px);height:8px;border-radius:999px;background:rgba(232,93,58,.12);overflow:hidden;margin:0 auto 14px;border:1.5px solid rgba(232,93,58,.08)}
+#loadingScreen .l-bar-inner{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--c-mars),var(--c-ember),var(--c-gold));transition:width .3s ease}
+#loadingScreen .l-pct{font-family:var(--font-d);font-size:13px;color:rgba(255,140,66,.75);letter-spacing:1.5px}
+
+/* Responsive: <=768px */
+@media(max-width:768px){
+#hudDesktop{display:none!important}
+#hudMobile{transform:scale(.88)}
+#joystick{display:block;left:50%;bottom:18px;transform:translateX(-50%);width:140px;height:140px;background:rgba(232,93,58,.04);border:3px solid rgba(232,93,58,.14)}
+#stick{left:40px;top:40px;width:60px;height:60px}
+.panel{width:min(94vw,560px);padding:22px 18px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.panel h1{font-size:24px;margin-bottom:8px}
+.panel p{font-size:13px;margin:6px 0}
+button{font-size:15px;padding:13px 30px;margin-top:14px}
+#warning{font-size:20px;padding:14px 24px}
+#startToast{font-size:16px;padding:12px 24px;top:10%;white-space:normal;max-width:85vw}
+.achievements{grid-template-columns:repeat(2,1fr);gap:5px;margin-top:8px}
+.achievement{padding:6px 5px;font-size:10px;border-radius:8px}
+.achievement .icon{font-size:16px;margin-bottom:2px}
+.rank-badge{padding:6px 14px;font-size:13px}
+.rank-stat{padding:5px 9px;font-size:11px}
+.rank-row{gap:6px;margin-bottom:8px}
+.achievement-panel{margin:14px auto 0;padding:12px}
+.achievement-panel p{font-size:11px;margin:4px 0}
+.progress-wrap{height:10px;margin:6px auto 8px}
+.new-achievement{padding:6px 10px;font-size:11px;margin:8px 0 0}
+#pauseBtn{width:46px;height:46px;top:10px;right:10px}
+#restartGameBtn{width:46px;height:46px;top:64px;right:10px;font-size:18px}
+#restartGameBtn .rg-icon{font-size:20px}
+#restartGameBtn:hover{width:auto;padding:0 16px 0 8px}
+#debugHelp{width:200px;font-size:11px;left:8px;top:56px;padding:9px 10px;max-height:calc(100vh - 76px)}
+#debugInfo{width:200px;font-size:11px;right:8px;top:56px;padding:9px 10px}
+#debugTopBar{font-size:11px;padding:6px 14px;top:10px}
+}
+
+/* Responsive: <=420px */
+@media(max-width:420px){
+#hudMobile{transform:scale(.76);top:6px;left:6px}
+#joystick{width:124px;height:124px;bottom:13px}
+#stick{left:34px;top:34px;width:56px;height:56px}
+.panel{padding:14px 14px}
+.panel h1{font-size:20px}
+button{font-size:14px;padding:11px 24px;margin-top:12px}
+.rank-stat{font-size:10px}
+.achievement{padding:5px 4px;font-size:9px}
+.rank-badge{padding:5px 10px;font-size:12px}
+}
+
+/* Responsive: <=360px */
+@media(max-width:360px){
+.achievements{grid-template-columns:1fr 1fr;gap:4px}
+.achievement-panel{padding:8px}
+.achievement .icon{font-size:14px}
+.rank-row{flex-wrap:wrap;gap:4px}
+}
+</style>
