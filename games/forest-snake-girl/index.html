@@ -1,4 +1,4 @@
-﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
@@ -322,6 +322,8 @@ button{font-size:14px;padding:11px 24px;margin-top:12px}
     <label class="dbg-toggle"><input type="checkbox" id="dbgHighlightToggle" checked />高亮场景模型</label>
     <label class="dbg-toggle"><input type="checkbox" id="dbgWireframeToggle" />线框模式</label>
     <label class="dbg-toggle"><input type="checkbox" id="dbgCollisionToggle" />显示碰撞体</label>
+    <h4>DEBUG 生成</h4>
+    <button id="dbgSpawnInvincible" style="width:100%;padding:8px 0;border-radius:8px;background:linear-gradient(135deg,#ff66ff33,#ff36a33);border:1.5px solid #ff66ff66;color:var(--c-text);font-family:var(--font-d);font-weight:700;font-size:12px;cursor:pointer;letter-spacing:1px;transition:all .15s">生成20个无敌果实</button>
   </div>
   <div id="debugInfo">
     <h4>选中对象</h4>
@@ -398,6 +400,7 @@ let keys={},moveInput=new THREE.Vector2(0,0),playerMovingThisFrame=false;
 
 let enemySpawnTimer=0,crystalSpawnTimer=0,fruitSpawnTimer=0,purpleEnemySpawnTimer=0,nextPurpleEnemySpawnTime=20;
 let invincibleFruitSpawnTimer=0,nextInvincibleFruitSpawnTime=THREE.MathUtils.randFloat(6,8),invincibleTimer=0,invincibleVisualActive=false,invincibleHue=0;
+let invincibleAura=null;
 let ghostBossSpawnTimer=0;
 let speedBuffTimer=0,speedStackLevel=0,damageFlashTimer=0,lowHpWarningTimer=0,knockbackVelocity=new THREE.Vector3(0,0,0);
 
@@ -465,29 +468,32 @@ const ENEMY_STUCK_DESTROY_TIME=2.0,ENEMY_STUCK_MOVE_EPSILON=0.08;
 const INVINCIBLE_FRUIT_COUNT=2,INVINCIBLE_FRUIT_LIFE=4.0,INVINCIBLE_DURATION=5.0,INVINCIBLE_SPEED_MULTIPLIER=2.0;
 const GHOST_BOSS_SPAWN_INTERVAL=60,GHOST_BOSS_LIFETIME=10,GHOST_BOSS_DAMAGE=13;
 
-const SKYBOX_TEXTURE_URL="model/tex/skybox_basecolor_01.png";
-const PLATFORM_MODEL_URL="model/Sphere001.fbx";
-const PLATFORM_COL_MODEL_URL="model/Sphere001_col.FBX";
-const PLATFORM_BASECOLOR_TEXTURE_URL="model/tex/Sphere001_BaseColor.png";
-const PLATFORM_ROUGHNESS_TEXTURE_URL="model/tex/Sphere001_Roughness.png";
-const PLATFORM_NORMAL_TEXTURE_URL="model/tex/Sphere001_Normal.png";
+const ASSET_VERSION="v2";
+function assetUrl(path){return path+"?v="+ASSET_VERSION}
+
+const SKYBOX_TEXTURE_URL=assetUrl("model/tex/skybox_basecolor_01.png");
+const PLATFORM_MODEL_URL=assetUrl("model/Sphere001.fbx");
+const PLATFORM_COL_MODEL_URL=assetUrl("model/Sphere001_col.FBX");
+const PLATFORM_BASECOLOR_TEXTURE_URL=assetUrl("model/tex/Sphere001_BaseColor.png");
+const PLATFORM_ROUGHNESS_TEXTURE_URL=assetUrl("model/tex/Sphere001_Roughness.png");
+const PLATFORM_NORMAL_TEXTURE_URL=assetUrl("model/tex/Sphere001_Normal.png");
 const PLATFORM_EXTRA_SCALE=1.5,PLATFORM_TOP_Y=0;
 
 const OBSTACLE_COLOR=0x9F7448;
 const ROCK_NEW_MODEL_URLS=[
-  "model/rock_new01.FBX","model/rock_new03.FBX"
+  assetUrl("model/rock_new01.FBX"),assetUrl("model/rock_new03.FBX")
 ];
 const SCENE_ROCK_COUNT=8,MOBILE_ROCK_COUNT=6,ROCK_MIN_DISTANCE=.35,ROCK_PLAYER_CLEAR_RADIUS=4.5;
 
-const PLAYER_MODEL_URL="model/wanjia01.FBX";
-const PLAYER_BASE_COLOR_URL="model/tex/wanjia01_basecolor.PNG";
-const PLAYER_ROUGHNESS_URL="model/tex/wanjia01_r.png";
-const PLAYER_METALNESS_URL="model/tex/wanjia01_m.png";
-const PLAYER_NORMAL_MAP_URL="model/tex/wanjia01_normalmap.PNG";
-const PLAYER_SPEED_COLOR_URL="model/tex/wanjia01_basecolor_zhuangtai.PNG";
-const PLAYER_IDLE_ANIM_URL="model/ani/wanjia01_idle.FBX";
-const PLAYER_RUN_ANIM_URL="model/ani/wanjia01_run.fbx";
-const PLAYER_ATTACKED_ANIM_URL="model/ani/wanjia01_attacked.fbx";
+const PLAYER_MODEL_URL=assetUrl("model/wanjia01.FBX");
+const PLAYER_BASE_COLOR_URL=assetUrl("model/tex/wanjia01_basecolor.PNG");
+const PLAYER_ROUGHNESS_URL=assetUrl("model/tex/wanjia01_r.png");
+const PLAYER_METALNESS_URL=assetUrl("model/tex/wanjia01_m.png");
+const PLAYER_NORMAL_MAP_URL=assetUrl("model/tex/wanjia01_normalmap.PNG");
+const PLAYER_SPEED_COLOR_URL=assetUrl("model/tex/wanjia01_basecolor_zhuangtai.PNG");
+const PLAYER_IDLE_ANIM_URL=assetUrl("model/ani/wanjia01_idle.FBX");
+const PLAYER_RUN_ANIM_URL=assetUrl("model/ani/wanjia01_run.fbx");
+const PLAYER_ATTACKED_ANIM_URL=assetUrl("model/ani/wanjia01_attacked.fbx");
 const PLAYER_MODEL_SCALE=.018,PLAYER_MODEL_X_ROTATION=-Math.PI/2,PLAYER_MODEL_Y_ROTATION=0,PLAYER_MODEL_Z_ROTATION=0,PLAYER_TEXTURE_FLIP_Y=true;
 
 const playerNormalColor=0x1689ff,playerDamageColor=0xff3333;
@@ -550,13 +556,13 @@ function init(){
   camera.position.set(0,camYStart,camZStart);
   camera.lookAt(0,0,0);
 
-  renderer=new THREE.WebGLRenderer({canvas:document.getElementById("game"),antialias:true,powerPreference:"high-performance"});
+  renderer=new THREE.WebGLRenderer({canvas:document.getElementById("game"),antialias:!_isMobile,powerPreference:_isMobile?"default":"high-performance"});
   renderer.setSize(window.innerWidth,window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio,_isMobile?1.0:1.25));
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure=_isMobile?1.08:1.02;
-  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.enabled=!_isMobile;
   renderer.shadowMap.type=THREE.BasicShadowMap;
   renderer.shadowMap.autoUpdate=false;
 
@@ -867,9 +873,10 @@ function loadTexture(url,options={}){
 }
 
 function createPlatformMaterial(){
-  const baseColor=loadTexture(PLATFORM_BASECOLOR_TEXTURE_URL,{colorSpace:THREE.SRGBColorSpace,flipY:true,anisotropy:16});
-  const roughness=loadTexture(PLATFORM_ROUGHNESS_TEXTURE_URL,{colorSpace:THREE.NoColorSpace,flipY:true,anisotropy:16});
-  const normal=loadTexture(PLATFORM_NORMAL_TEXTURE_URL,{colorSpace:THREE.NoColorSpace,flipY:true,anisotropy:16});
+  const aniso=_isMobile?4:16;
+  const baseColor=loadTexture(PLATFORM_BASECOLOR_TEXTURE_URL,{colorSpace:THREE.SRGBColorSpace,flipY:true,anisotropy:aniso});
+  const roughness=loadTexture(PLATFORM_ROUGHNESS_TEXTURE_URL,{colorSpace:THREE.NoColorSpace,flipY:true,anisotropy:aniso});
+  const normal=loadTexture(PLATFORM_NORMAL_TEXTURE_URL,{colorSpace:THREE.NoColorSpace,flipY:true,anisotropy:aniso});
   baseColor.magFilter=THREE.LinearFilter;
   baseColor.minFilter=THREE.LinearMipmapLinearFilter;
   normal.magFilter=THREE.LinearFilter;
@@ -1608,9 +1615,12 @@ function spawnPlayerSideEffect(type){
   if(isInvincible){mainColor=0xfff36a;secondColor=0x8effff;text="无敌!";textColor="#fff36a"}
   if(isShield){mainColor=0xff66ff;secondColor=0x66ffff;text="免伤!";textColor="#ff9cff"}
 
-  const ringMat=new THREE.MeshBasicMaterial({color:mainColor,transparent:true,opacity:.9,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
-  const ring=new THREE.Mesh(new THREE.RingGeometry(.75,1.18,72),ringMat);
-  ring.rotation.x=-Math.PI/2;ring.position.set(1.25,.28,.05);group.add(ring);
+  let ring=null;
+  if(!isSpeed){
+    const ringMat=new THREE.MeshBasicMaterial({color:mainColor,transparent:true,opacity:.9,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
+    ring=new THREE.Mesh(new THREE.RingGeometry(.75,1.18,72),ringMat);
+    ring.rotation.x=-Math.PI/2;ring.position.set(1.25,.28,.05);group.add(ring);
+  }
 
   let pulse=null;
   if(!isSpeed){
@@ -1619,12 +1629,15 @@ function spawnPlayerSideEffect(type){
     pulse.rotation.x=-Math.PI/2;pulse.position.set(1.25,.26,.05);group.add(pulse);
   }
 
-  const sprite=createTextSprite(text,textColor);
-  sprite.position.set(1.25,1.75,.05);group.add(sprite);
+  if(!isInvincible&&!isSpeed){
+    const sprite=createTextSprite(text,textColor);
+    sprite.position.set(1.25,1.75,.05);group.add(sprite);
+  } else {group.userData.noSprite=true}
+  let spriteRef=isInvincible?null:group.children[group.children.length-1];
 
   group.scale.setScalar(1.65);
   player.add(group);
-  playerSideEffects.push({group,ring,pulse,sprite,type,life:isShield?.75:1.25,maxLife:isShield?.75:1.25});
+  playerSideEffects.push({group,ring,pulse,sprite:spriteRef,type,life:isShield?.75:1.25,maxLife:isShield?.75:1.25});
   if(!isShield)playSfx(type);
 }
 
@@ -1779,14 +1792,23 @@ function loadPlayerFBX(resolve){
       if(playerFallbackBody)playerFallbackBody.visible=false;
       player.add(playerModel);
       playerMixer=new THREE.AnimationMixer(playerModel);
-      loadPlayerAnimation("idle",PLAYER_IDLE_ANIM_URL,true);
-      loadPlayerAnimation("run",PLAYER_RUN_ANIM_URL,true);
-      loadPlayerAnimation("attacked",PLAYER_ATTACKED_ANIM_URL,false);
       resolve();
     },
     undefined,
     err=>{console.warn("玩家模型加载失败：",PLAYER_MODEL_URL,err);resolve();}
   );
+}
+
+let _playerAnimsLoaded=false,_playerAnimsLoading=false;
+function loadPlayerAnimationsLazy(){
+  if(_playerAnimsLoaded||_playerAnimsLoading)return;
+  _playerAnimsLoading=true;
+  loadPlayerAnimation("idle",PLAYER_IDLE_ANIM_URL,true);
+  setTimeout(()=>{
+    loadPlayerAnimation("run",PLAYER_RUN_ANIM_URL,true);
+    loadPlayerAnimation("attacked",PLAYER_ATTACKED_ANIM_URL,false);
+  },200);
+  _playerAnimsLoaded=true;
 }
 
 function loadPlayerAnimation(name,url,loop){
@@ -1864,6 +1886,7 @@ function startGame(){
   gameRunning=true;
   gameOverPending=false;
   playerIsDead=false;
+  loadPlayerAnimationsLazy();
   document.getElementById("scanlines").style.display=isMobileLayout()?"none":"block";
   document.getElementById("pauseBtn").style.display="flex";
   document.getElementById("restartGameBtn").style.display="flex";
@@ -1879,6 +1902,7 @@ function startGame(){
   startToast.style.animation="toastFade 4.5s forwards";
 
   score=0;hp=maxHp;aliveTime=0;speedBuffTimer=0;speedStackLevel=0;speedTextureActive=false;speedEndTransitionTimer=0;applyPlayerSpeedTexture(false);invincibleTimer=0;invincibleVisualActive=false;damageFlashTimer=0;lowHpWarningTimer=0;playerHitAnimTimer=0;knockbackVelocity.set(0,0,0);
+  removeInvincibleAura();
   enemySpawnTimer=0;crystalSpawnTimer=0;fruitSpawnTimer=0;purpleEnemySpawnTimer=0;invincibleFruitSpawnTimer=0;ghostBossSpawnTimer=0;
     nextPurpleEnemySpawnTime=randomInt(15,35);nextInvincibleFruitSpawnTime=THREE.MathUtils.randFloat(6,8);enemySpawnQueue.length=0;
   _cachedTier=null;_tierCacheScore=-1;_prevTierHex=-1;
@@ -1911,12 +1935,15 @@ function startGame(){
   if(playerStatusSprite){playerStatusSprite.visible=false}playerStatusTimer=0;playerStatusType="";
   prewarmPurpleEnemyPool();
 
-  const initialCrystals=INITIAL_CRYSTAL_COUNT;
-  for(let i=0;i<initialCrystals;i++)spawnCrystal();
   spawnSceneRocks();
-  spawnEnemyGroup(4);
-  initPlatformAirParticles();
-  initSandstorms();
+  const initialCrystals=INITIAL_CRYSTAL_COUNT;
+  const batchSize=8,batchCount=Math.ceil(initialCrystals/batchSize);
+  for(let b=0;b<batchCount;b++){
+    if(b===0){for(let i=0;i<batchSize;i++)spawnCrystal()}
+    else setTimeout(()=>{for(let i=0;i<batchSize;i++)if(crystals.length<initialCrystals)spawnCrystal()},b*35);
+  }
+  setTimeout(()=>{spawnEnemyGroup(4)},60);
+  setTimeout(()=>{initPlatformAirParticles();initSandstorms()},80);
 
   updateHUD();
   clock.getDelta();
@@ -2214,7 +2241,38 @@ function spawnInvincibleFruit(){
   scene.add(group);
   fruits.push({mesh:group,radius:1.1,type:"invincible",life:INVINCIBLE_FRUIT_LIFE});
 }
-function activateInvincible(){invincibleTimer=INVINCIBLE_DURATION;invincibleVisualActive=true;spawnPlayerSideEffect("invincible");playSfx("invincible")}
+function activateInvincible(){
+  invincibleTimer=INVINCIBLE_DURATION;
+  invincibleVisualActive=true;
+  ensureInvincibleAura();
+  playSfx("invincible");
+}
+
+function ensureInvincibleAura(){
+  if(!player)return;
+  if(invincibleAura){
+    invincibleAura.ring.material.opacity=.9;
+    invincibleAura.pulse.material.opacity=.5;
+    return;
+  }
+  const group=new THREE.Group();
+  const ringMat=new THREE.MeshBasicMaterial({color:0xfff36a,transparent:true,opacity:.9,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
+  const ring=new THREE.Mesh(new THREE.RingGeometry(.75,1.18,72),ringMat);
+  ring.rotation.x=-Math.PI/2;ring.position.set(1.25,.28,.05);group.add(ring);
+  const pulseMat=new THREE.MeshBasicMaterial({color:0x8effff,transparent:true,opacity:.5,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
+  const pulse=new THREE.Mesh(new THREE.CircleGeometry(.88,72),pulseMat);
+  pulse.rotation.x=-Math.PI/2;pulse.position.set(1.25,.26,.05);group.add(pulse);
+  group.scale.setScalar(1.65);
+  player.add(group);
+  invincibleAura={group,ring,pulse};
+}
+const AURA_COLLISION_RADIUS=3.3;
+
+function removeInvincibleAura(){
+  if(!invincibleAura)return;
+  disposeGroup(invincibleAura.group,player);
+  invincibleAura=null;
+}
 
 function updateInvincibleState(dt){
   if(invincibleTimer>0){invincibleTimer-=dt;if(invincibleTimer<0)invincibleTimer=0}
@@ -2222,12 +2280,39 @@ function updateInvincibleState(dt){
     invincibleHue=(invincibleHue+dt*.75)%1;
     const color=new THREE.Color().setHSL(invincibleHue,.95,.62);
     const emissive=new THREE.Color().setHSL((invincibleHue+.35)%1,.95,.45);
-    const pulse=.45+Math.sin(aliveTime*18)*.25;
+    const pulseV=.45+Math.sin(aliveTime*18)*.25;
     for(const target of playerTintTargets){
       if(target.mat.color)target.mat.color.copy(color);
-      if(target.mat.emissive){target.mat.emissive.copy(emissive);target.mat.emissiveIntensity=.35+pulse}
+      if(target.mat.emissive){target.mat.emissive.copy(emissive);target.mat.emissiveIntensity=.35+pulseV}
     }
-  }else if(invincibleVisualActive){invincibleVisualActive=false;restorePlayerTint()}
+    if(invincibleAura){
+      const pct=Math.min(1,invincibleTimer/INVINCIBLE_DURATION);
+      invincibleAura.group.rotation.y+=dt*4.2;
+      invincibleAura.ring.rotation.z+=dt*7;
+      invincibleAura.ring.scale.setScalar(1+Math.sin(aliveTime*8)*.15);
+      invincibleAura.ring.material.opacity=.55+.4*pct;
+      invincibleAura.pulse.scale.setScalar(1+Math.sin(aliveTime*6+.5)*.2);
+      invincibleAura.pulse.material.opacity=.3+.25*pct;
+    }
+  }else if(invincibleVisualActive){
+    invincibleVisualActive=false;
+    removeInvincibleAura();
+    restorePlayerTint();
+  }
+}
+
+function applyAuraKillToEnemies(){
+  if(!invincibleAura||!player||invincibleTimer<=0)return;
+  const aRadSq=AURA_COLLISION_RADIUS*AURA_COLLISION_RADIUS;
+  for(let i=enemies.length-1;i>=0;i--){
+    const e=enemies[i];
+    if(dist2DSq(player.position.x,player.position.z,e.mesh.position.x,e.mesh.position.z)<aRadSq){
+      spawnEnemyDeathExplosion(e.mesh.position);
+      if(e.type==="purple")returnPurpleEnemyToPool(e.mesh);
+      else scene.remove(e.mesh);
+      enemies.splice(i,1);
+    }
+  }
 }
 
 function restorePlayerTint(){
@@ -2377,6 +2462,16 @@ function setupDebugInput(){
   });
   document.getElementById("dbgCollisionToggle").addEventListener("change",e=>{
     toggleCollisionVisibility(e.target.checked);
+  });
+  document.getElementById("dbgSpawnInvincible").addEventListener("click",()=>{
+    if(!gameRunning)return;
+    for(let i=0;i<20;i++){
+      const pos=findSafePosition(1.0);
+      const group=createFruitMesh("invincible");
+      group.position.set(pos.x,getPlatformHeightAt(pos.x,pos.z),pos.z);
+      scene.add(group);
+      fruits.push({mesh:group,radius:1.1,type:"invincible",life:INVINCIBLE_FRUIT_LIFE});
+    }
   });
   document.getElementById("pauseBtn").addEventListener("click",togglePause);
 }
@@ -2720,7 +2815,9 @@ function update(dt){
   updateCamera(dt);
   updateCrystals(dt);
   updateEnemies(dt);
+  applyAuraKillToEnemies();
   updateFruits(dt);
+  applyAuraKillToEnemies();
   updateSpawns(dt);
   updateHUD();
   if(hp<=0&&!gameOverPending)endGame();
@@ -2892,7 +2989,8 @@ function updateEnemies(dt){
       continue;
     }
     if(dist2DSq(player.position.x,player.position.z,e.mesh.position.x,e.mesh.position.z)<(playerRadius+e.radius)*(playerRadius+e.radius)){
-      applyPlayerDamage(e.damage,e.mesh.position);
+      if(invincibleTimer<=0)applyPlayerDamage(e.damage,e.mesh.position);
+      else{spawnPlayerSideEffect("shield");playSfx("invincibleHit")}
       spawnEnemyDeathExplosion(e.mesh.position);
       if(e.type==="purple")returnPurpleEnemyToPool(e.mesh);
       else scene.remove(e.mesh);
@@ -3049,7 +3147,7 @@ function updateFruits(dt){
   for(let i=fruits.length-1;i>=0;i--){
     const f=fruits[i];
     f.life-=dt;
-    f.mesh.rotation.y+=dt*2.5;
+    f.mesh.rotation.y+=dt*(f.type==="invincible"?7.5:2.5);
     for(const child of f.mesh.children){
       if(child.geometry&&child.geometry.type==="TorusGeometry")child.rotation.z+=dt*(f.type==="invincible"?10:2.5);
     }
@@ -3143,6 +3241,8 @@ function endGame(){
 
   stopBGM();
   playSfx("gameover");
+
+  removeInvincibleAura();
 
   meta.gamesPlayed++;
   meta.bestScore=Math.max(meta.bestScore,score);
