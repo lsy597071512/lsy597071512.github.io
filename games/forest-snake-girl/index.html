@@ -1,4 +1,4 @@
-﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
@@ -324,6 +324,8 @@ button{font-size:14px;padding:11px 24px;margin-top:12px}
     <label class="dbg-toggle"><input type="checkbox" id="dbgCollisionToggle" />显示碰撞体</label>
     <h4>DEBUG 生成</h4>
     <button id="dbgSpawnInvincible" style="width:100%;padding:8px 0;border-radius:8px;background:linear-gradient(135deg,#ff66ff33,#ff36a33);border:1.5px solid #ff66ff66;color:var(--c-text);font-family:var(--font-d);font-weight:700;font-size:12px;cursor:pointer;letter-spacing:1px;transition:all .15s">生成20个无敌果实</button>
+    <button id="dbgSpawnBoss" style="width:100%;padding:8px 0;border-radius:8px;background:linear-gradient(135deg,#ff000033,#cc000033);border:1.5px solid #ff444466;color:var(--c-text);font-family:var(--font-d);font-weight:700;font-size:12px;cursor:pointer;letter-spacing:1px;transition:all .15s;margin-top:6px">生成BOSS怪</button>
+    <button id="dbgSpawnBothFruits" style="width:100%;padding:8px 0;border-radius:8px;background:linear-gradient(135deg,#ff66ff33,#00f0ff33);border:1.5px solid #ff66ff66;color:var(--c-text);font-family:var(--font-d);font-weight:700;font-size:12px;cursor:pointer;letter-spacing:1px;transition:all .15s;margin-top:6px">生成30个无敌+加速果实</button>
   </div>
   <div id="debugInfo">
     <h4>选中对象</h4>
@@ -386,13 +388,14 @@ let playerActions={},currentPlayerAnim="",playerHitAnimTimer=0,playerIsDead=fals
 let playerTintTargets=[],playerLocatorGroup=null;
 let playerHeadUISprite=null,playerHeadUICanvas=null,playerHeadUIContext=null,playerHeadUITexture=null;
 let playerHeadScoreSprite=null,playerHeadScoreCanvas=null,playerHeadScoreContext=null,playerHeadScoreTexture=null,lastHeadUIScore=-1,lastHeadUIHp=-1;
-let playerSideEffects=[],crystalScorePopups=[],playerBaseColorTexture=null,playerRoughnessTexture=null,playerMetalnessTexture=null,playerNormalTexture=null,playerSpeedColorTexture=null;
+let playerSideEffects=[],crystalScorePopups=[],playerBaseColorTexture=null,playerRoughnessTexture=null,playerMetalnessTexture=null,playerNormalTexture=null,playerSpeedColorTexture=null,playerInvincibleColorTexture=null;
 let speedTextureActive=false,speedEndTransitionTimer=0;
 
 let playerRadius=.65,clock=new THREE.Clock();
 let gameRunning=false,gameOverPending=false,score=0,hp=50,aliveTime=0;
 let crystals=[],enemies=[],rocks=[],fruits=[],enemySpawnQueue=[],crystalBursts=[],purpleEnemyPool=[],enemyDeathExplosions=[];
 let rockModels=[],rockMaterial=null;
+let bossModel=null,bossMaterial=null;
 let platformCloudTexture=null,airParticleTexture=null;
 let platformAirPointSystem=null,platformAirParticleData=[];
 let sandstorms=[],dustParticleTexture=null;
@@ -400,6 +403,7 @@ let keys={},moveInput=new THREE.Vector2(0,0),playerMovingThisFrame=false;
 
 let enemySpawnTimer=0,crystalSpawnTimer=0,fruitSpawnTimer=0,purpleEnemySpawnTimer=0,nextPurpleEnemySpawnTime=20;
 let invincibleFruitSpawnTimer=0,nextInvincibleFruitSpawnTime=THREE.MathUtils.randFloat(6,8),invincibleTimer=0,invincibleVisualActive=false,invincibleHue=0;
+let invincibleTextureActive=false,invincibleEndTransitionTimer=0;
 let invincibleAura=null;
 let ghostBossSpawnTimer=0;
 let speedBuffTimer=0,speedStackLevel=0,damageFlashTimer=0,lowHpWarningTimer=0,knockbackVelocity=new THREE.Vector3(0,0,0);
@@ -466,7 +470,7 @@ const HEAL_AMOUNT=8;
 const ENEMY_SPEED_MULTIPLIER=1.15,ENEMY_MAX_DIFFICULTY_TIME=120,MAX_SCENE_ENEMIES=72;
 const ENEMY_STUCK_DESTROY_TIME=2.0,ENEMY_STUCK_MOVE_EPSILON=0.08;
 const INVINCIBLE_FRUIT_COUNT=2,INVINCIBLE_FRUIT_LIFE=4.0,INVINCIBLE_DURATION=5.0,INVINCIBLE_SPEED_MULTIPLIER=2.0;
-const GHOST_BOSS_SPAWN_INTERVAL=60,GHOST_BOSS_LIFETIME=10,GHOST_BOSS_DAMAGE=13;
+const GHOST_BOSS_SPAWN_INTERVAL=60,GHOST_BOSS_LIFETIME=20,GHOST_BOSS_DAMAGE=13;
 
 const ASSET_VERSION="v2";
 function assetUrl(path){return path+"?v="+ASSET_VERSION}
@@ -485,12 +489,19 @@ const ROCK_NEW_MODEL_URLS=[
 ];
 const SCENE_ROCK_COUNT=8,MOBILE_ROCK_COUNT=6,ROCK_MIN_DISTANCE=.35,ROCK_PLAYER_CLEAR_RADIUS=4.5;
 
+const BOSS_MODEL_URL=assetUrl("model/boss01.fbx");
+const BOSS_BASECOLOR_TEXTURE_URL=assetUrl("model/tex/boss01_d.png");
+const BOSS_ROUGHNESS_TEXTURE_URL=assetUrl("model/tex/boss01_r.png");
+const BOSS_EMISSIVE_TEXTURE_URL=assetUrl("model/tex/boss01_e.png");
+const BOSS_MODEL_SCALE=.055;
+
 const PLAYER_MODEL_URL=assetUrl("model/wanjia01.FBX");
 const PLAYER_BASE_COLOR_URL=assetUrl("model/tex/wanjia01_basecolor.PNG");
 const PLAYER_ROUGHNESS_URL=assetUrl("model/tex/wanjia01_r.png");
 const PLAYER_METALNESS_URL=assetUrl("model/tex/wanjia01_m.png");
 const PLAYER_NORMAL_MAP_URL=assetUrl("model/tex/wanjia01_normalmap.PNG");
 const PLAYER_SPEED_COLOR_URL=assetUrl("model/tex/wanjia01_basecolor_zhuangtai.PNG");
+const PLAYER_INVINCIBLE_COLOR_URL=assetUrl("model/tex/wanjia01_basecolor_zhuangtai02.PNG");
 const PLAYER_IDLE_ANIM_URL=assetUrl("model/ani/wanjia01_idle.FBX");
 const PLAYER_RUN_ANIM_URL=assetUrl("model/ani/wanjia01_run.fbx");
 const PLAYER_ATTACKED_ANIM_URL=assetUrl("model/ani/wanjia01_attacked.fbx");
@@ -590,6 +601,7 @@ function _loadAllAssets(){
   createPlatformModel();
   createPlayer();
   loadRockModels();
+  loadBossModel();
 }
 
 function loadRockModels(){
@@ -606,6 +618,99 @@ function loadRockModels(){
       rockModels.push(fbx);
     });
   }
+}
+
+function loadBossModel(){
+  const textureLoader=new THREE.TextureLoader();
+  const textures={};
+  let texLoaded=0,matReady=false,modelReady=false;
+  
+  function tryApplyBossMaterial(){
+    if(!matReady||!modelReady||!bossModel)return;
+    let meshCount=0;
+    bossModel.traverse(obj=>{
+      if(obj.isMesh||obj.isSkinnedMesh){
+        obj.material=bossMaterial;
+        obj.castShadow=!_isMobile;
+        obj.receiveShadow=true;
+        if(obj.isSkinnedMesh)obj.frustumCulled=false;
+        meshCount++;
+      }
+    });
+    console.log("[Boss] 贴图与模型均已就绪，应用 bossMaterial 到模型, Mesh总数:",meshCount);
+    console.log("[Boss] bossMaterial 配置 - type:",bossMaterial.type,"color:#"+bossMaterial.color.getHexString(),"map:",!!bossMaterial.map,"roughnessMap:",!!bossMaterial.roughnessMap,"emissiveMap:",!!bossMaterial.emissiveMap,"emissive:#"+bossMaterial.emissive.getHexString(),"emissiveIntensity:",bossMaterial.emissiveIntensity,"roughness:",bossMaterial.roughness,"metalness:",bossMaterial.metalness,"uuid:",bossMaterial.uuid);
+  }
+  
+  function onTexDone(key,tex,isSRGB){
+    texLoaded++;
+    if(tex){
+      tex.colorSpace=isSRGB?THREE.SRGBColorSpace:THREE.NoColorSpace;
+      tex.anisotropy=8;
+      textures[key]=tex;
+      console.log("[Boss] 贴图加载成功:",key);
+    }else{
+      console.warn("[Boss] 贴图加载失败:",key);
+    }
+    if(texLoaded===3){
+      bossMaterial=new THREE.MeshStandardMaterial({
+        map:textures.baseColor||null,
+        roughnessMap:textures.roughness||null,
+        emissiveMap:textures.emissive||null,
+        emissive:0xffffff,
+        emissiveIntensity:.8,
+        roughness:.7,
+        metalness:.1,
+        color:0xffffff
+      });
+      matReady=true;
+      console.log("[Boss] bossMaterial 已创建, map:",!!textures.baseColor,"roughnessMap:",!!textures.roughness,"emissiveMap:",!!textures.emissive);
+      tryApplyBossMaterial();
+    }
+  }
+  
+  textureLoader.load(BOSS_BASECOLOR_TEXTURE_URL,
+    tex=>onTexDone("baseColor",tex,true),
+    undefined,
+    err=>{console.warn("[Boss] 基础颜色贴图加载失败:",err);onTexDone("baseColor",null,true)}
+  );
+  textureLoader.load(BOSS_ROUGHNESS_TEXTURE_URL,
+    tex=>onTexDone("roughness",tex,false),
+    undefined,
+    err=>{console.warn("[Boss] 粗糙度贴图加载失败:",err);onTexDone("roughness",null,false)}
+  );
+  textureLoader.load(BOSS_EMISSIVE_TEXTURE_URL,
+    tex=>onTexDone("emissive",tex,true),
+    undefined,
+    err=>{console.warn("[Boss] 发光贴图加载失败:",err);onTexDone("emissive",null,true)}
+  );
+  
+  _trackLoad(new Promise(resolve=>{
+    new FBXLoader().load(BOSS_MODEL_URL,fbx=>{
+      bossModel=fbx;
+      modelReady=true;
+      let meshCount=0;
+      const matIds=new Set();
+      bossModel.traverse(obj=>{
+        if(obj.isMesh||obj.isSkinnedMesh){
+          meshCount++;
+          const name=obj.name||"(unnamed)";
+          const mats=Array.isArray(obj.material)?obj.material:[obj.material];
+          mats.forEach((m,i)=>{
+            if(!m)return;
+            const id=m.uuid||m.id||"unknown";
+            matIds.add(id);
+            console.log("[Boss] FBX原始材质 - Mesh:",name,"材质索引:",i,"材质ID:",id,"材质类型:",m.type,"color:",m.color?"#"+m.color.getHexString():"-","map:",!!m.map,"roughnessMap:",!!m.roughnessMap,"metalnessMap:",!!m.metalnessMap,"normalMap:",!!m.normalMap,"emissiveMap:",!!m.emissiveMap,"emissive:",m.emissive?"#"+m.emissive.getHexString():"-","emissiveIntensity:",m.emissiveIntensity,"roughness:",m.roughness,"metalness:",m.metalness,"opacity:",m.opacity,"transparent:",m.transparent);
+          });
+        }
+      });
+      console.log("[Boss] FBX材质诊断完成, 子Mesh数量:",meshCount,"唯一材质ID数量:",matIds.size,"材质ID列表:",[...matIds]);
+      tryApplyBossMaterial();
+      resolve();
+    },undefined,err=>{
+      console.warn("[Boss] FBX 模型加载失败:",BOSS_MODEL_URL,err);
+      resolve();
+    });
+  }));
 }
 
 function loadMeta(){
@@ -706,6 +811,34 @@ function setPlayerStatusText(type,duration){
   playerStatusSprite.visible=true;
 }
 
+function refreshPlayerStatusText(){
+  const hasInvincible=invincibleTimer>0;
+  const hasSpeed=speedBuffTimer>0;
+  let type="",text="",duration=0;
+  if(hasInvincible&&hasSpeed){type="invincibleSpeed";text="正在无敌加速中";duration=Math.max(invincibleTimer,speedBuffTimer)}
+  else if(hasInvincible){type="invincible";text="正处于无敌中";duration=invincibleTimer}
+  else if(hasSpeed){type="speed";text="正在加速";duration=speedBuffTimer}
+  else{
+    if(!playerStatusType||playerStatusType==="heal")return;
+    playerStatusType="";playerStatusTimer=.3;return;
+  }
+  if(playerStatusType===type)return;
+  playerStatusType=type;playerStatusTimer=duration;
+  if(!playerStatusCanvas){playerStatusCanvas=document.createElement("canvas");playerStatusCanvas.width=3072;playerStatusCanvas.height=1536;playerStatusCtx=playerStatusCanvas.getContext("2d")}
+  const ctx=playerStatusCtx;
+  ctx.clearRect(0,0,playerStatusCanvas.width,playerStatusCanvas.height);
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="900 460px Orbitron, Exo 2, Microsoft YaHei, Arial";
+  ctx.fillStyle="#ffffff";
+  ctx.fillText(text,playerStatusCanvas.width/2,playerStatusCanvas.height/2);
+  ctx.restore();
+  if(!playerStatusTexture){playerStatusTexture=new THREE.CanvasTexture(playerStatusCanvas);playerStatusTexture.colorSpace=THREE.SRGBColorSpace;playerStatusTexture.minFilter=THREE.LinearMipmapLinearFilter;playerStatusTexture.magFilter=THREE.LinearFilter}else playerStatusTexture.needsUpdate=true;
+  if(!playerStatusSprite){const mat2=new THREE.SpriteMaterial({map:playerStatusTexture,transparent:true,opacity:1,depthWrite:false,depthTest:false});playerStatusSprite=new THREE.Sprite(mat2);playerStatusSprite.scale.set(isMobileLayout()?246:216,isMobileLayout()?123:108,1);player.add(playerStatusSprite)}
+  playerStatusSprite.position.set(0,isMobileLayout()?6.0:5.0,0);
+  playerStatusSprite.visible=true;
+}
+
 function updatePlayerStatusText(dt){
   if(!playerStatusSprite||playerStatusTimer<=0)return;
   playerStatusTimer-=dt;
@@ -721,7 +854,7 @@ function initSharedResources(){
   shared.geo.purpleHorn=new THREE.ConeGeometry(.32*1.3,.65*1.3,4);
   shared.geo.purpleAura=new THREE.TorusGeometry(.82*1.3,.045,4,12);
   shared.geo.ghostBody=new THREE.SphereGeometry(.65*1.3*2,8,6);
-  shared.geo.ghostAura=new THREE.TorusGeometry(.82*1.3*2.2,.06,6,12);
+  shared.geo.ghostAura=new THREE.TorusGeometry(.82*1.3*2.2,.25,6,12);
   shared.geo.ghostCore=new THREE.IcosahedronGeometry(.4*1.3*2,0);
   shared.geo.rock=new THREE.DodecahedronGeometry(1,0);
   shared.geo.speedFruit=new THREE.SphereGeometry(.45,16,16);
@@ -751,8 +884,8 @@ function initSharedResources(){
 
   shared.mat.ghostBody=new THREE.MeshStandardMaterial({color:0xaaccff,emissive:0x334466,emissiveIntensity:.4,roughness:.6,metalness:0,transparent:true,opacity:.5,depthWrite:false});
   shared.mat.ghostCore=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.8,depthWrite:false});
-  shared.mat.ghostAura1=new THREE.MeshBasicMaterial({color:0x88bbff,transparent:true,opacity:.7,blending:THREE.AdditiveBlending,depthWrite:false});
-  shared.mat.ghostAura2=new THREE.MeshBasicMaterial({color:0xccddff,transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false});
+  shared.mat.ghostAura1=new THREE.MeshBasicMaterial({color:0xff4411,transparent:true,opacity:.85,blending:THREE.AdditiveBlending,depthWrite:false});
+  shared.mat.ghostAura2=new THREE.MeshBasicMaterial({color:0xff6633,transparent:true,opacity:.65,blending:THREE.AdditiveBlending,depthWrite:false});
   shared.geo.ghostParticle=new THREE.SphereGeometry(.3,6,6);
   shared.mat.ghostParticle=new THREE.MeshBasicMaterial({color:0xaaddff,transparent:true,opacity:.4,depthWrite:false,blending:THREE.AdditiveBlending});
 }
@@ -1047,13 +1180,13 @@ function createPlayerLocatorHalo(){
   playerLocatorGroup=new THREE.Group();
   const ringMat=new THREE.MeshBasicMaterial({color:0x00f0ff,transparent:true,opacity:.85,side:THREE.DoubleSide,depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending});
   const ring=new THREE.Mesh(new THREE.RingGeometry(.78,1.05,72),ringMat);
-  ring.rotation.x=-Math.PI/2;ring.position.y=.035;ring.renderOrder=-1;playerLocatorGroup.add(ring);
+  ring.rotation.x=-Math.PI/2;ring.position.y=.18;ring.renderOrder=-1;playerLocatorGroup.add(ring);
   const outerMat=new THREE.MeshBasicMaterial({color:0xb44dff,transparent:true,opacity:.55,side:THREE.DoubleSide,depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending});
   const outerRing=new THREE.Mesh(new THREE.RingGeometry(1.12,1.2,72),outerMat);
-  outerRing.rotation.x=-Math.PI/2;outerRing.position.y=.04;outerRing.renderOrder=-1;playerLocatorGroup.add(outerRing);
+  outerRing.rotation.x=-Math.PI/2;outerRing.position.y=.18;outerRing.renderOrder=-1;playerLocatorGroup.add(outerRing);
   const discMat=new THREE.MeshBasicMaterial({color:0x00f0ff,transparent:true,opacity:.12,side:THREE.DoubleSide,depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending});
   const disc=new THREE.Mesh(new THREE.CircleGeometry(.72,72),discMat);
-  disc.rotation.x=-Math.PI/2;disc.position.y=.025;disc.renderOrder=-1;playerLocatorGroup.add(disc);
+  disc.rotation.x=-Math.PI/2;disc.position.y=.18;disc.renderOrder=-1;playerLocatorGroup.add(disc);
   player.add(playerLocatorGroup);
   playerLocatorGroup.renderOrder=-1;
 }
@@ -1666,12 +1799,13 @@ function clearPlayerSideEffects(){
 function loadPlayerTextures(onDone){
   const textureLoader=new THREE.TextureLoader();
   let loadedCount=0;
-  function doneOne(){loadedCount++;if(loadedCount>=5)onDone()}
+  function doneOne(){loadedCount++;if(loadedCount>=6)onDone()}
   textureLoader.load(PLAYER_BASE_COLOR_URL,texture=>{texture.colorSpace=THREE.SRGBColorSpace;texture.flipY=PLAYER_TEXTURE_FLIP_Y;texture.anisotropy=8;playerBaseColorTexture=texture;doneOne()},undefined,err=>{console.warn("玩家颜色贴图加载失败：",PLAYER_BASE_COLOR_URL,err);doneOne()});
   textureLoader.load(PLAYER_NORMAL_MAP_URL,texture=>{texture.colorSpace=THREE.NoColorSpace;texture.flipY=PLAYER_TEXTURE_FLIP_Y;texture.anisotropy=8;playerNormalTexture=texture;doneOne()},undefined,err=>{console.warn("玩家法线贴图加载失败：",PLAYER_NORMAL_MAP_URL,err);doneOne()});
   textureLoader.load(PLAYER_ROUGHNESS_URL,texture=>{texture.colorSpace=THREE.NoColorSpace;texture.flipY=PLAYER_TEXTURE_FLIP_Y;texture.anisotropy=8;playerRoughnessTexture=texture;doneOne()},undefined,err=>{console.warn("玩家粗糙度贴图加载失败：",PLAYER_ROUGHNESS_URL,err);doneOne()});
   textureLoader.load(PLAYER_METALNESS_URL,texture=>{texture.colorSpace=THREE.NoColorSpace;texture.flipY=PLAYER_TEXTURE_FLIP_Y;texture.anisotropy=8;playerMetalnessTexture=texture;doneOne()},undefined,err=>{console.warn("玩家金属度贴图加载失败：",PLAYER_METALNESS_URL,err);doneOne()});
   textureLoader.load(PLAYER_SPEED_COLOR_URL,texture=>{texture.colorSpace=THREE.SRGBColorSpace;texture.flipY=PLAYER_TEXTURE_FLIP_Y;texture.anisotropy=8;playerSpeedColorTexture=texture;doneOne()},undefined,err=>{console.warn("玩家加速状态贴图加载失败：",PLAYER_SPEED_COLOR_URL,err);doneOne()});
+  textureLoader.load(PLAYER_INVINCIBLE_COLOR_URL,texture=>{texture.colorSpace=THREE.SRGBColorSpace;texture.flipY=PLAYER_TEXTURE_FLIP_Y;texture.anisotropy=8;playerInvincibleColorTexture=texture;doneOne()},undefined,err=>{console.warn("玩家无敌状态贴图加载失败：",PLAYER_INVINCIBLE_COLOR_URL,err);doneOne()});
 }
 
 function createPlayerMaterial(){
@@ -1709,6 +1843,54 @@ function updateSpeedTextureTransition(dt){
       applyPlayerSpeedTexture(false);
     }
     if(speedEndTransitionTimer<=0){
+      for(const target of playerTintTargets){
+        if(target.mat&&target.mat.emissive){
+          target.mat.emissive.set(0x000000);
+          target.mat.emissiveIntensity=0;
+        }
+      }
+    }
+  }
+}
+
+function applyPlayerInvincibleTexture(active){
+  let texture;
+  if(active){
+    texture=playerInvincibleColorTexture;
+  }else if(speedTextureActive){
+    texture=playerSpeedColorTexture;
+  }else{
+    texture=playerBaseColorTexture;
+  }
+  if(!texture)return;
+  for(const target of playerTintTargets){
+    if(target.mat&&target.mat.map!==undefined){
+      target.mat.map=texture;
+      target.mat.needsUpdate=true;
+    }
+  }
+}
+
+function updateInvincibleTextureTransition(dt){
+  if(!invincibleTextureActive&&invincibleEndTransitionTimer<=0)return;
+  if(invincibleEndTransitionTimer>0){
+    invincibleEndTransitionTimer-=dt;
+    const total=0.5;
+    const progress=1-invincibleEndTransitionTimer/total;
+    let glow=0;
+    if(progress<.5)glow=progress*2*.45;
+    else glow=(1-progress)*2*.45;
+    for(const target of playerTintTargets){
+      if(target.mat&&target.mat.emissive){
+        target.mat.emissive.set(0xff66ff);
+        target.mat.emissiveIntensity=glow;
+      }
+    }
+    if(progress>=.5&&invincibleTextureActive){
+      invincibleTextureActive=false;
+      applyPlayerInvincibleTexture(false);
+    }
+    if(invincibleEndTransitionTimer<=0){
       for(const target of playerTintTargets){
         if(target.mat&&target.mat.emissive){
           target.mat.emissive.set(0x000000);
@@ -1901,8 +2083,9 @@ function startGame(){
   startToast.style.display="block";
   startToast.style.animation="toastFade 4.5s forwards";
 
-  score=0;hp=maxHp;aliveTime=0;speedBuffTimer=0;speedStackLevel=0;speedTextureActive=false;speedEndTransitionTimer=0;applyPlayerSpeedTexture(false);invincibleTimer=0;invincibleVisualActive=false;damageFlashTimer=0;lowHpWarningTimer=0;playerHitAnimTimer=0;knockbackVelocity.set(0,0,0);
+  score=0;hp=maxHp;aliveTime=0;speedBuffTimer=0;speedStackLevel=0;speedTextureActive=false;speedEndTransitionTimer=0;applyPlayerSpeedTexture(false);invincibleTimer=0;invincibleVisualActive=false;invincibleTextureActive=false;invincibleEndTransitionTimer=0;damageFlashTimer=0;lowHpWarningTimer=0;playerHitAnimTimer=0;knockbackVelocity.set(0,0,0);
   removeInvincibleAura();
+  applyPlayerInvincibleTexture(false);
   enemySpawnTimer=0;crystalSpawnTimer=0;fruitSpawnTimer=0;purpleEnemySpawnTimer=0;invincibleFruitSpawnTimer=0;ghostBossSpawnTimer=0;
     nextPurpleEnemySpawnTime=randomInt(15,35);nextInvincibleFruitSpawnTime=THREE.MathUtils.randFloat(6,8);enemySpawnQueue.length=0;
   _cachedTier=null;_tierCacheScore=-1;_prevTierHex=-1;
@@ -2140,17 +2323,44 @@ function prewarmPurpleEnemyPool(){
 
 function createGhostBossMesh(){
   const group=new THREE.Group();
-  const bodyMat=shared.mat.ghostBody.clone();
-  const body=new THREE.Mesh(shared.geo.ghostBody,bodyMat);
-  body.position.y=1.0;group.add(body);
-  const core=new THREE.Mesh(shared.geo.ghostCore,shared.mat.ghostCore);
-  core.position.y=1.0;group.add(core);
+  if(bossModel){
+    const bossClone=bossModel.clone();
+    bossClone.scale.setScalar(BOSS_MODEL_SCALE);
+    const playerMat=createPlayerMaterial();
+     let meshFound=false;
+     const matAssignments=[];
+     bossClone.traverse(obj=>{
+       if(obj.isMesh||obj.isSkinnedMesh){
+         const name=(obj.name||"").toLowerCase();
+         if(name.includes("head")){
+           obj.material=playerMat;
+           matAssignments.push(obj.name+" -> 玩家材质");
+         }else{
+           obj.material=bossMaterial;
+           matAssignments.push(obj.name+" -> bossMaterial");
+         }
+         obj.castShadow=!_isMobile;
+         obj.receiveShadow=true;
+         if(obj.isSkinnedMesh)obj.frustumCulled=false;
+         meshFound=true;
+       }
+     });
+     console.log("[Boss] createGhostBossMesh: bossModel存在, 克隆后找到Mesh:",meshFound,"材质分配:",matAssignments,"玩家材质uuid:",playerMat.uuid);
+    bossClone.position.y=.3;
+    group.add(bossClone);
+  }else{
+    console.warn("[Boss] createGhostBossMesh: bossModel为null, 使用fallback球体");
+    const bodyMat=shared.mat.ghostBody.clone();
+    const body=new THREE.Mesh(shared.geo.ghostBody,bodyMat);
+    body.position.y=1.0;group.add(body);
+    group.userData.bodyMat=bodyMat;
+  }
   const aura1=new THREE.Mesh(shared.geo.ghostAura,shared.mat.ghostAura1);
-  aura1.position.y=1.0;aura1.rotation.x=Math.PI/2;group.add(aura1);
+  aura1.position.y=3.7;aura1.rotation.x=Math.PI/2;group.add(aura1);
   const aura2=new THREE.Mesh(shared.geo.ghostAura,shared.mat.ghostAura2);
-  aura2.position.y=1.0;aura2.rotation.y=Math.PI/2;group.add(aura2);
+  aura2.position.y=3.7;aura2.rotation.y=Math.PI/2;group.add(aura2);
   if(!isMobileLayout()){
-    const glow=new THREE.PointLight(0x88aaff,.9,12);
+    const glow=new THREE.PointLight(0xff4411,1.2,12);
     glow.position.set(0,1.2,0);group.add(glow);
     for(let i=0;i<8;i++){
       const particle=new THREE.Mesh(shared.geo.ghostParticle,shared.mat.ghostParticle);
@@ -2159,7 +2369,7 @@ function createGhostBossMesh(){
       group.add(particle);
     }
   }
-  group.userData={bodyMat,aura1Mat:shared.mat.ghostAura1,aura2Mat:shared.mat.ghostAura2,coreMat:shared.mat.ghostCore};
+  group.userData={...group.userData,aura1Mat:shared.mat.ghostAura1,aura2Mat:shared.mat.ghostAura2,coreMat:shared.mat.ghostCore};
   return group;
 }
 
@@ -2244,7 +2454,10 @@ function spawnInvincibleFruit(){
 function activateInvincible(){
   invincibleTimer=INVINCIBLE_DURATION;
   invincibleVisualActive=true;
+  invincibleTextureActive=true;
+  invincibleEndTransitionTimer=0;
   ensureInvincibleAura();
+  applyPlayerInvincibleTexture(true);
   playSfx("invincible");
 }
 
@@ -2298,6 +2511,7 @@ function updateInvincibleState(dt){
     invincibleVisualActive=false;
     removeInvincibleAura();
     restorePlayerTint();
+    invincibleEndTransitionTimer=.5;
   }
 }
 
@@ -2471,6 +2685,27 @@ function setupDebugInput(){
       group.position.set(pos.x,getPlatformHeightAt(pos.x,pos.z),pos.z);
       scene.add(group);
       fruits.push({mesh:group,radius:1.1,type:"invincible",life:INVINCIBLE_FRUIT_LIFE});
+    }
+  });
+  document.getElementById("dbgSpawnBoss").addEventListener("click",()=>{
+    if(!gameRunning)return;
+    spawnGhostBoss();
+  });
+  document.getElementById("dbgSpawnBothFruits").addEventListener("click",()=>{
+    if(!gameRunning)return;
+    for(let i=0;i<30;i++){
+      const pos1=findSafePosition(1.0);
+      const g1=createFruitMesh("invincible");
+      g1.position.set(pos1.x,getPlatformHeightAt(pos1.x,pos1.z),pos1.z);
+      scene.add(g1);
+      fruits.push({mesh:g1,radius:1.1,type:"invincible",life:INVINCIBLE_FRUIT_LIFE});
+    }
+    for(let i=0;i<30;i++){
+      const pos2=findSafePosition(1.0);
+      const g2=createFruitMesh("speed");
+      g2.position.set(pos2.x,getPlatformHeightAt(pos2.x,pos2.z),pos2.z);
+      scene.add(g2);
+      fruits.push({mesh:g2,radius:.72,type:"speed",life:8});
     }
   });
   document.getElementById("pauseBtn").addEventListener("click",togglePause);
@@ -2801,6 +3036,7 @@ function update(dt){
   if(lowHpWarningTimer>0){lowHpWarningTimer-=dt;warning.style.display="block"}else warning.style.display="none";
   updateSpeedTextureTransition(dt);
   updateInvincibleState(dt);
+  updateInvincibleTextureTransition(dt);
   updatePlayer(dt);
   updatePlayerHeadUI();
   updatePlayerLocatorHalo(dt);
@@ -2820,6 +3056,7 @@ function update(dt){
   applyAuraKillToEnemies();
   updateSpawns(dt);
   updateHUD();
+  refreshPlayerStatusText();
   if(hp<=0&&!gameOverPending)endGame();
 }
 
@@ -2928,7 +3165,7 @@ function updateEnemies(dt){
     if(e.type==="ghost"){
       e.life-=dt;
       if(e.life<=0){scene.remove(e.mesh);enemies.splice(i,1);continue}
-      e.mesh.position.y=getPlatformHeightAt(e.mesh.position.x,e.mesh.position.z)+2.5+Math.sin(aliveTime*4+i)*.6;
+      e.mesh.position.y=getPlatformHeightAt(e.mesh.position.x,e.mesh.position.z)+2.5+Math.sin(aliveTime*2.992+i)*.6;
       e.mesh.scale.setScalar(1+Math.sin(aliveTime*2+i)*.08);
       for(const child of e.mesh.children){
         if(child.geometry&&child.geometry.type==="TorusGeometry")child.rotation.z+=dt*4.5;
@@ -3147,9 +3384,9 @@ function updateFruits(dt){
   for(let i=fruits.length-1;i>=0;i--){
     const f=fruits[i];
     f.life-=dt;
-    f.mesh.rotation.y+=dt*(f.type==="invincible"?7.5:2.5);
+    f.mesh.rotation.y+=dt*(f.type==="invincible"?22.5:2.5);
     for(const child of f.mesh.children){
-      if(child.geometry&&child.geometry.type==="TorusGeometry")child.rotation.z+=dt*(f.type==="invincible"?10:2.5);
+      if(child.geometry&&child.geometry.type==="TorusGeometry")child.rotation.z+=dt*(f.type==="invincible"?30:2.5);
     }
     if(f.type==="invincible"&&f.mesh.userData.coreMat){
       const hue=(aliveTime*1.2+f.mesh.id*0.7)%1;
@@ -3165,9 +3402,9 @@ function updateFruits(dt){
     f.mesh.position.y=getPlatformHeightAt(f.mesh.position.x,f.mesh.position.z)+Math.sin(aliveTime*4+i)*.12;
     if(f.life<=0){scene.remove(f.mesh);fruits.splice(i,1);continue}
     if(dist2DSq(player.position.x,player.position.z,f.mesh.position.x,f.mesh.position.z)<(playerRadius+f.radius)*(playerRadius+f.radius)){
-      if(f.type==="speed"){speedStackLevel=Math.min(speedStackLevel+1,5);speedBuffTimer=2.5;speedEndTransitionTimer=0;if(!speedTextureActive){speedTextureActive=true;applyPlayerSpeedTexture(true)}spawnPlayerSideEffect("speed");setPlayerStatusText("speed",2.5)}
+      if(f.type==="speed"){speedStackLevel=Math.min(speedStackLevel+1,5);speedBuffTimer=2.5;speedEndTransitionTimer=0;if(!speedTextureActive){speedTextureActive=true;applyPlayerSpeedTexture(true)}spawnPlayerSideEffect("speed");refreshPlayerStatusText()}
       if(f.type==="heal"){hp=Math.min(maxHp,hp+HEAL_AMOUNT);spawnPlayerSideEffect("heal");setPlayerStatusText("heal",2.0)}
-      if(f.type==="invincible"){activateInvincible();setPlayerStatusText("invincible",INVINCIBLE_DURATION)}
+      if(f.type==="invincible"){activateInvincible();refreshPlayerStatusText()}
       scene.remove(f.mesh);
       fruits.splice(i,1);
     }
