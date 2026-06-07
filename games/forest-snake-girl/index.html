@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
@@ -6,6 +6,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Exo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preload" href="model/tex/skybox_basecolor_01.png" as="image" fetchpriority="high">
+<link rel="preload" href="TEX/01_d.png" as="image" fetchpriority="high">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
 <style>
 :root{
@@ -171,6 +173,12 @@ padding:9px 12px;border-radius:999px;background:linear-gradient(180deg,#fff8eb,#
 .panel-gameover .achievement-panel{margin-top:16px}
 
 /* CTA */
+.cta-row{
+position:relative;display:flex;align-items:center;justify-content:center;margin-top:18px;flex-wrap:wrap
+}
+.cta-center{display:flex;justify-content:center;width:100%}
+.cta-row .cta-button{margin-top:0}
+.cta-row .shop-main-btn{margin-top:0;position:absolute;right:0}
 .cta-button{
 position:relative;display:inline-flex;align-items:center;justify-content:center;gap:12px;min-width:220px;
 margin-top:18px;padding:16px 36px 16px 30px;border:none;border-radius:999px;cursor:pointer;
@@ -259,19 +267,19 @@ box-shadow:0 4px 10px rgba(159,75,24,.16);font-size:13px
 
 #hudMobile{position:fixed;top:12px;left:12px;z-index:10;display:none;width:212px;pointer-events:none;transform-origin:top left}
 .mobile-hud-panel{
-display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px;border-radius:18px;
+display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;padding:12px 14px;border-radius:18px;
 background:linear-gradient(180deg,rgba(255,248,236,.92),rgba(242,223,197,.84));border:2px solid rgba(212,152,102,.52);box-shadow:0 12px 24px rgba(102,37,12,.12),inset 0 2px 0 rgba(255,255,255,.75);backdrop-filter:blur(12px)
 }
 .mobile-hud-item{
-position:relative;min-height:38px;padding:7px 9px 7px 12px;border-radius:12px;background:rgba(255,252,244,.56);
+position:relative;min-height:44px;padding:9px 10px 9px 14px;border-radius:12px;background:rgba(255,252,244,.56);
 border:1px solid rgba(212,152,102,.26);overflow:hidden
 }
 .mobile-hud-item::before{
 content:'';position:absolute;left:0;top:4px;bottom:4px;width:4px;border-radius:0 6px 6px 0;
 background:linear-gradient(180deg,#ffd15b,#ef8d47)
 }
-.mobile-hud-label{display:block;font-size:9px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#c18b60}
-.mobile-hud-value{display:block;margin-top:3px;font-size:11px;font-weight:900;font-family:var(--font-d);line-height:1.2;color:#8a451e}
+.mobile-hud-label{display:block;font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:#c18b60}
+.mobile-hud-value{display:block;margin-top:4px;font-size:14px;font-weight:900;font-family:var(--font-d);line-height:1.3;color:#8a451e}
 .mobile-hud-wide{grid-column:span 2}
 
 /* ── Warning: Top-center alert ░░░░░░░░░░░░░░░░░░░░░░░░ */
@@ -294,7 +302,7 @@ color:#fff0dc;font-family:var(--font-d);font-size:22px;font-weight:800;box-shado
 #damageOverlay{position:fixed;inset:0;z-index:9;background:radial-gradient(ellipse at center,rgba(255,70,53,.38),transparent 70%);pointer-events:none;opacity:0;transition:opacity .06s linear}
 
 /* Joystick */
-#joystick{position:fixed;left:50%;bottom:40px;transform:translateX(-50%);width:156px;height:156px;z-index:12;display:none;border-radius:50%;touch-action:none;
+#joystick{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);width:156px;height:156px;z-index:12;display:none;border-radius:50%;touch-action:none;
 background:rgba(74,24,15,.22);border:3px solid rgba(255,226,183,.16);box-shadow:0 12px 26px rgba(70,19,9,.18),inset 0 0 30px rgba(255,214,138,.06)
 }
 #joystick::before{
@@ -493,12 +501,168 @@ border:2px solid rgba(212,152,102,.32)
 #loadingScreen .l-bar-inner{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#ff7552,#ffc545,#8a563d);transition:width .3s ease}
 #loadingScreen .l-pct{font-family:var(--font-d);font-size:13px;color:#9a562e;letter-spacing:1.5px}
 
+/* ── Shop ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ */
+#shopScreen{
+position:fixed;inset:0;z-index:35;display:none;align-items:center;justify-content:center;
+padding:24px;overflow:auto;
+background:
+radial-gradient(circle at 50% 15%,rgba(255,236,183,.42) 0,rgba(255,236,183,0) 13%),
+radial-gradient(circle at 85% 22%,rgba(255,212,124,.22) 0,rgba(255,212,124,0) 18%),
+linear-gradient(180deg,#bc3d43 0%,#e77346 50%,#ffba76 100%);
+}
+#shopScreen::before{
+content:'';position:absolute;inset:0;pointer-events:none;
+background-image:
+radial-gradient(3px 3px at 14% 14%,rgba(255,245,220,.95),transparent),
+radial-gradient(2px 2px at 28% 9%,rgba(255,216,140,.9),transparent),
+radial-gradient(4px 4px at 42% 17%,rgba(255,239,201,.85),transparent),
+radial-gradient(2px 2px at 63% 13%,rgba(255,209,116,.9),transparent),
+radial-gradient(3px 3px at 74% 10%,rgba(255,244,208,.95),transparent),
+radial-gradient(4px 4px at 88% 20%,rgba(255,226,150,.85),transparent),
+radial-gradient(2px 2px at 10% 54%,rgba(255,228,160,.7),transparent),
+radial-gradient(3px 3px at 92% 40%,rgba(255,242,200,.75),transparent);
+animation:twinkle 4.8s ease-in-out infinite alternate;
+}
+#shopScreen::after{
+content:'';position:absolute;inset:0;pointer-events:none;z-index:-1;
+background:
+linear-gradient(180deg,rgba(255,162,98,.08),rgba(139,46,30,.2)),
+url(TEX/01_d.png) center/cover no-repeat;
+opacity:.82;
+filter:saturate(1.1) contrast(1.03);
+}
+.panel-shop{max-width:700px}
+.shop-points-bar{
+position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:12px;
+margin:16px auto 0;padding:14px 24px;border-radius:999px;
+background:linear-gradient(180deg,#fff8e8,#fae4b8);border:3px solid rgba(212,152,102,.55);
+box-shadow:0 8px 22px rgba(128,48,15,.16),inset 0 2px 0 rgba(255,255,255,.85);
+}
+.shop-points-bar .sp-label{
+font-family:var(--font-d);font-size:14px;font-weight:900;color:#9a562e;letter-spacing:1px
+}
+.shop-points-bar .sp-value{
+font-family:var(--font-d);font-size:26px;font-weight:900;color:#7d3a12
+}
+.shop-grid{
+position:relative;z-index:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;
+margin:18px auto 0;max-width:680px
+}
+.shop-item{
+position:relative;padding:18px 14px 14px;border-radius:18px;overflow:hidden;
+background:linear-gradient(180deg,#fff9f0,#f5e4c8);border:2px solid rgba(212,152,102,.48);
+box-shadow:0 8px 18px rgba(128,48,15,.1),inset 0 1px 0 rgba(255,255,255,.75);
+display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;
+transition:transform .18s ease,box-shadow .18s ease
+}
+.shop-item:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(128,48,15,.16),inset 0 1px 0 rgba(255,255,255,.75)}
+.shop-item.purchased{opacity:.55;pointer-events:none;filter:grayscale(.3)}
+.shop-item-icon{font-size:32px;line-height:1}
+.shop-item-name{font-size:13px;font-weight:900;color:#8b4d28;font-family:var(--font-d);letter-spacing:.5px}
+.shop-item-desc{font-size:11px;color:#a86a43;line-height:1.4;min-height:30px}
+.shop-item-price{
+display:inline-flex;align-items:center;gap:4px;padding:6px 16px;border-radius:999px;
+background:linear-gradient(180deg,#ffd760,#f4a628);border:2px solid rgba(255,247,227,.7);
+color:#7d431c;font-family:var(--font-d);font-size:13px;font-weight:900;letter-spacing:.5px;
+box-shadow:0 4px 10px rgba(179,101,24,.14)
+}
+.shop-item-price.locked{
+background:linear-gradient(180deg,#e0d8ce,#c8b89c);border-color:rgba(180,160,130,.5);
+color:#9a8a72
+}
+.shop-buy-btn{
+display:inline-block;padding:9px 22px;border-radius:999px;border:none;cursor:pointer;
+font-family:var(--font-d);font-size:14px;font-weight:900;letter-spacing:1px;
+transition:transform .15s ease,box-shadow .15s ease,filter .15s ease;
+}
+.shop-buy-btn.can-buy{
+background:linear-gradient(180deg,#ffc44b,#f69229);color:#fffef8;
+text-shadow:0 1px 0 #bf5a52;box-shadow:0 8px 16px rgba(128,48,15,.22),inset 0 2px 0 rgba(255,249,223,.7);
+}
+.shop-buy-btn.can-buy:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 12px 20px rgba(128,48,15,.3)}
+.shop-buy-btn.can-buy:active{transform:translateY(1px) scale(.97)}
+.shop-buy-btn.cant-buy{
+background:linear-gradient(180deg,#d4cbc0,#b8a88e);color:#8a7a68;cursor:not-allowed;
+box-shadow:0 4px 8px rgba(100,60,20,.08)
+}
+.shop-back-btn{
+display:inline-block;margin-top:20px;padding:12px 36px;border:none;border-radius:999px;cursor:pointer;
+background:linear-gradient(180deg,#f5e8d5,#e0c8a0);border:2px solid rgba(212,152,102,.5);
+color:#8b4d28;font-family:var(--font-d);font-size:16px;font-weight:900;letter-spacing:1px;
+box-shadow:0 6px 14px rgba(128,48,15,.12);transition:transform .15s ease,box-shadow .15s ease
+}
+.shop-back-btn:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(128,48,15,.18)}
+.shop-back-btn:active{transform:translateY(1px)}
+.shop-closed-toast{
+position:fixed;top:20%;left:50%;z-index:40;transform:translate(-50%,0);display:none;pointer-events:none;
+padding:20px 36px;border-radius:24px;border:3px solid rgba(255,209,102,.5);
+background:linear-gradient(135deg,rgba(239,71,111,.92),rgba(193,68,14,.9));
+color:#fff;font-family:var(--font-d);font-size:22px;letter-spacing:2px;
+box-shadow:0 0 40px rgba(239,71,111,.35),0 18px 36px rgba(74,24,6,.3)
+}
+@keyframes toastPop{0%{opacity:0;transform:translate(-50%,-12px)}12%{opacity:1;transform:translate(-50%,0)}82%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-8px)}}
+.shop-main-btn{
+display:inline-flex;align-items:center;gap:8px;padding:12px 28px;margin-top:14px;
+border:none;border-radius:999px;cursor:pointer;
+background:linear-gradient(180deg,#ffe08a,#f0b838);border:3px solid rgba(255,248,225,.8);
+color:#7d431c;font-family:var(--font-d);font-size:16px;font-weight:900;letter-spacing:1px;
+box-shadow:0 8px 18px rgba(128,48,15,.16);transition:transform .15s ease,box-shadow .15s ease
+}
+.shop-main-btn:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(128,48,15,.22)}
+.shop-main-btn:active{transform:translateY(1px)}
+.shop-main-btn .sm-icon{font-size:22px}
+/* Shop confirm overlay */
+#shopConfirm{
+position:fixed;inset:0;z-index:45;display:none;align-items:center;justify-content:center;
+background:rgba(30,10,6,.72);backdrop-filter:blur(4px)
+}
+.shop-confirm-card{
+padding:28px 32px;border-radius:24px;text-align:center;
+background:linear-gradient(180deg,#fff9f0,#f3dfbf);border:3px solid rgba(212,152,102,.6);
+box-shadow:0 24px 50px rgba(60,15,6,.4);max-width:380px;margin:0 20px
+}
+.shop-confirm-card h3{font-family:var(--font-d);font-size:20px;color:#8b4d28;margin:0 0 10px}
+.shop-confirm-card p{font-size:14px;color:#a86a43;margin:0 0 18px;line-height:1.5}
+.shop-confirm-btns{display:flex;gap:12px;justify-content:center}
+.shop-confirm-yes{
+padding:10px 28px;border:none;border-radius:999px;cursor:pointer;
+background:linear-gradient(180deg,#ffc44b,#f69229);color:#fffef8;
+font-family:var(--font-d);font-size:14px;font-weight:900
+}
+.shop-confirm-no{
+padding:10px 28px;border:none;border-radius:999px;cursor:pointer;
+background:linear-gradient(180deg,#e0d8ce,#c8b89c);color:#6a5e50;
+font-family:var(--font-d);font-size:14px;font-weight:900
+}
+/* Shop responsive */
+@media(max-width:768px){
+#shopScreen{padding:16px}
+.shop-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+.shop-item{padding:14px 10px 10px;border-radius:14px}
+.shop-item-icon{font-size:26px}
+.shop-item-name{font-size:11px}
+.shop-item-price{font-size:11px;padding:5px 12px}
+.shop-buy-btn{font-size:12px;padding:8px 16px}
+.panel-shop .panel h1{font-size:28px}
+}
+@media(max-width:420px){
+.shop-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+.shop-item{padding:10px 8px 8px;border-radius:12px}
+.shop-item-icon{font-size:22px}
+.shop-item-name{font-size:10px}
+.shop-item-desc{font-size:10px;min-height:24px}
+.shop-item-price{font-size:10px;padding:4px 10px}
+.shop-buy-btn{font-size:11px;padding:7px 12px}
+.shop-points-bar{padding:10px 16px}
+.shop-points-bar .sp-value{font-size:20px}
+}
+
 /* Responsive */
 @media(max-width:768px){
 #hudDesktop{display:none!important}
 #hudMobile{transform:scale(.88)}
-#joystick{display:block;left:50%;bottom:35px;transform:translateX(-50%);width:156px;height:156px}
-#stick{left:47px;top:47px;width:62px;height:62px}
+#joystick{display:block;left:50%;bottom:105px;transform:translateX(-50%);width:234px;height:234px}
+#stick{left:70px;top:70px;width:94px;height:94px}
 #startScreen,#gameOverScreen{padding:16px}
 .panel{width:min(96vw,640px)}
 .panel-home{padding:10px;border-radius:28px}
@@ -541,8 +705,8 @@ border:2px solid rgba(212,152,102,.32)
 
 @media(max-width:420px){
 #hudMobile{transform:scale(.76);top:6px;left:6px}
-#joystick{width:124px;height:124px;bottom:35px}
-#stick{left:36px;top:36px;width:52px;height:52px}
+#joystick{width:186px;height:186px;bottom:105px}
+#stick{left:54px;top:54px;width:78px;height:78px}
 .panel-home{padding:8px;border-radius:24px}
 .panel-shell{padding:22px 12px 16px}
 .panel-shell::after{width:54%;min-width:130px;height:38px}
@@ -563,6 +727,8 @@ border:2px solid rgba(212,152,102,.32)
 .panel-gameover .cta-icon,.panel-start .cta-icon{font-size:26px;left:-5px}
 .rank-stat{font-size:10px}
 .achievements{grid-template-columns:1fr 1fr}
+.cta-row{flex-direction:column;gap:10px}
+.cta-row .shop-main-btn{position:static}
 }
 
 @media(max-width:360px){
@@ -683,7 +849,10 @@ border:2px solid rgba(212,152,102,.32)
       </div>
       <div class="panel-intro">每一局都会提升晶石价值与敌人强度，合理利用加速、回血和无敌果实才能冲上更高段位。</div>
     <div id="startAchievementPanel" class="achievement-panel"></div>
-      <button id="startBtn" class="cta-button"><span class="cta-icon">🚀</span><span>开始游戏</span></button>
+      <div class="cta-row">
+        <div class="cta-center"><button id="startBtn" class="cta-button"><span class="cta-icon">🚀</span><span>开始游戏</span></button></div>
+        <button id="shopEntryBtn" class="shop-main-btn"><span class="sm-icon">🛒</span><span>星际商店</span></button>
+      </div>
       <div class="bgm-volume">
         <span class="bgm-vol-label">🔊 BGM</span>
         <input type="range" id="bgmVolSlider" min="0" max="100" value="50" class="bgm-vol-slider">
@@ -714,7 +883,10 @@ border:2px solid rgba(212,152,102,.32)
         <div class="hero-stat"><span>下一步</span><strong>再次出发</strong></div>
       </div>
     <div id="gameoverAchievementPanel" class="achievement-panel"></div>
-      <button id="restartBtn" class="cta-button"><span class="cta-icon">🚀</span><span>重新开始</span></button>
+      <div class="cta-row">
+        <div class="cta-center"><button id="restartBtn" class="cta-button"><span class="cta-icon">🚀</span><span>重新开始</span></button></div>
+        <button id="shopEntryBtn2" class="shop-main-btn"><span class="sm-icon">🛒</span><span>星际商店</span></button>
+      </div>
       <div class="bgm-volume">
         <span class="bgm-vol-label">🔊 BGM</span>
         <input type="range" id="bgmVolSlider2" min="0" max="100" value="50" class="bgm-vol-slider">
@@ -722,6 +894,42 @@ border:2px solid rgba(212,152,102,.32)
     </div>
   </div>
 </div>
+
+<div id="shopScreen" style="display:none;">
+  <div class="panel panel-home panel-shop">
+    <div class="panel-shell">
+      <div class="panel-pin panel-pin-left" aria-hidden="true"></div>
+      <div class="panel-pin panel-pin-right" aria-hidden="true"></div>
+      <div class="panel-ornament panel-planet" aria-hidden="true">🪐</div>
+      <div class="panel-ornament panel-meteor" aria-hidden="true">☄</div>
+      <div class="panel-header">
+        <div class="panel-kicker">STAR MARKET</div>
+        <h1>星际商店</h1>
+      </div>
+      <div class="shop-points-bar">
+        <span class="sp-label">✨ 累计积分</span>
+        <span class="sp-value" id="shopPointsDisplay">0</span>
+      </div>
+      <div class="shop-grid" id="shopGrid"></div>
+      <div class="shop-back-row" style="text-align:center">
+        <button class="shop-back-btn" id="shopBackBtn">← 返回主页</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="shopConfirm">
+  <div class="shop-confirm-card">
+    <h3>确认购买</h3>
+    <p id="shopConfirmText"></p>
+    <div class="shop-confirm-btns">
+      <button class="shop-confirm-yes" id="shopConfirmYes">确认</button>
+      <button class="shop-confirm-no" id="shopConfirmNo">取消</button>
+    </div>
+  </div>
+</div>
+
+<div id="shopClosedToast" class="shop-closed-toast">商店关门了，请下次再来</div>
 
 <div id="loadingScreen">
   <div class="l-bg"></div>
@@ -747,7 +955,6 @@ border:2px solid rgba(212,152,102,.32)
 <script type="module">
 import * as THREE from "three";
 import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
-import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 
 let scene,camera,renderer,skyboxMesh=null;
 let platformModel=null,platformMeshes=[],platformRaycaster=new THREE.Raycaster();
@@ -765,6 +972,7 @@ let speedTextureActive=false,speedEndTransitionTimer=0;
 
 let playerRadius=.65,clock=new THREE.Clock();
 let gameRunning=false,gameOverPending=false,score=0,hp=50,aliveTime=0;
+let mysteryHealAvailable=false,mysterySlowTimer=0;
 let crystals=[],enemies=[],rocks=[],fruits=[],enemySpawnQueue=[],crystalBursts=[],purpleEnemyPool=[],enemyDeathExplosions=[];
 let rockModels=[],rockMaterial=null;
 let bossModel=null,bossMaterial=null;
@@ -819,9 +1027,18 @@ let _shadowSkipCounter=0;
 let _frustum=new THREE.Frustum(),_frustumProj=new THREE.Matrix4();
 let _playerLastY=0,_camLookTarget=new THREE.Vector3();
 
-let _totalLoads=0,_loadedCount=0,_loadPromises=[];
-function _trackLoad(promise){_totalLoads++;const p=promise.then(()=>{_loadedCount++;_updateLoadingUI();if(_loadedCount>=_totalLoads)onAllLoaded()}).catch(()=>{_loadedCount++;_updateLoadingUI();if(_loadedCount>=_totalLoads)onAllLoaded()});_loadPromises.push(p);return p}
-function _updateLoadingUI(){const pct=Math.floor(_loadedCount/_totalLoads*100);lBar.style.width=pct+"%";lPct.textContent=pct+"％"}
+let _totalLoads=0,_loadedCount=0,_loadPromises=[],_loadStarted=0;
+function _trackLoad(promise){_totalLoads++;const p=promise.then(()=>{_loadedCount++;_updateLoadingUI();if(_loadedCount>=_totalLoads)_checkAllLoaded()}).catch(()=>{_loadedCount++;_updateLoadingUI();if(_loadedCount>=_totalLoads)_checkAllLoaded()});_loadPromises.push(p);return p}
+function _updateLoadingUI(){const pct=_totalLoads?Math.min(98,Math.floor(_loadedCount/_totalLoads*100)):0;lBar.style.width=pct+"%";lPct.textContent=pct+"％"}
+let _allLoaded=false;
+function _checkAllLoaded(){
+  if(_allLoaded)return;
+  if(_loadedCount>=_totalLoads&&_loadStarted&&Date.now()-_loadStarted>200){
+    _allLoaded=true;onAllLoaded()
+  }else if(_loadedCount>=_totalLoads&&_loadStarted){
+    setTimeout(_checkAllLoaded,50)
+  }
+}
 function _autoTrackFBX(url,cb){_trackLoad(new Promise(resolve=>{new FBXLoader().load(url,fbx=>{cb(fbx);resolve()},undefined,()=>resolve())}))}
 function onAllLoaded(){
   document.getElementById("loadingScreen").style.display="none";
@@ -948,6 +1165,7 @@ function setBind(name,value){if(!_hudBinds[name])_hudBinds[name]=document.queryS
 
 function init(){
   updateLayoutCache();
+  _loadStarted=Date.now();
   startScreen.style.display="none";
   meta=loadMeta();
   bgmVolume=meta.bgmVolume||.5;
@@ -974,14 +1192,12 @@ function init(){
   camera.lookAt(0,0,0);
 
   renderer=new THREE.WebGLRenderer({canvas:document.getElementById("game"),antialias:!_isMobile,powerPreference:_isMobile?"default":"high-performance"});
-  renderer.setSize(window.innerWidth,window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio,_isMobile?1.0:1.25));
+  renderer.setSize(_isMobile?854:1280,_isMobile?480:720,false);
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure=_isMobile?1.08:1.02;
   renderer.shadowMap.enabled=true;
   renderer.shadowMap.type=THREE.BasicShadowMap;
-  renderer.shadowMap.autoUpdate=false;
 
   initSharedResources();
   createLights();
@@ -998,6 +1214,15 @@ function init(){
   document.getElementById("restartBtn").onclick=startGame;
   document.getElementById("restartGameBtn").onclick=startGame;
 
+  document.getElementById("shopEntryBtn").onclick=()=>openShop(false);
+  document.getElementById("shopEntryBtn2").onclick=()=>openShop(true);
+  document.getElementById("shopBackBtn").onclick=closeShop;
+  document.getElementById("shopConfirmYes").onclick=doPurchaseItem;
+  document.getElementById("shopConfirmNo").onclick=()=>{
+    shopPendingItem=null;
+    document.getElementById("shopConfirm").style.display="none";
+  };
+
   forceLandscape();
   animate();
 }
@@ -1007,7 +1232,6 @@ function _loadAllAssets(){
   createPlatformModel();
   createPlayer();
   loadRockModels();
-  loadBossModel();
 }
 
 function loadRockModels(){
@@ -1119,13 +1343,200 @@ function loadBossModel(){
 }
 
 function loadMeta(){
-  const def={bestScore:0,bestTime:0,gamesPlayed:0,achievements:{},bgmVolume:.5};
+  const def={bestScore:0,bestTime:0,gamesPlayed:0,achievements:{},bgmVolume:.5,totalPoints:0,purchasedItemId:null};
   try{
     const raw=localStorage.getItem("starCrystalSurvivalMeta");
     return raw?Object.assign(def,JSON.parse(raw)):def;
   }catch(e){return def}
 }
 function saveMeta(){localStorage.setItem("starCrystalSurvivalMeta",JSON.stringify(meta))}
+
+// ── Shop System ──
+const SHOP_ITEMS=[
+  {id:"speed5",icon:"⚡",name:"加速果实(5秒)",desc:"开局5秒加速",price:500,type:"speed",duration:5},
+  {id:"invincible5",icon:"🛡️",name:"无敌果实(5秒)",desc:"开局5秒无敌",price:1000,type:"invincible",duration:5},
+  {id:"speed8",icon:"⚡⚡",name:"加速果实(8秒)",desc:"开局8秒加速",price:2000,type:"speed",duration:8},
+  {id:"invincible8",icon:"🛡️🛡️",name:"无敌果实(8秒)",desc:"开局8秒无敌",price:2000,type:"invincible",duration:8},
+  {id:"both5",icon:"💥",name:"无敌加速(5秒)",desc:"开局5秒无敌+加速",price:4500,type:"both",duration:5},
+  {id:"both8",icon:"💥💥",name:"无敌加速(8秒)",desc:"开局8秒无敌+加速",price:7500,type:"both",duration:8},
+  {id:"both12",icon:"🔥",name:"无敌加速(12秒)",desc:"开局12秒无敌+加速",price:12000,type:"both",duration:12},
+];
+
+let shopPendingItem=null,currentMysteryItem=null;
+let shopReturnScreen="startScreen";
+
+function generateMysteryItem(){
+  const rand=Math.floor(Math.random()*3001)+1000; // 1000-4000
+  let label,desc,mType,mDuration,mExtra;
+  if(rand<=1500){
+    label="小加速";desc="开局6秒加速";mType="speed";mDuration=6;
+  }else if(rand<=2000){
+    label="小无敌";desc="开局6秒无敌";mType="invincible";mDuration=6;
+  }else if(rand<=2500){
+    label="蓄力加速";desc="先减速5秒，再加速10秒";mType="chargeSpeed";mDuration=10;
+  }else if(rand<=3000){
+    label="速度急救包";desc="5秒加速+低血满血恢复";mType="healPack";mDuration=5;
+  }else{
+    label="啥都没有";desc="无任何效果，白白花了积分";mType="nothing";mDuration=0;
+  }
+  return {id:"mystery",icon:"❓",name:"惊喜箱",desc:`${label}`,price:rand,type:mType,duration:mDuration,label};
+}
+
+function openShop(fromGameover=false){
+  shopReturnScreen=fromGameover?"gameOverScreen":"startScreen";
+  if(!currentMysteryItem)currentMysteryItem=generateMysteryItem();
+  renderShop();
+  document.getElementById("shopScreen").style.display="flex";
+  document.getElementById("startScreen").style.display="none";
+  document.getElementById("gameOverScreen").style.display="none";
+}
+function closeShop(){
+  document.getElementById("shopScreen").style.display="none";
+  document.getElementById(shopReturnScreen).style.display="flex";
+  if(shopReturnScreen==="gameOverScreen"){
+    renderAchievementPanel("gameoverAchievementPanel",true,newlyUnlockedAchievements);
+  }else{
+    renderAchievementPanel("startAchievementPanel",false,[]);
+  }
+}
+
+function renderShop(){
+  updateShopPointsDisplay();
+  const shopClosed=meta.purchasedItemId!==null;
+  const grid=document.getElementById("shopGrid");
+  const allItems=[...SHOP_ITEMS];
+  if(currentMysteryItem)allItems.push(currentMysteryItem);
+  let html="";
+  for(const item of allItems){
+    const purchased=shopClosed;
+    const canAfford=meta.totalPoints>=item.price;
+    let desc=item.desc;
+    // Hide mystery description before purchase, show result after
+    if(item.id==="mystery"){
+      if(!shopClosed){desc="???"}
+      else{desc=meta.purchasedItemLabel||"惊喜"}
+    }
+    let btnClass,btnText;
+    if(purchased){btnClass="cant-buy";btnText="已下架"}
+    else if(canAfford){btnClass="can-buy";btnText="购买"}
+    else{btnClass="cant-buy";btnText=`差${item.price-meta.totalPoints}分`}
+    html+=`<div class="shop-item${purchased?" purchased":""}">
+      <span class="shop-item-icon">${item.icon}</span>
+      <span class="shop-item-name">${item.name}</span>
+      <span class="shop-item-desc">${desc}</span>
+      <span class="shop-item-price${canAfford&&!purchased?"":" locked"}">💎 ${item.price}</span>
+      <button class="shop-buy-btn ${btnClass}" data-item-id="${item.id}" data-item-price="${item.price}" ${purchased?"disabled":""}>${btnText}</button>
+    </div>`;
+  }
+  grid.innerHTML=html;
+
+  if(!shopClosed){
+    grid.querySelectorAll(".shop-buy-btn.can-buy").forEach(btn=>{
+      btn.onclick=function(){
+        const itemId=this.getAttribute("data-item-id");
+        const itemPrice=parseInt(this.getAttribute("data-item-price"))||0;
+        let item;
+        if(itemId==="mystery"){item=currentMysteryItem}
+        else{item=SHOP_ITEMS.find(i=>i.id===itemId)}
+        if(!item||meta.purchasedItemId!==null||meta.totalPoints<item.price)return;
+        shopPendingItem=item;
+        document.getElementById("shopConfirmText").textContent=
+          `是否花费 ${item.price} 积分购买「${item.name}」？\n购买后商店将关闭，效果在下局游戏生效`;
+        document.getElementById("shopConfirm").style.display="flex";
+      };
+    });
+  }
+}
+
+function updateShopPointsDisplay(){
+  document.getElementById("shopPointsDisplay").textContent=meta.totalPoints;
+}
+
+function doPurchaseItem(){
+  const item=shopPendingItem;
+  shopPendingItem=null;
+  document.getElementById("shopConfirm").style.display="none";
+  if(!item||meta.purchasedItemId!==null||meta.totalPoints<item.price)return;
+  meta.totalPoints-=item.price;
+  // Store full item data for mystery items
+  if(item.id==="mystery"){
+    meta.purchasedItemId="mystery_"+item.type+"_"+item.duration+(item.type==="healPack"?"_heal":"");
+    meta.purchasedItemLabel=item.label||"惊喜";
+  }else{
+    meta.purchasedItemId=item.id;
+  }
+  saveMeta();
+  renderShop();
+  showShopClosedToast();
+}
+
+function showShopClosedToast(){
+  const toast=document.getElementById("shopClosedToast");
+  toast.style.animation="none";
+  void toast.offsetWidth;
+  toast.style.display="block";
+  toast.style.animation="toastPop 3s forwards";
+  setTimeout(()=>{toast.style.display="none"},3000);
+}
+
+function applyPurchasedBuffs(){
+  if(meta.purchasedItemId===null)return;
+  const pid=meta.purchasedItemId;
+  meta.purchasedItemId=null;
+  meta.purchasedItemLabel=null;
+  saveMeta();
+
+  // Handle mystery items
+  if(pid.startsWith("mystery_")){
+    const parts=pid.split("_"); // mysterystype, duration, [heal]
+    const mType=parts[1],mDur=parseFloat(parts[2])||0;
+    if(mType==="speed"){
+      speedBuffTimer=mDur;speedStackLevel=3;speedEndTransitionTimer=0;
+      if(!speedTextureActive){speedTextureActive=true;applyPlayerSpeedTexture(true)}
+    }else if(mType==="invincible"){
+      invincibleTimer=mDur;invincibleVisualActive=true;invincibleTextureActive=true;
+      applyPlayerInvincibleTexture(true);createInvincibleAura();
+    }else if(mType==="chargeSpeed"){
+      // First 5s slow, then 10s acceleration
+      mysterySlowTimer=5;speedStackLevel=0;
+      setTimeout(()=>{
+        if(gameRunning){speedBuffTimer=mDur;speedStackLevel=3;speedEndTransitionTimer=0;
+        if(!speedTextureActive){speedTextureActive=true;applyPlayerSpeedTexture(true)}}
+      },5000);
+    }else if(mType==="healPack"){
+      speedBuffTimer=mDur;speedStackLevel=3;speedEndTransitionTimer=0;
+      if(!speedTextureActive){speedTextureActive=true;applyPlayerSpeedTexture(true)}
+      mysteryHealAvailable=true;
+    }
+    // "nothing" — no effect
+    return;
+  }
+
+  const item=SHOP_ITEMS.find(i=>i.id===pid);
+  if(!item)return;
+  if(item.type==="speed"){
+    speedBuffTimer=item.duration;
+    speedStackLevel=3;
+    speedEndTransitionTimer=0;
+    if(!speedTextureActive){speedTextureActive=true;applyPlayerSpeedTexture(true)}
+  }else if(item.type==="invincible"){
+    invincibleTimer=item.duration;
+    invincibleVisualActive=true;
+    invincibleTextureActive=true;
+    applyPlayerInvincibleTexture(true);
+    createInvincibleAura();
+  }else if(item.type==="both"){
+    speedBuffTimer=item.duration;
+    speedStackLevel=3;
+    speedEndTransitionTimer=0;
+    if(!speedTextureActive){speedTextureActive=true;applyPlayerSpeedTexture(true)}
+    invincibleTimer=item.duration;
+    invincibleVisualActive=true;
+    invincibleTextureActive=true;
+    applyPlayerInvincibleTexture(true);
+    createInvincibleAura();
+  }
+}
 
 function getRankInfo(scoreValue){
   let current=RANKS[0],next=null;
@@ -1320,7 +1731,7 @@ function createLights(){
   scene.add(target);
   sun.target=target;
 
-  const mapSize=1024;
+  const mapSize=isMobileLayout()?512:512;
   sun.shadow.mapSize.width=mapSize;
   sun.shadow.mapSize.height=mapSize;
   const shadowRange=isMobileLayout()?18:35;
@@ -1330,9 +1741,9 @@ function createLights(){
   sun.shadow.camera.right=shadowRange;
   sun.shadow.camera.top=shadowRange;
   sun.shadow.camera.bottom=-shadowRange;
-  sun.shadow.bias=-0.00035;
-  sun.shadow.normalBias=0.035;
-  sun.shadow.radius=isMobileLayout()?1.2:2;
+  sun.shadow.bias=-0.0008;
+  sun.shadow.normalBias=0.065;
+  sun.shadow.radius=isMobileLayout()?4:6;
   scene.add(sun);
 }
 
@@ -1345,7 +1756,7 @@ function createSkybox(resolve){
       texture.wrapT=THREE.ClampToEdgeWrapping;
       texture.anisotropy=4;
 
-      const seg={w:64,h:32};
+      const seg={w:_isMobile?32:64,h:_isMobile?16:32};
       skyboxMesh=new THREE.Mesh(
         new THREE.SphereGeometry(480,seg.w,seg.h),
         new THREE.MeshBasicMaterial({map:texture,side:THREE.BackSide,depthWrite:false,depthTest:false})
@@ -1376,55 +1787,66 @@ function createSkybox(resolve){
 }
 
 function loadTexture(url,options={}){
-  let texture;
-  if(_isMobile&&options.resizeHalf!==false){
-    texture=new THREE.Texture();
-    _trackLoad(new Promise(resolve=>{
-      const img=new Image();
-      img.crossOrigin="anonymous";
-      img.onload=()=>{
-        const w=img.naturalWidth,mw=Math.floor(w/2);
-        const h=img.naturalHeight,mh=Math.floor(h/2);
+  const texture=new THREE.Texture();
+  texture.colorSpace=options.colorSpace||THREE.SRGBColorSpace;
+  texture.wrapS=options.wrapS||THREE.RepeatWrapping;
+  texture.wrapT=options.wrapT||THREE.RepeatWrapping;
+  texture.repeat.set(options.repeatX??1,options.repeatY??1);
+  texture.flipY=options.flipY??false;
+  texture.anisotropy=options.anisotropy??4;
+  _trackLoad(new Promise(resolve=>{
+    const img=new Image();
+    img.crossOrigin="anonymous";
+    img.onload=()=>{
+      let src=img;
+      if(_isMobile&&options.resizeHalf!==false){
+        const mw=Math.floor(img.naturalWidth/2);
+        const mh=Math.floor(img.naturalHeight/2);
         const c=document.createElement("canvas");
         c.width=mw;c.height=mh;
         const ctx=c.getContext("2d");
+        ctx.imageSmoothingEnabled=true;
+        ctx.imageSmoothingQuality="high";
         ctx.drawImage(img,0,0,mw,mh);
-        texture.image=c;
-        texture.needsUpdate=true;
-        texture.colorSpace=options.colorSpace||THREE.SRGBColorSpace;
-        texture.wrapS=options.wrapS||THREE.RepeatWrapping;
-        texture.wrapT=options.wrapT||THREE.RepeatWrapping;
-        texture.repeat.set(options.repeatX??1,options.repeatY??1);
-        texture.flipY=options.flipY??false;
-        texture.anisotropy=options.anisotropy??4;
-        resolve();
-      };
-      img.onerror=()=>{const t=new THREE.TextureLoader().load(url,()=>{},undefined,()=>{});texture=t;resolve()};
-      img.src=url;
-    }));
-  }else{
-    texture=new THREE.TextureLoader().load(url,()=>{},undefined,err=>console.warn("贴图加载失败：",url,err));
-    texture.colorSpace=options.colorSpace||THREE.SRGBColorSpace;
-    texture.wrapS=options.wrapS||THREE.RepeatWrapping;
-    texture.wrapT=options.wrapT||THREE.RepeatWrapping;
-    texture.repeat.set(options.repeatX??1,options.repeatY??1);
-    texture.flipY=options.flipY??false;
-    texture.anisotropy=options.anisotropy??4;
-  }
+        src=c;
+      }
+      texture.image=src;
+      texture.needsUpdate=true;
+      resolve();
+    };
+    img.onerror=()=>{texture.image=null;texture.needsUpdate=true;resolve()};
+    img.src=url;
+  }));
   return texture;
 }
 
 function createPlatformMaterial(){
   const aniso=_isMobile?4:16;
-  const baseColor=loadTexture(PLATFORM_BASECOLOR_TEXTURE_URL,{colorSpace:THREE.SRGBColorSpace,flipY:true,anisotropy:aniso});
-  const roughness=loadTexture(PLATFORM_ROUGHNESS_TEXTURE_URL,{colorSpace:THREE.NoColorSpace,flipY:true,anisotropy:aniso});
-  const normal=loadTexture(PLATFORM_NORMAL_TEXTURE_URL,{colorSpace:THREE.NoColorSpace,flipY:true,anisotropy:aniso});
+  const textureLoader=new THREE.TextureLoader();
+  const baseColor=textureLoader.load(PLATFORM_BASECOLOR_TEXTURE_URL);
+  baseColor.colorSpace=THREE.SRGBColorSpace;
+  baseColor.wrapS=THREE.RepeatWrapping;
+  baseColor.wrapT=THREE.RepeatWrapping;
+  baseColor.flipY=true;
+  baseColor.anisotropy=aniso;
   baseColor.magFilter=THREE.LinearFilter;
   baseColor.minFilter=THREE.LinearMipmapLinearFilter;
-  normal.magFilter=THREE.LinearFilter;
-  normal.minFilter=THREE.LinearMipmapLinearFilter;
+  const roughness=textureLoader.load(PLATFORM_ROUGHNESS_TEXTURE_URL);
+  roughness.colorSpace=THREE.NoColorSpace;
+  roughness.wrapS=THREE.RepeatWrapping;
+  roughness.wrapT=THREE.RepeatWrapping;
+  roughness.flipY=true;
+  roughness.anisotropy=aniso;
   roughness.magFilter=THREE.LinearFilter;
   roughness.minFilter=THREE.LinearMipmapLinearFilter;
+  const normal=textureLoader.load(PLATFORM_NORMAL_TEXTURE_URL);
+  normal.colorSpace=THREE.NoColorSpace;
+  normal.wrapS=THREE.RepeatWrapping;
+  normal.wrapT=THREE.RepeatWrapping;
+  normal.flipY=true;
+  normal.anisotropy=aniso;
+  normal.magFilter=THREE.LinearFilter;
+  normal.minFilter=THREE.LinearMipmapLinearFilter;
   return new THREE.MeshStandardMaterial({
     name:"Sphere001_mat",
     map:baseColor,
@@ -1487,7 +1909,7 @@ function createPlatformModel(){
         if(obj.isMesh||obj.isSkinnedMesh){
           obj.castShadow=false;
           obj.receiveShadow=true;
-          if(obj.geometry){obj.geometry.computeBoundingBox();obj.geometry.deleteAttribute("normal");obj.geometry=mergeVertices(obj.geometry);obj.geometry.computeVertexNormals();obj.geometry.computeTangents()}
+          if(obj.geometry){obj.geometry.computeBoundingBox();obj.geometry.computeVertexNormals()}
           obj.material=platformMaterial;
           platformMeshes.push(obj);
         }
@@ -2478,6 +2900,7 @@ function startGame(){
   gameOverPending=false;
   playerIsDead=false;
   loadPlayerAnimationsLazy();
+  loadBossModel();
   document.getElementById("scanlines").style.display=isMobileLayout()?"none":"block";
   document.getElementById("pauseBtn").style.display="flex";
   document.getElementById("restartGameBtn").style.display="flex";
@@ -2492,7 +2915,7 @@ function startGame(){
   startToast.style.display="block";
   startToast.style.animation="toastFade 4.5s forwards";
 
-  score=0;hp=maxHp;aliveTime=0;speedBuffTimer=0;speedStackLevel=0;speedTextureActive=false;speedEndTransitionTimer=0;applyPlayerSpeedTexture(false);invincibleTimer=0;invincibleVisualActive=false;invincibleTextureActive=false;invincibleEndTransitionTimer=0;damageFlashTimer=0;lowHpWarningTimer=0;playerHitAnimTimer=0;knockbackVelocity.set(0,0,0);
+  score=0;hp=maxHp;aliveTime=0;mysteryHealAvailable=false;mysterySlowTimer=0;speedBuffTimer=0;speedStackLevel=0;speedTextureActive=false;speedEndTransitionTimer=0;applyPlayerSpeedTexture(false);invincibleTimer=0;invincibleVisualActive=false;invincibleTextureActive=false;invincibleEndTransitionTimer=0;damageFlashTimer=0;lowHpWarningTimer=0;playerHitAnimTimer=0;knockbackVelocity.set(0,0,0);
   removeInvincibleAura();
   applyPlayerInvincibleTexture(false);
   enemySpawnTimer=0;crystalSpawnTimer=0;fruitSpawnTimer=0;purpleEnemySpawnTimer=0;invincibleFruitSpawnTimer=0;ghostBossSpawnTimer=0;
@@ -2529,6 +2952,7 @@ function startGame(){
   if(playerStatusSprite){playerStatusSprite.visible=false}playerStatusTimer=0;playerStatusType="";
   prewarmPurpleEnemyPool();
 
+  applyPurchasedBuffs();
   spawnSceneRocks();
   const initialCrystals=INITIAL_CRYSTAL_COUNT;
   const batchSize=8,batchCount=Math.ceil(initialCrystals/batchSize);
@@ -3407,7 +3831,6 @@ function animate(){
     return;
   }
   processEnemySpawnQueue();
-  if(renderer.shadowMap.enabled&&(gameRunning||player))renderer.shadowMap.needsUpdate=true;
   updatePerformance(frameTime);
   if(gameRunning){
     accumulator+=frameTime;
@@ -3416,7 +3839,7 @@ function animate(){
       updatePlayerStatusText(FIXED_DT);
       accumulator-=FIXED_DT;
     }
-    updateCamera(frameTime);
+    updateCamera(FIXED_DT);
   }else if(playerMixer)playerMixer.update(frameTime);
   applyFrustumCulling();
   renderer.render(scene,camera);
@@ -3442,14 +3865,12 @@ function updatePerformance(dt){
 }
 
 function applyPerformanceLevel(){
-  if(performanceLevel>=2){
-    renderer.shadowMap.enabled=false;
-  }
 }
 
 function update(dt){
   aliveTime+=dt;
   if(speedBuffTimer>0){speedBuffTimer-=dt;if(speedBuffTimer<=0){speedBuffTimer=0;speedStackLevel=0;if(speedTextureActive){speedEndTransitionTimer=.5}}}
+  if(mysterySlowTimer>0){mysterySlowTimer-=dt;if(mysterySlowTimer<=0)mysterySlowTimer=0}
   if(lowHpWarningTimer>0){lowHpWarningTimer-=dt;warning.style.display="block"}else warning.style.display="none";
   updateSpeedTextureTransition(dt);
   updateInvincibleState(dt);
@@ -3472,6 +3893,8 @@ function update(dt){
   updateSpawns(dt);
   updateHUD();
   refreshPlayerStatusText();
+  // Mystery heal: auto-heal when HP < 20%
+  if(mysteryHealAvailable&&hp>0&&hp<maxHp*0.2){hp=maxHp;mysteryHealAvailable=false;setPlayerStatusText("heal",2.0)}
   if(hp<=0&&!gameOverPending)endGame();
 }
 
@@ -3485,7 +3908,7 @@ function updatePlayer(dt){
   if(keys["KeyD"]||keys["ArrowRight"])_v2a.x+=1;
   _v2a.x+=moveInput.x;_v2a.y+=moveInput.y;
   if(_v2a.length()>1)_v2a.normalize();
-  const speed=Math.min(basePlayerSpeed*(speedBuffTimer>0?1+speedStackLevel*0.5:1)*(invincibleTimer>0?INVINCIBLE_SPEED_MULTIPLIER:1),12);
+  const speed=Math.min(basePlayerSpeed*(mysterySlowTimer>0?3/basePlayerSpeed:1)*(speedBuffTimer>0?1+speedStackLevel*0.5:1)*(invincibleTimer>0?INVINCIBLE_SPEED_MULTIPLIER:1),12);
   _v3a.set(_v2a.x,0,_v2a.y).multiplyScalar(speed*dt);
   if(_v3a.lengthSq()>0){
     playerMovingThisFrame=true;
@@ -3907,8 +4330,11 @@ function endGame(){
   meta.gamesPlayed++;
   meta.bestScore=Math.max(meta.bestScore,score);
   meta.bestTime=Math.max(meta.bestTime,aliveTime);
+  meta.totalPoints=(meta.totalPoints||0)+score;
   evaluateAchievements();
   saveMeta();
+
+  currentMysteryItem=generateMysteryItem();
 
   playerIsDead=true;
   knockbackVelocity.set(0,0,0);
@@ -4082,8 +4508,7 @@ function onResize(){
   updateLayoutCache();
   camera.aspect=window.innerWidth/window.innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth,window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio,_isMobile?1.0:1.25));
+  renderer.setSize(_isMobile?854:1280,_isMobile?480:720,false);
   updatePlayerHeadUIScale();
   if(gameRunning)setHUDVisible(true);
 }
