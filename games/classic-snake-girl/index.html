@@ -1,116 +1,1586 @@
-<!DOCTYPE html><html lang="en"><head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Neon Snake Girl - Free Online Game</title>
-<meta name="description" content="Neon cyber snake game with girl avatars. Collect golden bonus food for extra points. Mobile friendly.">
-<style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:system-ui,sans-serif;background:#0a0a1f;background-image:radial-gradient(circle at 20% 30%,rgba(255,0,200,.15),transparent 50%),radial-gradient(circle at 80% 70%,rgba(0,255,255,.15),transparent 50%);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;user-select:none;padding:10px;color:#fff}
-h1{color:#ff00ff;margin:5px 0;font-size:22px;text-shadow:0 0 10px #ff00ff,0 0 20px #ff00ff}
-#hud{display:flex;gap:15px;margin-bottom:10px;font-weight:bold}
-#hud div{background:rgba(20,20,50,.8);padding:6px 14px;border-radius:20px;border:1px solid #00ffff;box-shadow:0 0 10px rgba(0,255,255,.5);font-size:14px;color:#00ffff}
-canvas{background:#0a0a1f;border:2px solid #ff00ff;border-radius:10px;box-shadow:0 0 20px #ff00ff;touch-action:none;max-width:100%;max-height:65vh}
-.screen{position:fixed;inset:0;background:rgba(10,10,31,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:20px;text-align:center}
-.screen h2{color:#ff00ff;font-size:30px;margin-bottom:10px;text-shadow:0 0 15px #ff00ff}
-.screen p{color:#00ffff;margin-bottom:20px;line-height:1.6;font-size:15px}
-.skin{font-size:70px;margin:15px;filter:drop-shadow(0 0 15px #ff00ff)}
-.btn{background:linear-gradient(45deg,#ff00ff,#00ffff);color:#000;border:none;padding:14px 36px;font-size:18px;border-radius:30px;cursor:pointer;font-weight:bold;box-shadow:0 0 20px rgba(255,0,255,.6);transition:.1s}
-.btn:active{transform:scale(.95)}
-.hidden{display:none!important}
-.back{position:fixed;top:10px;left:10px;background:rgba(20,20,50,.9);padding:8px 14px;border-radius:20px;text-decoration:none;color:#00ffff;font-weight:bold;border:1px solid #00ffff;z-index:5;font-size:14px}
-.unlocks{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin:10px;max-width:300px}
-.unlocks span{font-size:30px;opacity:.25;transition:.3s}
-.unlocks span.on{opacity:1;transform:scale(1.15);filter:drop-shadow(0 0 8px #ff00ff)}
-</style></head>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>霓虹机械核心合成</title>
+  <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
+  <style>
+    :root {
+      --cyan: #00f6ff;
+      --pink: #ff2bd6;
+      --yellow: #fff45f;
+      --bg: #050615;
+      --panel: rgba(8, 14, 38, .68);
+      --ui-scale: 2;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
+      user-select: none;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      overscroll-behavior: none;
+      background: radial-gradient(circle at 20% 8%, #192564 0%, transparent 28%),
+                  radial-gradient(circle at 78% 16%, #591152 0%, transparent 32%),
+                  linear-gradient(180deg, #060717 0%, #02030b 100%);
+      font-family: "Trebuchet MS", "Microsoft YaHei", sans-serif;
+      color: white;
+    }
+
+    #gameCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      cursor: crosshair;
+    }
+
+    .hud {
+      position: fixed;
+      inset: 0;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .ui-panel {
+      position: fixed;
+      border: 1px solid rgba(0, 246, 255, .42);
+      background: linear-gradient(145deg, rgba(5, 12, 34, .72), rgba(23, 7, 43, .66));
+      box-shadow: 0 0 20px rgba(0, 246, 255, .18), inset 0 0 26px rgba(255, 43, 214, .1);
+      backdrop-filter: blur(12px);
+      color: white;
+      pointer-events: auto;
+    }
+
+    .orb-panel {
+      width: clamp(112px, 18vw, 176px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .orb-panel::before {
+      content: "";
+      position: absolute;
+      inset: 9%;
+      border-radius: inherit;
+      background: radial-gradient(circle at 30% 22%, rgba(255,255,255,.55), transparent 13%),
+                  radial-gradient(circle at 74% 78%, rgba(255,255,255,.3), transparent 12%),
+                  radial-gradient(circle, rgba(0,246,255,.16), rgba(255,43,214,.07) 54%, transparent 72%);
+      pointer-events: none;
+    }
+
+    .scoreBox {
+      left: max(16px, env(safe-area-inset-left));
+      top: max(12px, env(safe-area-inset-top));
+      transform: scale(var(--ui-scale));
+      transform-origin: top left;
+    }
+
+    .scoreBox span,
+    .nextBox span {
+      display: block;
+      position: relative;
+      z-index: 1;
+      font-size: clamp(13px, 2.3vw, 20px);
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #ffffff;
+      text-shadow: 0 0 8px var(--cyan), 0 0 18px var(--pink);
+    }
+
+    .scoreBox strong {
+      display: block;
+      position: relative;
+      z-index: 1;
+      margin-top: 8px;
+      font-size: clamp(30px, 7vw, 54px);
+      line-height: .9;
+      color: var(--yellow);
+      text-shadow: 0 0 14px rgba(255, 244, 95, .96), 0 0 32px rgba(255, 43, 214, .55);
+    }
+
+    .scoreBox em {
+      display: block;
+      position: relative;
+      z-index: 1;
+      margin-top: 8px;
+      font-style: normal;
+      font-size: 11px;
+      color: rgba(255,255,255,.65);
+    }
+
+    .rankBox {
+      left: max(16px, env(safe-area-inset-left));
+      bottom: max(38px, env(safe-area-inset-bottom));
+      width: clamp(176px, 27vw, 270px);
+      padding: 16px 12px 14px;
+      border-radius: 26px;
+      transform: scale(var(--ui-scale));
+      transform-origin: bottom left;
+      clip-path: polygon(0 18px, 18px 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+    }
+
+    .panel-title {
+      margin: 0 0 10px;
+      text-align: center;
+      font-weight: 900;
+      font-size: clamp(14px, 2.5vw, 21px);
+      letter-spacing: 1.6px;
+      color: #fff;
+      text-shadow: 0 0 10px var(--cyan), 0 0 18px var(--pink);
+    }
+
+    .rank-row {
+      display: grid;
+      grid-template-columns: 34px 1fr 56px;
+      align-items: center;
+      gap: 8px;
+      min-height: 32px;
+      margin: 5px 0;
+      padding: 5px 8px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: linear-gradient(90deg, rgba(0,246,255,.1), rgba(255,43,214,.06));
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    .rank-medal {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      font-weight: 900;
+      color: #06101d;
+      background: linear-gradient(135deg, #fff45f, #ff8a00);
+      box-shadow: 0 0 12px rgba(255,244,95,.42);
+    }
+
+    .rank-row:nth-child(3) .rank-medal { background: linear-gradient(135deg, #d8f5ff, #4bbcff); }
+    .rank-row:nth-child(4) .rank-medal { background: linear-gradient(135deg, #ffc08a, #cf6c2c); }
+
+    .rank-name { color: rgba(255,255,255,.82); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rank-score { text-align: right; color: var(--yellow); font-weight: 900; }
+    .rank-now { border-color: rgba(255,244,95,.46); background: rgba(255,244,95,.14); }
+
+    .nextBox {
+      right: max(18px, env(safe-area-inset-right));
+      top: max(18px, env(safe-area-inset-top));
+      transform: scale(var(--ui-scale));
+      transform-origin: top right;
+    }
+
+    #nextCanvas {
+      position: relative;
+      z-index: 1;
+      width: 68%;
+      height: 68%;
+      margin-top: -4px;
+      filter: drop-shadow(0 0 12px rgba(0,246,255,.7));
+    }
+
+    .collectionBox {
+      right: max(14px, env(safe-area-inset-right));
+      bottom: max(32px, env(safe-area-inset-bottom));
+      width: clamp(180px, 28vw, 292px);
+      padding: 14px 12px 12px;
+      border-radius: 24px;
+      transform: scale(var(--ui-scale));
+      transform-origin: bottom right;
+      clip-path: polygon(0 18px, 18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%);
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-bottom: 9px;
+    }
+
+    .filter-tabs button {
+      min-width: 0;
+      padding: 6px 8px;
+      font-size: 11px;
+      color: rgba(255,255,255,.75);
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(0,246,255,.22);
+      box-shadow: none;
+      clip-path: none;
+      border-radius: 999px;
+    }
+
+    .filter-tabs button.active {
+      color: #06101d;
+      background: linear-gradient(90deg, var(--cyan), var(--yellow));
+      box-shadow: 0 0 14px rgba(0,246,255,.32);
+    }
+
+    .core-ring {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+      max-height: min(176px, 24vh);
+      overflow-y: auto;
+      padding: 3px 2px 8px;
+      scrollbar-width: none;
+    }
+
+    .core-ring::-webkit-scrollbar { display: none; }
+
+    .core-item {
+      display: grid;
+      place-items: center;
+      aspect-ratio: 1;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,.08), rgba(0,0,0,.18));
+      cursor: pointer;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .core-item:hover,
+    .core-item.active {
+      transform: scale(1.08);
+      border-color: rgba(255,244,95,.68);
+      box-shadow: 0 0 14px rgba(255,244,95,.28);
+    }
+
+    .core-item canvas {
+      width: 78%;
+      height: 78%;
+      pointer-events: none;
+    }
+
+    .core-detail {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 8px;
+      padding: 7px 9px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.22);
+      color: rgba(255,255,255,.78);
+      font-size: 11px;
+    }
+
+    .tips {
+      position: fixed;
+      left: 50%;
+      bottom: max(10px, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      z-index: 5;
+      padding: 7px 12px;
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: 999px;
+      background: rgba(0, 0, 0, .28);
+      color: rgba(255, 255, 255, .72);
+      font-size: 12px;
+      letter-spacing: 1px;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .bgmVol {
+      position: fixed;
+      left: 50%;
+      bottom: max(40px, calc(env(safe-area-inset-bottom) + 30px));
+      transform: translateX(-50%);
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 999px;
+      background: rgba(0, 0, 0, .44);
+      backdrop-filter: blur(6px);
+      pointer-events: auto;
+    }
+    .bgmVol label {
+      font-size: 12px;
+      color: rgba(255,255,255,.6);
+      letter-spacing: 1px;
+      text-shadow: 0 0 6px rgba(0,246,255,.18);
+    }
+    .bgmVol input[type="range"] {
+      width: 72px;
+      height: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: linear-gradient(90deg, var(--cyan), var(--pink));
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+    .bgmVol input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fff, var(--cyan));
+      box-shadow: 0 0 10px var(--cyan), 0 0 20px var(--pink);
+      cursor: pointer;
+    }
+
+    @media (max-width: 1180px) {
+      :root { --ui-scale: 1.55; }
+    }
+
+    @media (max-width: 900px) {
+      :root { --ui-scale: 1.2; }
+    }
+
+    @media (max-width: 680px) {
+      :root { --ui-scale: .82; }
+      .orb-panel { width: 104px; }
+      .rankBox { width: 154px; padding: 12px 8px 10px; bottom: max(34px, env(safe-area-inset-bottom)); }
+      .collectionBox { width: 154px; padding: 11px 8px 9px; bottom: max(34px, env(safe-area-inset-bottom)); }
+      .rank-row { grid-template-columns: 28px 1fr; font-size: 10px; gap: 5px; }
+      .rank-score { grid-column: 2; text-align: left; }
+      .rank-medal { width: 24px; height: 24px; }
+      .core-ring { grid-template-columns: repeat(4, 1fr); gap: 5px; max-height: 126px; }
+      .core-detail { font-size: 10px; padding: 6px; }
+      .tips { display: none; }
+      .bgmVol { bottom: max(30px, calc(env(safe-area-inset-bottom) + 22px)); }
+    }
+
+    @media (max-width: 430px) {
+      :root { --ui-scale: .68; }
+      .scoreBox { left: max(8px, env(safe-area-inset-left)); top: max(8px, env(safe-area-inset-top)); }
+      .nextBox { right: max(8px, env(safe-area-inset-right)); top: max(8px, env(safe-area-inset-top)); }
+      .rankBox { left: max(8px, env(safe-area-inset-left)); width: 146px; }
+      .collectionBox { right: max(8px, env(safe-area-inset-right)); width: 146px; }
+    }
+
+    @media (max-height: 720px) {
+      :root { --ui-scale: .74; }
+      .rankBox,
+      .collectionBox { bottom: max(18px, env(safe-area-inset-bottom)); }
+      .core-ring { max-height: 104px; }
+    }
+
+    @media (max-width: 430px) and (max-height: 720px) {
+      :root { --ui-scale: .62; }
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+      background: rgba(0, 0, 0, .58);
+      backdrop-filter: blur(8px);
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .card {
+      width: min(420px, 94vw);
+      padding: 26px 22px 22px;
+      text-align: center;
+      border: 1px solid rgba(255, 43, 214, .62);
+      background: linear-gradient(160deg, rgba(10, 15, 42, .96), rgba(28, 6, 36, .94));
+      box-shadow: 0 0 34px rgba(255, 43, 214, .3), inset 0 0 26px rgba(0, 246, 255, .12);
+      clip-path: polygon(0 18px, 18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%);
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      color: #ff6fe8;
+      font-size: 34px;
+      letter-spacing: 3px;
+      text-shadow: 0 0 18px rgba(255, 43, 214, .9);
+    }
+
+    .card p {
+      margin: 8px 0 18px;
+      color: rgba(255, 255, 255, .72);
+      line-height: 1.7;
+    }
+
+    .buttons {
+      display: grid;
+      gap: 10px;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      padding: 13px 14px;
+      color: #031018;
+      font-weight: 800;
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, #00f6ff, #fff45f);
+      box-shadow: 0 0 18px rgba(0, 246, 255, .32);
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+      cursor: pointer;
+    }
+
+    button.secondary {
+      color: white;
+      background: linear-gradient(90deg, #32104d, #941b82);
+      box-shadow: 0 0 18px rgba(255, 43, 214, .28);
+    }
+  </style>
+</head>
 <body>
-<a href="../../index.html" class="back">← Home</a>
-<h1>⚡ NEON SNAKE GIRL ⚡</h1>
-<div id="hud"><div>Score: <span id="s">0</span></div><div>Best: <span id="b">0</span></div></div>
-<canvas id="g" width="400" height="400"></canvas>
-<div id="start" class="screen">
-<h2>⚡ NEON SNAKE GIRL ⚡</h2><div class="skin">🧚‍♀️</div>
-<p>Collect cyber gems!<br>💰 Golden gems = 3x bonus points<br>📱 Swipe or arrow keys</p>
-<button class="btn" onclick="play()">START</button>
-</div>
-<div id="end" class="screen hidden">
-<h2>SYSTEM CRASH</h2><div class="skin" id="es">🧚‍♀️</div>
-<p>Score: <b id="fs">0</b> &nbsp; Best: <b id="fb">0</b></p>
-<div class="unlocks" id="ul"></div>
-<button class="btn" onclick="play()">RETRY</button>
-</div>
-<script>
-const C=document.getElementById('g'),X=C.getContext('2d');
-const SK=['🧚‍♀️','🦸‍♀️','👽','🤖','🦹‍♀️','🧙‍♀️','🧜‍♀️','🦄'];
-const FD=['💎','🔮','💠','⭐'];
-const W=20;
-let G,sn,d,nd,fx,fy,fe,fb_,sc,bs,tm,sp,si,ate;
-bs=+localStorage.getItem('nsgBest')||0;
-document.getElementById('b').textContent=bs;
-function fit(){let s=Math.min(innerWidth-20,innerHeight*.6,420);s=Math.floor(s/W)*W;C.width=C.height=s;G=s/W}
-function play(){
- document.getElementById('start').classList.add('hidden');
- document.getElementById('end').classList.add('hidden');
- fit();sn=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];
- d={x:1,y:0};nd=d;sc=0;si=0;sp=130;ate=0;
- document.getElementById('s').textContent=0;
- food();clearInterval(tm);tm=setInterval(tick,sp);
-}
-function food(){
- do{fx=0|Math.random()*W;fy=0|Math.random()*W}while(sn.some(p=>p.x===fx&&p.y===fy));
- fb_=(ate>0&&ate%5===0);
- fe=fb_?'🌟':FD[0|Math.random()*FD.length];
-}
-function tick(){
- d=nd;let h={x:sn[0].x+d.x,y:sn[0].y+d.y};
- if(h.x<0||h.x>=W||h.y<0||h.y>=W||sn.some(p=>p.x===h.x&&p.y===h.y))return over();
- sn.unshift(h);
- if(h.x===fx&&h.y===fy){
-  sc+=fb_?3:1;ate++;
-  document.getElementById('s').textContent=sc;
-  si=Math.min(0|sc/5,SK.length-1);food();
-  if(sc%10<3&&sp>60){sp-=6;clearInterval(tm);tm=setInterval(tick,sp)}
- }else sn.pop();
- draw();
-}
-function draw(){
- X.fillStyle='#0a0a1f';X.fillRect(0,0,C.width,C.height);
- X.strokeStyle='rgba(0,255,255,.08)';
- for(let i=0;i<=W;i++){X.beginPath();X.moveTo(i*G,0);X.lineTo(i*G,C.height);X.stroke();X.beginPath();X.moveTo(0,i*G);X.lineTo(C.width,i*G);X.stroke()}
- X.shadowBlur=12;X.shadowColor='#ff00ff';
- for(let i=sn.length-1;i>0;i--){X.fillStyle=`hsl(${290+i*3},100%,60%)`;X.beginPath();X.arc(sn[i].x*G+G/2,sn[i].y*G+G/2,G/2-2,0,6.3);X.fill()}
- X.shadowBlur=0;
- X.font=`${G*.9}px serif`;X.textAlign='center';X.textBaseline='middle';
- if(fb_){X.shadowBlur=15;X.shadowColor='#ffd700'}
- X.fillText(fe,fx*G+G/2,fy*G+G/2);X.shadowBlur=0;
- X.fillText(SK[si],sn[0].x*G+G/2,sn[0].y*G+G/2);
-}
-function over(){
- clearInterval(tm);
- if(sc>bs){bs=sc;localStorage.setItem('nsgBest',bs);document.getElementById('b').textContent=bs}
- document.getElementById('fs').textContent=sc;
- document.getElementById('fb').textContent=bs;
- document.getElementById('es').textContent=SK[si];
- let u=document.getElementById('ul');u.innerHTML='';
- SK.forEach((s,i)=>{let e=document.createElement('span');e.textContent=s;if(i<=si)e.className='on';u.appendChild(e)});
- document.getElementById('end').classList.remove('hidden');
-}
-addEventListener('keydown',e=>{
- let k=e.key;
- if((k==='ArrowUp'||k==='w')&&d.y===0)nd={x:0,y:-1};
- else if((k==='ArrowDown'||k==='s')&&d.y===0)nd={x:0,y:1};
- else if((k==='ArrowLeft'||k==='a')&&d.x===0)nd={x:-1,y:0};
- else if((k==='ArrowRight'||k==='d')&&d.x===0)nd={x:1,y:0};
-});
-let tx,ty;
-C.addEventListener('touchstart',e=>{e.preventDefault();tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:false});
-C.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
-C.addEventListener('touchend',e=>{
- e.preventDefault();
- let t=e.changedTouches[0],dx=t.clientX-tx,dy=t.clientY-ty;
- if(Math.abs(dx)<20&&Math.abs(dy)<20)return;
- if(Math.abs(dx)>Math.abs(dy)){if(dx>0&&d.x===0)nd={x:1,y:0};else if(dx<0&&d.x===0)nd={x:-1,y:0}}
- else{if(dy>0&&d.y===0)nd={x:0,y:1};else if(dy<0&&d.y===0)nd={x:0,y:-1}}
-},{passive:false});
-addEventListener('resize',()=>{fit();if(sn)draw()});
-fit();
-</script></body></html>
+  <canvas id="gameCanvas"></canvas>
+
+  <section class="hud">
+    <div class="ui-panel orb-panel scoreBox">
+      <div>
+        <span>积分</span>
+        <strong id="score">0</strong>
+        <em>BEST <b id="bestScore">0</b></em>
+      </div>
+    </div>
+
+    <div class="ui-panel rankBox">
+      <h2 class="panel-title">今日积分排行</h2>
+      <div id="rankList"></div>
+    </div>
+
+    <div class="ui-panel orb-panel nextBox">
+      <div>
+        <span>下一个</span>
+        <canvas id="nextCanvas" width="160" height="160"></canvas>
+      </div>
+    </div>
+
+    <div class="ui-panel collectionBox">
+      <h2 class="panel-title">核心图鉴</h2>
+      <div class="filter-tabs">
+        <button class="active" data-filter="all">全部</button>
+        <button data-filter="basic">基础</button>
+        <button data-filter="advanced">高阶</button>
+      </div>
+      <div id="coreGallery" class="core-ring"></div>
+      <div class="core-detail">
+        <span id="coreName">L1 脉冲核心</span>
+        <strong id="coreValue">10 pts</strong>
+      </div>
+    </div>
+  </section>
+
+  <div class="tips">拖动顶部轨道并松手投放，同级核心碰撞后合成</div>
+
+  <div class="bgmVol">
+    <label>🎵</label>
+    <input type="range" id="bgmSlider" min="0" max="100" value="42">
+  </div>
+
+  <div id="gameOverModal" class="modal">
+    <div class="card">
+      <h2>GAME OVER</h2>
+      <p id="finalText">核心仓已过载。</p>
+      <div class="buttons">
+        <button id="reviveBtn">观看广告复活：清除顶部 3 个障碍物</button>
+        <button id="restartBtn" class="secondary">重新开始</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    /**********************************************************************
+     * 霓虹机械核心合成
+     * 技术栈：HTML5 Canvas + Matter.js
+     * 说明：本文件为完整单文件游戏，所有视觉元素均由 Canvas 绘制，无外部图片。
+     **********************************************************************/
+
+    // ------------------------- 广告预留钩子 -------------------------
+    // 激励视频广告：真实接入广告 SDK 时，将这里替换为广告平台调用。
+    // 返回 Promise 是为了方便在广告播放完成后执行复活逻辑。
+    function triggerRewardedAd() {
+      console.log("triggerRewardedAd：此处接入激励视频广告 SDK");
+      return Promise.resolve(true);
+    }
+
+    // 插屏广告：每局重新开始前调用，真实上线时替换为广告平台 SDK。
+    function triggerInterstitialAd() {
+      console.log("triggerInterstitialAd：此处接入插屏广告 SDK");
+    }
+
+    // ===================== 合成音效引擎 (Web Audio API，零外部文件) =====================
+    const SFX = (() => {
+      let ctx = null, unlocked = false;
+
+      function ac() {
+        if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (ctx.state === "suspended") ctx.resume();
+        return ctx;
+      }
+
+      // 首次用户交互时解锁 AudioContext
+      function unlock() {
+        if (unlocked) return;
+        unlocked = true;
+        ac().resume();
+        if (bgmPending) { bgmPending = false; bgmStart(); }
+      }
+      ["click", "touchstart", "pointerdown", "keydown"].forEach(ev =>
+        document.addEventListener(ev, unlock, { once: true })
+      );
+
+      // --- 底鼓 (Kick) ---
+      function kick(volume = 0.55, pitch = 140) {
+        const a = ac(), now = a.currentTime;
+        const osc = a.createOscillator();
+        const gain = a.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(pitch, now);
+        osc.frequency.exponentialRampToValueAtTime(35, now + 0.08);
+        gain.gain.setValueAtTime(volume, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+        osc.connect(gain).connect(a.destination);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      }
+
+      // --- 军鼓 (Snare) ---
+      function snare(volume = 0.35) {
+        const a = ac(), now = a.currentTime;
+        // 噪声层
+        const len = a.sampleRate * 0.06;
+        const buf = a.createBuffer(1, len, a.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 1.2);
+        const noise = a.createBufferSource();
+        noise.buffer = buf;
+        const nGain = a.createGain();
+        nGain.gain.setValueAtTime(volume * 0.7, now);
+        nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+        noise.connect(nGain).connect(a.destination);
+        noise.start(now);
+        // 音调层
+        const osc = a.createOscillator();
+        const gGain = a.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.exponentialRampToValueAtTime(80, now + 0.06);
+        gGain.gain.setValueAtTime(volume * 0.5, now);
+        gGain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+        osc.connect(gGain).connect(a.destination);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      }
+
+      // --- 合成升调 (用于合成升级) ---
+      function synthRise(volume = 0.5, baseFreq = 300, duration = 0.3) {
+        const a = ac(), now = a.currentTime;
+        const osc = a.createOscillator();
+        const gain = a.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(baseFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 2.8, now + duration);
+        gain.gain.setValueAtTime(volume, now);
+        gain.gain.linearRampToValueAtTime(volume * 0.6, now + duration * 0.4);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        const filter = a.createBiquadFilter();
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(baseFreq * 1.6, now);
+        filter.frequency.exponentialRampToValueAtTime(baseFreq * 4, now + duration);
+        osc.connect(filter).connect(gain).connect(a.destination);
+        osc.start(now);
+        osc.stop(now + duration + 0.05);
+      }
+
+      // --- 高音叮当 (用于投放 / 复活) ---
+      function ding(volume = 0.4, freq = 880, duration = 0.12) {
+        const a = ac(), now = a.currentTime;
+        const osc = a.createOscillator();
+        const gain = a.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(volume, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        osc.connect(gain).connect(a.destination);
+        osc.start(now);
+        osc.stop(now + duration + 0.02);
+      }
+
+      // --- 警告蜂鸣 (警戒线) ---
+      function warn(volume = 0.3) {
+        const a = ac(), now = a.currentTime;
+        for (let i = 0; i < 3; i++) {
+          const osc = a.createOscillator();
+          const gain = a.createGain();
+          osc.type = "square";
+          osc.frequency.setValueAtTime(220 + i * 30, now + i * 0.15);
+          gain.gain.setValueAtTime(volume * (1 - i * 0.2), now + i * 0.15);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.15 + 0.08);
+          osc.connect(gain).connect(a.destination);
+          osc.start(now + i * 0.15);
+          osc.stop(now + i * 0.15 + 0.1);
+        }
+      }
+
+      // --- Game Over 低沉下降 ---
+      function gameOverSound() {
+        const a = ac(), now = a.currentTime;
+        const osc = a.createOscillator();
+        const gain = a.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.exponentialRampToValueAtTime(60, now + 0.8);
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.linearRampToValueAtTime(0.2, now + 0.3);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+        const filter = a.createBiquadFilter();
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(800, now);
+        filter.frequency.exponentialRampToValueAtTime(120, now + 0.7);
+        osc.connect(filter).connect(gain).connect(a.destination);
+        osc.start(now);
+        osc.stop(now + 1.2);
+      }
+
+      // --- 碰撞合成爆炸音 (粒子爆发时的音效) ---
+      function explosion(volume = 0.5, pitch = 200) {
+        const a = ac(), now = a.currentTime;
+        // 白噪声瞬间爆发
+        const len = a.sampleRate * 0.12;
+        const buf = a.createBuffer(1, len, a.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 0.7);
+        const noise = a.createBufferSource();
+        noise.buffer = buf;
+        const nGain = a.createGain();
+        nGain.gain.setValueAtTime(volume * 0.8, now);
+        nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        noise.connect(nGain).connect(a.destination);
+        noise.start(now);
+        // 低频底鼓叠加
+        const osc = a.createOscillator();
+        const gGain = a.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(pitch, now);
+        osc.frequency.exponentialRampToValueAtTime(45, now + 0.15);
+        gGain.gain.setValueAtTime(volume * 0.6, now);
+        gGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+        osc.connect(gGain).connect(a.destination);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      }
+
+      // --- UI 点击声 ---
+      function uiClick() {
+        ding(0.25, 1200, 0.06);
+      }
+
+      let bgmSource = null;
+      let bgmGain = null;
+
+      // --- BGM 循环播放 ---
+      let bgmPending = false;
+      function bgmStart() {
+        if (!ctx || ctx.state !== "running") { bgmPending = true; return; }
+        try {
+          bgmStop();
+          if (!bgmGain) { bgmGain = ac().createGain(); bgmGain.gain.value = 0.42; bgmGain.connect(ac().destination); SFX.bgmGain = bgmGain; }
+          const audio = new Audio("music/bgm01.mp3");
+          audio.loop = true;
+          audio.crossOrigin = "anonymous";
+          const source = ac().createMediaElementSource(audio);
+          source.connect(bgmGain);
+          bgmSource = { audio, source };
+          audio.play().catch(() => {});
+        } catch (e) { console.warn("BGM 加载失败", e); }
+      }
+
+      function bgmStop() {
+        if (bgmSource) {
+          try { bgmSource.audio.pause(); bgmSource.audio.currentTime = 0; } catch (e) {}
+          try { bgmSource.source.disconnect(); } catch (e) {}
+          bgmSource = null;
+        }
+      }
+
+      // --- 对外接口 ---
+      return {
+        init() { unlock(); },
+        drop() { kick(0.5, 130); ding(0.3, 660, 0.08); },
+        merge(level) {
+          const p = 280 + level * 40;
+          explosion(0.55, p);
+          synthRise(0.45, p * 0.8, 0.25);
+        },
+        wallHit() { snare(0.25); },
+        warn() { warn(); },
+        gameOver() { bgmStop(); gameOverSound(); },
+        revive() { synthRise(0.55, 350, 0.45); ding(0.5, 1200, 0.15); },
+        restart() { ding(0.3, 990, 0.1); bgmStart(); },
+        uiClick,
+        bgmGain: null
+      };
+    })();
+
+    // ------------------------- Matter.js 模块别名 -------------------------
+    const { Engine, World, Bodies, Body, Events, Composite } = Matter;
+
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const scoreEl = document.getElementById("score");
+    const bestScoreEl = document.getElementById("bestScore");
+    const rankListEl = document.getElementById("rankList");
+    const nextCanvas = document.getElementById("nextCanvas");
+    const nextCtx = nextCanvas.getContext("2d");
+    const coreGalleryEl = document.getElementById("coreGallery");
+    const coreNameEl = document.getElementById("coreName");
+    const coreValueEl = document.getElementById("coreValue");
+    const filterBtns = document.querySelectorAll(".filter-tabs button");
+    const modal = document.getElementById("gameOverModal");
+    const finalText = document.getElementById("finalText");
+    const reviveBtn = document.getElementById("reviveBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const bgmSlider = document.getElementById("bgmSlider");
+
+    let W = 0;
+    let H = 0;
+    let DPR = 1;
+    let engine;
+    let world;
+    let walls = [];
+    let cores = [];
+    let particles = [];
+    let score = 0;
+    let gameOver = false;
+    let dangerStart = 0;
+    let dangerPlayed = false;
+    let lastTime = 0;
+    let dropX = 0;
+    let currentLevel = 0;
+    let nextLevel = 0;
+    let canDrop = true;
+    let mergeLock = new Set();
+    let physicsAccumulator = 0;
+    let bgCanvas = document.createElement("canvas");
+    let bgCtx = bgCanvas.getContext("2d");
+    let selectedCoreLevel = 0;
+    let galleryFilter = "all";
+    let scaledTypes = [];
+    let coreSpriteCache = new Map();
+    let bestScore = Number(localStorage.getItem("neonCoreBest") || 0);
+    let scoreUIScheduled = false;
+    let rankUIScheduled = false;
+    let pendingPointerX = null;
+    let pointerMoveScheduled = false;
+
+    // 性能关键参数：限制单帧物理步数、粒子数量和场上刚体数量，避免连续点击造成 CPU 峰值。
+    const FIXED_STEP = 1000 / 60;
+    const MAX_PHYSICS_STEPS = 2;
+    const DROP_INTERVAL = 460;
+    const MAX_PARTICLES = 150;
+    const MAX_CORES = 90;
+    let lastDropTime = 0;
+
+    const coreNames = ["脉冲核心", "棱镜核心", "黄蜂核心", "熔火核心", "紫电核心", "量子核心", "冰蓝核心", "绯红核心", "白星核心", "终极西瓜核"];
+    const rankBase = [
+      { name: "NEON-01", score: 8800 },
+      { name: "CYBER-CAT", score: 6200 },
+      { name: "PULSE-K", score: 3900 }
+    ];
+
+    // 游戏场地参数会随屏幕尺寸动态计算，保证移动端竖屏体验。
+    const layout = {
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0,
+      width: 0,
+      warningY: 0,
+      spawnY: 0
+    };
+
+    // 不同等级“机械核心”的配置：半径、边数、颜色、得分。
+    const coreTypes = [
+      { r: 18, sides: 32, c1: "#00f6ff", c2: "#176bff", glow: "#00f6ff", score: 1 },
+      { r: 24, sides: 5,  c1: "#7cff6b", c2: "#00b86b", glow: "#7cff6b", score: 3 },
+      { r: 30, sides: 6,  c1: "#fff45f", c2: "#ff9d00", glow: "#fff45f", score: 6 },
+      { r: 38, sides: 7,  c1: "#ff7a2b", c2: "#ff234f", glow: "#ff552f", score: 10 },
+      { r: 47, sides: 8,  c1: "#ff2bd6", c2: "#7d2bff", glow: "#ff2bd6", score: 15 },
+      { r: 58, sides: 9,  c1: "#b387ff", c2: "#311cff", glow: "#9c7cff", score: 21 },
+      { r: 70, sides: 10, c1: "#5bffea", c2: "#0077ff", glow: "#5bffea", score: 28 },
+      { r: 84, sides: 11, c1: "#ff9df2", c2: "#ff2b60", glow: "#ff9df2", score: 36 },
+      { r: 100, sides: 12, c1: "#ffffff", c2: "#00f6ff", glow: "#ffffff", score: 45 },
+      { r: 118, sides: 14, c1: "#fff45f", c2: "#ff2bd6", glow: "#fff45f", score: 66 }
+    ];
+
+    // ------------------------- 初始化与自适应 -------------------------
+    init();
+
+    function init() {
+      preventMobileGestures();
+      setupInput();
+      setupGalleryUI();
+      restartGame(false);
+      // BGM 音量滑块
+      bgmSlider.addEventListener("input", () => {
+        const v = bgmSlider.value / 100;
+        if (SFX.bgmGain) SFX.bgmGain.gain.value = v;
+      });
+      requestAnimationFrame(loop);
+    }
+
+    function resizeCanvas() {
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = Math.floor(W * DPR);
+      canvas.height = Math.floor(H * DPR);
+      canvas.style.width = W + "px";
+      canvas.style.height = H + "px";
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+      const containerWidth = clamp(W * 0.48, 390, 540);
+      layout.left = (W - containerWidth) / 2;
+      layout.right = layout.left + containerWidth;
+      layout.bottom = H - Math.max(200, H * 0.28);
+      const fullContainerTop = Math.max(100, H * 0.18);
+      const reducedHeight = (layout.bottom - fullContainerTop) * 2 / 3;
+      layout.top = layout.bottom - reducedHeight;
+      layout.width = layout.right - layout.left;
+      layout.warningY = Math.max(84, layout.top - 34);
+      layout.spawnY = Math.max(64, layout.top - 58);
+      dropX = clamp(dropX || W / 2, layout.left + 25, layout.right - 25);
+      rebuildScaledTypes();
+      rebuildBackgroundCache();
+    }
+
+    window.addEventListener("resize", () => {
+      resizeCanvas();
+      rebuildWalls();
+    }, { passive: false });
+
+    function restartGame(withAd = true) {
+      localStorage.setItem("neonCoreBest", String(bestScore));
+      if (withAd) triggerInterstitialAd();
+
+      resizeCanvas();
+      engine = Engine.create({ enableSleeping: true });
+      world = engine.world;
+      world.gravity.y = 1.15;
+      world.gravity.scale = 0.001;
+
+      cores = [];
+      particles = [];
+      walls = [];
+      score = 0;
+      gameOver = false;
+      dangerStart = 0;
+      dangerPlayed = false;
+      canDrop = true;
+      physicsAccumulator = 0;
+      lastDropTime = 0;
+      mergeLock.clear();
+      currentLevel = randomNextLevel();
+      nextLevel = randomNextLevel();
+      dropX = W / 2;
+      scoreEl.textContent = "0";
+      bestScore = Number(localStorage.getItem("neonCoreBest") || 0);
+      bestScoreEl.textContent = String(bestScore);
+      updateRankUI();
+      updateNextPreview();
+      renderGallery();
+      modal.classList.remove("show");
+
+      rebuildWalls();
+      bindCollision();
+      SFX.restart();
+    }
+
+    function rebuildWalls() {
+      if (!world) return;
+      for (const wall of walls) World.remove(world, wall);
+      walls = [];
+
+      const t = 60;
+      const floor = Bodies.rectangle(W / 2, layout.bottom + t / 2, layout.width, t, { isStatic: true, label: "wall" });
+      const left = Bodies.rectangle(layout.left - t / 2, H / 2, t, H * 2, { isStatic: true, label: "wall" });
+      const right = Bodies.rectangle(layout.right + t / 2, H / 2, t, H * 2, { isStatic: true, label: "wall" });
+      walls = [floor, left, right];
+      World.add(world, walls);
+    }
+
+    // ------------------------- 输入控制：鼠标 + 触摸 -------------------------
+    function setupInput() {
+      const move = (clientX) => {
+        if (gameOver) return;
+        dropX = clamp(clientX, layout.left + 24, layout.right - 24);
+      };
+
+      const release = () => {
+        if (!gameOver) dropCore();
+      };
+
+      canvas.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        move(e.clientX);
+      }, { passive: false });
+
+      canvas.addEventListener("pointermove", (e) => {
+        pendingPointerX = e.clientX;
+        if (!pointerMoveScheduled) {
+          pointerMoveScheduled = true;
+          requestAnimationFrame(() => {
+            pointerMoveScheduled = false;
+            if (pendingPointerX !== null) move(pendingPointerX);
+          });
+        }
+      }, { passive: true });
+
+      canvas.addEventListener("pointerup", (e) => {
+        e.preventDefault();
+        move(e.clientX);
+        release();
+      }, { passive: false });
+
+      canvas.addEventListener("pointercancel", (e) => e.preventDefault(), { passive: false });
+    }
+
+    function preventMobileGestures() {
+      // 阻止移动端滚动、橡皮筋、双击缩放等默认行为。
+      document.addEventListener("touchstart", (e) => e.preventDefault(), { passive: false });
+      document.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
+      document.addEventListener("gesturestart", (e) => e.preventDefault(), { passive: false });
+
+      let lastTouchEnd = 0;
+      document.addEventListener("touchend", (e) => {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 320) e.preventDefault();
+        lastTouchEnd = now;
+      }, { passive: false });
+    }
+
+    // ------------------------- 核心生成、碰撞、合成 -------------------------
+    function dropCore() {
+      const now = performance.now();
+      if (!canDrop || cores.length >= MAX_CORES || now - lastDropTime < DROP_INTERVAL) return;
+
+      canDrop = false;
+      lastDropTime = now;
+      SFX.drop();
+      createCore(currentLevel, dropX, layout.spawnY, false);
+      currentLevel = nextLevel;
+      nextLevel = randomNextLevel();
+      updateNextPreview();
+      setTimeout(() => { canDrop = true; }, DROP_INTERVAL);
+    }
+
+    function createCore(level, x, y, isMerged) {
+      const cfg = scaledType(level);
+      const body = Bodies.circle(x, y, cfg.r, {
+        restitution: 0.18,
+        friction: 0.45,
+        frictionAir: 0.012,
+        density: 0.0016 + level * 0.00018,
+        sleepThreshold: 45,
+        label: "core"
+      }, 16);
+
+      body.plugin.level = level;
+      body.plugin.radius = cfg.r;
+      body.plugin.birth = performance.now();
+      body.plugin.mergedFlash = isMerged ? 1 : 0;
+      cores.push(body);
+      World.add(world, body);
+      return body;
+    }
+
+    function bindCollision() {
+      Events.on(engine, "collisionStart", (event) => {
+        if (gameOver) return;
+
+        for (const pair of event.pairs) {
+          const a = pair.bodyA;
+          const b = pair.bodyB;
+
+          // 碰撞墙壁音效
+          if ((a.label === "wall" && b.label === "core") || (a.label === "core" && b.label === "wall")) {
+            SFX.wallHit();
+            continue;
+          }
+
+          if (a.label !== "core" || b.label !== "core") continue;
+          if (a.plugin.level !== b.plugin.level) continue;
+          if (a.plugin.level >= coreTypes.length - 1) continue;
+          if (mergeLock.has(a.id) || mergeLock.has(b.id)) continue;
+
+          mergeLock.add(a.id);
+          mergeLock.add(b.id);
+          mergeCores(a, b);
+        }
+      });
+    }
+
+    function mergeCores(a, b) {
+      const level = a.plugin.level;
+      const x = (a.position.x + b.position.x) / 2;
+      const y = (a.position.y + b.position.y) / 2;
+      const vx = (a.velocity.x + b.velocity.x) / 2;
+      const vy = (a.velocity.y + b.velocity.y) / 2;
+
+      removeCore(a);
+      removeCore(b);
+      spawnParticles(x, y, scaledType(level).glow, 26 + level * 4);
+
+      const next = createCore(level + 1, x, y, true);
+      Body.setVelocity(next, { x: vx * 0.55, y: vy * 0.55 - 1.4 });
+
+      score += scaledType(level + 1).score * 10;
+      SFX.merge(level);
+      updateScoreUI();
+    }
+
+    function removeCore(body) {
+      const index = cores.indexOf(body);
+      if (index !== -1) {
+        const last = cores.pop();
+        if (index < cores.length) cores[index] = last;
+      }
+      World.remove(world, body);
+      mergeLock.delete(body.id);
+    }
+
+    function randomNextLevel() {
+      // 复刻合成类玩法：只从较小等级中随机生成，避免直接刷出大核心。
+      const bag = [0, 0, 0, 0, 1, 1, 1, 2, 2, 3];
+      return bag[Math.floor(Math.random() * bag.length)];
+    }
+
+    function scaledType(level) {
+      return scaledTypes[level] || coreTypes[level];
+    }
+
+    function rebuildScaledTypes() {
+      const scale = clamp(W / 430, 0.78, 1.08) * Math.sqrt(1.5);
+      scaledTypes = coreTypes.map((base) => ({ ...base, r: base.r * scale }));
+      coreSpriteCache.clear();
+    }
+
+    // ------------------------- Game Over 与复活 -------------------------
+    function checkGameOver(now) {
+      if (gameOver) return;
+
+      let overLine = false;
+      for (const body of cores) {
+        const age = now - body.plugin.birth;
+        const slow = Math.abs(body.velocity.y) < 0.45 && Math.abs(body.velocity.x) < 0.55;
+        if (age > 900 && slow && body.position.y - body.plugin.radius < layout.warningY) {
+          overLine = true;
+          break;
+        }
+      }
+
+      if (overLine) {
+        if (!dangerStart) {
+          dangerStart = now;
+          dangerPlayed = false;
+        }
+        if (now - dangerStart > 600 && !dangerPlayed) {
+          dangerPlayed = true;
+          SFX.warn();
+        }
+        if (now - dangerStart > 3000) showGameOver();
+      } else {
+        dangerStart = 0;
+      }
+    }
+
+    function showGameOver() {
+      gameOver = true;
+      SFX.gameOver();
+      localStorage.setItem("neonCoreBest", String(bestScore));
+      finalText.textContent = `最终得分：${score}。核心仓已越过警戒线。`;
+      modal.classList.add("show");
+    }
+
+    function reviveByAd() {
+      triggerRewardedAd().then((ok) => {
+        if (!ok) return;
+
+        // 复活规则：清除最靠近顶部的 3 个障碍物，为玩家争取空间。
+        const topBodies = [...cores].sort((a, b) => a.position.y - b.position.y).slice(0, 3);
+        for (const body of topBodies) {
+          spawnParticles(body.position.x, body.position.y, scaledType(body.plugin.level).glow, 18);
+          removeCore(body);
+        }
+
+        gameOver = false;
+        dangerStart = 0;
+        dangerPlayed = false;
+        SFX.revive();
+        modal.classList.remove("show");
+      });
+    }
+
+    reviveBtn.addEventListener("click", reviveByAd);
+    restartBtn.addEventListener("click", () => restartGame(true));
+
+    // ------------------------- 粒子爆炸 -------------------------
+    function spawnParticles(x, y, color, count) {
+      const available = Math.max(0, MAX_PARTICLES - particles.length);
+      count = Math.min(count, available);
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 1.5 + Math.random() * 6;
+        particles.push({
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: 1,
+          decay: 0.018 + Math.random() * 0.02,
+          size: 2 + Math.random() * 4,
+          color
+        });
+      }
+    }
+
+    function updateParticles() {
+      let write = 0;
+      for (let read = 0; read < particles.length; read++) {
+        const p = particles[read];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.06;
+        p.vx *= 0.985;
+        p.vy *= 0.985;
+        p.life -= p.decay;
+        if (p.life > 0) particles[write++] = p;
+      }
+      particles.length = write;
+    }
+
+    // ------------------------- 渲染循环 -------------------------
+    function loop(now) {
+      const frameTime = Math.min(now - lastTime || FIXED_STEP, 50);
+      lastTime = now;
+      physicsAccumulator += frameTime;
+
+      let steps = 0;
+      while (!gameOver && physicsAccumulator >= FIXED_STEP && steps < MAX_PHYSICS_STEPS) {
+        Engine.update(engine, FIXED_STEP);
+        physicsAccumulator -= FIXED_STEP;
+        steps++;
+      }
+      if (steps === MAX_PHYSICS_STEPS) physicsAccumulator = 0;
+
+      if (!gameOver) checkGameOver(now);
+      updateParticles();
+      draw(now);
+      requestAnimationFrame(loop);
+    }
+
+    function draw(now) {
+      ctx.clearRect(0, 0, W, H);
+      drawBackground(now);
+      drawContainer();
+      drawWarningLine(now);
+      drawPreview(now);
+
+      // 避免每帧复制并排序数组，降低连续点击后核心数量增加带来的 GC 和 CPU 压力。
+      for (const body of cores) drawCore(body, now);
+      drawParticles();
+    }
+
+    function drawBackground(now) {
+      ctx.save();
+      if (bgCanvas.width) {
+        ctx.drawImage(bgCanvas, 0, 0, W, H);
+      } else {
+        ctx.fillStyle = "#050615";
+        ctx.fillRect(0, 0, W, H);
+      }
+
+      const pulse = 0.48 + Math.sin(now * 0.002) * 0.18;
+      const g1 = ctx.createRadialGradient(W * 0.24, H * 0.12, 0, W * 0.24, H * 0.12, W * 0.8);
+      g1.addColorStop(0, `rgba(0, 246, 255, ${0.16 * pulse})`);
+      g1.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = g1;
+      ctx.fillRect(0, 0, W, H);
+
+      const g2 = ctx.createRadialGradient(W * 0.82, H * 0.2, 0, W * 0.82, H * 0.2, W * 0.74);
+      g2.addColorStop(0, `rgba(255, 43, 214, ${0.18 * pulse})`);
+      g2.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = g2;
+      ctx.fillRect(0, 0, W, H);
+      ctx.restore();
+    }
+
+    function drawContainer() {
+      ctx.save();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "rgba(0, 246, 255, .78)";
+      ctx.shadowColor = "#00f6ff";
+      ctx.shadowBlur = 16;
+
+      ctx.beginPath();
+      ctx.moveTo(layout.left, layout.top);
+      ctx.lineTo(layout.left, layout.bottom);
+      ctx.lineTo(layout.right, layout.bottom);
+      ctx.lineTo(layout.right, layout.top);
+      ctx.stroke();
+
+      ctx.shadowBlur = 0;
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(255, 43, 214, .42)";
+      ctx.strokeRect(layout.left + 7, layout.top + 7, layout.width - 14, layout.bottom - layout.top - 14);
+      ctx.restore();
+    }
+
+    function drawWarningLine(now) {
+      const dangerRatio = dangerStart ? clamp((now - dangerStart) / 3000, 0, 1) : 0;
+      ctx.save();
+      ctx.setLineDash([12, 9]);
+      ctx.lineDashOffset = -now * 0.035;
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = dangerStart ? `rgba(255, 43, 84, ${0.65 + dangerRatio * 0.35})` : "rgba(255, 244, 95, .5)";
+      ctx.shadowColor = dangerStart ? "#ff2b54" : "#fff45f";
+      ctx.shadowBlur = dangerStart ? 20 : 10;
+      ctx.beginPath();
+      ctx.moveTo(layout.left, layout.warningY);
+      ctx.lineTo(layout.right, layout.warningY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.font = "12px 'Trebuchet MS', 'Microsoft YaHei'";
+      ctx.fillStyle = dangerStart ? "#ff8aa4" : "rgba(255, 244, 95, .75)";
+      ctx.fillText(dangerStart ? `警戒：${Math.ceil(3 - dangerRatio * 3)}s` : "WARNING LINE", layout.left + 10, layout.warningY - 8);
+      ctx.restore();
+    }
+
+    function drawPreview(now) {
+      if (gameOver) return;
+      const cfg = scaledType(currentLevel);
+
+      ctx.save();
+      ctx.strokeStyle = "rgba(255,255,255,.18)";
+      ctx.setLineDash([4, 8]);
+      ctx.beginPath();
+      ctx.moveTo(dropX, layout.spawnY + cfg.r + 4);
+      ctx.lineTo(dropX, layout.bottom - 8);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.globalAlpha = 0.92;
+      drawMechanicalShape(dropX, layout.spawnY, cfg.r, cfg.sides, 0, cfg, now, true);
+      ctx.restore();
+    }
+
+    function drawCore(body, now) {
+      const level = body.plugin.level;
+      const cfg = scaledType(level);
+      body.plugin.radius = cfg.r;
+      const flash = body.plugin.mergedFlash || 0;
+      if (flash > 0) body.plugin.mergedFlash = Math.max(0, flash - 0.035);
+
+      const sprite = getCoreSprite(level);
+      const size = sprite.displaySize;
+      const scale = 1 + flash * 0.16;
+
+      ctx.save();
+      ctx.translate(body.position.x, body.position.y);
+      ctx.rotate(body.angle);
+      ctx.scale(scale, scale);
+      ctx.drawImage(sprite.canvas, -size / 2, -size / 2, size, size);
+      ctx.restore();
+    }
+
+    function getCoreSprite(level) {
+      const cfg = scaledType(level);
+      const key = `${level}-${Math.round(cfg.r * 100)}-${DPR}`;
+      if (coreSpriteCache.has(key)) return coreSpriteCache.get(key);
+
+      const padding = Math.max(20, cfg.r * 0.35);
+      const displaySize = Math.ceil((cfg.r + padding) * 2);
+      const spriteCanvas = document.createElement("canvas");
+      spriteCanvas.width = Math.ceil(displaySize * DPR);
+      spriteCanvas.height = Math.ceil(displaySize * DPR);
+      const spriteCtx = spriteCanvas.getContext("2d");
+      spriteCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      drawMechanicalShapeOnContext(spriteCtx, displaySize / 2, displaySize / 2, cfg.r, cfg.sides, 0, cfg, 0, false);
+
+      const sprite = { canvas: spriteCanvas, displaySize };
+      coreSpriteCache.set(key, sprite);
+      return sprite;
+    }
+
+    function drawMechanicalShape(x, y, r, sides, angle, cfg, now, preview) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.globalAlpha *= preview ? 0.82 : 1;
+
+      ctx.shadowColor = cfg.glow;
+      ctx.shadowBlur = preview ? 20 : 26;
+
+      const grad = ctx.createRadialGradient(-r * 0.35, -r * 0.42, r * 0.1, 0, 0, r);
+      grad.addColorStop(0, "#ffffff");
+      grad.addColorStop(0.18, cfg.c1);
+      grad.addColorStop(1, cfg.c2);
+
+      ctx.beginPath();
+      if (sides >= 30) {
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+      } else {
+        for (let i = 0; i < sides; i++) {
+          const a = -Math.PI / 2 + i * Math.PI * 2 / sides;
+          const wobble = i % 2 === 0 ? 1 : 0.92;
+          const px = Math.cos(a) * r * wobble;
+          const py = Math.sin(a) * r * wobble;
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+      }
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.lineWidth = Math.max(2, r * 0.08);
+      ctx.strokeStyle = "rgba(255,255,255,.75)";
+      ctx.stroke();
+
+      // 机械核心内部环线与能量节点。
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = "rgba(5, 6, 21, .62)";
+      ctx.lineWidth = Math.max(2, r * 0.075);
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 0.48, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = "rgba(255,255,255,.68)";
+      ctx.lineWidth = Math.max(1, r * 0.035);
+      for (let i = 0; i < 3; i++) {
+        const a = now * 0.0012 + i * Math.PI * 2 / 3;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(a) * r * 0.18, Math.sin(a) * r * 0.18);
+        ctx.lineTo(Math.cos(a) * r * 0.78, Math.sin(a) * r * 0.78);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = "rgba(255,255,255,.9)";
+      ctx.beginPath();
+      ctx.arc(0, 0, Math.max(3, r * 0.13), 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function drawParticles() {
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      ctx.shadowBlur = 0;
+      for (const p of particles) {
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function drawMechanicalShapeOnContext(targetCtx, x, y, r, sides, angle, cfg, now, preview) {
+      targetCtx.save();
+      targetCtx.translate(x, y);
+      targetCtx.rotate(angle);
+      targetCtx.globalAlpha *= preview ? 0.82 : 1;
+      targetCtx.shadowColor = cfg.glow;
+      targetCtx.shadowBlur = preview ? 14 : 22;
+
+      const grad = targetCtx.createRadialGradient(-r * 0.35, -r * 0.42, r * 0.1, 0, 0, r);
+      grad.addColorStop(0, "#ffffff");
+      grad.addColorStop(0.18, cfg.c1);
+      grad.addColorStop(1, cfg.c2);
+
+      targetCtx.beginPath();
+      if (sides >= 30) {
+        targetCtx.arc(0, 0, r, 0, Math.PI * 2);
+      } else {
+        for (let i = 0; i < sides; i++) {
+          const a = -Math.PI / 2 + i * Math.PI * 2 / sides;
+          const wobble = i % 2 === 0 ? 1 : 0.92;
+          const px = Math.cos(a) * r * wobble;
+          const py = Math.sin(a) * r * wobble;
+          if (i === 0) targetCtx.moveTo(px, py);
+          else targetCtx.lineTo(px, py);
+        }
+        targetCtx.closePath();
+      }
+      targetCtx.fillStyle = grad;
+      targetCtx.fill();
+      targetCtx.lineWidth = Math.max(2, r * 0.08);
+      targetCtx.strokeStyle = "rgba(255,255,255,.75)";
+      targetCtx.stroke();
+
+      targetCtx.shadowBlur = 0;
+      targetCtx.strokeStyle = "rgba(5, 6, 21, .62)";
+      targetCtx.lineWidth = Math.max(2, r * 0.075);
+      targetCtx.beginPath();
+      targetCtx.arc(0, 0, r * 0.48, 0, Math.PI * 2);
+      targetCtx.stroke();
+
+      targetCtx.strokeStyle = "rgba(255,255,255,.68)";
+      targetCtx.lineWidth = Math.max(1, r * 0.035);
+      for (let i = 0; i < 3; i++) {
+        const a = now * 0.0012 + i * Math.PI * 2 / 3;
+        targetCtx.beginPath();
+        targetCtx.moveTo(Math.cos(a) * r * 0.18, Math.sin(a) * r * 0.18);
+        targetCtx.lineTo(Math.cos(a) * r * 0.78, Math.sin(a) * r * 0.78);
+        targetCtx.stroke();
+      }
+
+      targetCtx.fillStyle = "rgba(255,255,255,.9)";
+      targetCtx.beginPath();
+      targetCtx.arc(0, 0, Math.max(3, r * 0.13), 0, Math.PI * 2);
+      targetCtx.fill();
+      targetCtx.restore();
+    }
+
+    // ------------------------- UI 面板渲染 -------------------------
+    function setupGalleryUI() {
+      filterBtns.forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          SFX.uiClick();
+          galleryFilter = btn.dataset.filter;
+          filterBtns.forEach((item) => item.classList.toggle("active", item === btn));
+          renderGallery();
+        });
+      });
+    }
+
+    function updateRankUI() {
+      if (rankUIScheduled) return;
+      rankUIScheduled = true;
+      setTimeout(() => {
+        rankUIScheduled = false;
+        const rows = [...rankBase, { name: "NOW", score }]
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 4);
+
+        rankListEl.innerHTML = rows.map((row, index) => `
+          <div class="rank-row ${row.name === "NOW" ? "rank-now" : ""}">
+            <span class="rank-medal">${index + 1}</span>
+            <span class="rank-name">${row.name}</span>
+            <span class="rank-score">${row.score}</span>
+          </div>
+        `).join("");
+      }, 160);
+    }
+
+    function updateScoreUI() {
+      if (scoreUIScheduled) return;
+      scoreUIScheduled = true;
+      requestAnimationFrame(() => {
+        scoreUIScheduled = false;
+        scoreEl.textContent = String(score);
+        if (score > bestScore) {
+          bestScore = score;
+          bestScoreEl.textContent = String(bestScore);
+        }
+        updateRankUI();
+      });
+    }
+
+    function updateNextPreview() {
+      if (!nextCtx) return;
+      nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
+      const cfg = coreTypes[nextLevel];
+      const scale = 58 / cfg.r;
+      nextCtx.save();
+      nextCtx.translate(80, 82);
+      nextCtx.scale(scale, scale);
+      drawMechanicalShapeOnContext(nextCtx, 0, 0, cfg.r, cfg.sides, 0, cfg, performance.now(), true);
+      nextCtx.restore();
+    }
+
+    function renderGallery() {
+      const levels = coreTypes
+        .map((_, level) => level)
+        .filter((level) => galleryFilter === "all" || (galleryFilter === "basic" ? level <= 4 : level >= 5));
+
+      coreGalleryEl.innerHTML = "";
+      levels.forEach((level) => {
+        const item = document.createElement("button");
+        item.className = `core-item ${level === selectedCoreLevel ? "active" : ""}`;
+        item.type = "button";
+        item.setAttribute("aria-label", coreNames[level]);
+
+        const mini = document.createElement("canvas");
+        mini.width = 72;
+        mini.height = 72;
+        const miniCtx = mini.getContext("2d");
+        const cfg = coreTypes[level];
+        const scale = 26 / cfg.r;
+        miniCtx.save();
+        miniCtx.translate(36, 36);
+        miniCtx.scale(scale, scale);
+        drawMechanicalShapeOnContext(miniCtx, 0, 0, cfg.r, cfg.sides, 0, cfg, performance.now(), true);
+        miniCtx.restore();
+
+        item.appendChild(mini);
+        item.addEventListener("click", (e) => {
+          e.preventDefault();
+          selectedCoreLevel = level;
+          coreNameEl.textContent = `L${level + 1} ${coreNames[level]}`;
+          coreValueEl.textContent = `${coreTypes[level].score * 10} pts`;
+          renderGallery();
+        });
+        coreGalleryEl.appendChild(item);
+      });
+    }
+
+    function rebuildBackgroundCache() {
+      if (!W || !H) return;
+      bgCanvas.width = Math.floor(W * DPR);
+      bgCanvas.height = Math.floor(H * DPR);
+      bgCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      bgCtx.fillStyle = "#050615";
+      bgCtx.fillRect(0, 0, W, H);
+      bgCtx.globalAlpha = 0.28;
+      bgCtx.strokeStyle = "rgba(0, 246, 255, .22)";
+      bgCtx.lineWidth = 1;
+      const grid = 34;
+      for (let x = -grid; x < W + grid; x += grid) {
+        bgCtx.beginPath();
+        bgCtx.moveTo(x, 0);
+        bgCtx.lineTo(x, H);
+        bgCtx.stroke();
+      }
+      for (let y = layout.top; y < H; y += grid) {
+        bgCtx.beginPath();
+        bgCtx.moveTo(0, y);
+        bgCtx.lineTo(W, y);
+        bgCtx.stroke();
+      }
+      bgCtx.globalAlpha = 1;
+    }
+
+    // ------------------------- 工具函数 -------------------------
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+  </script>
+</body>
+</html>
