@@ -1,0 +1,162 @@
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>星空水晶生存战</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Exo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preload" href="model/tex/skybox_basecolor_01.png" as="image" fetchpriority="high">
+<link rel="preload" href="TEX/01_d.png" as="image" fetchpriority="high">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
+<link rel="stylesheet" href="styles/app.css" />
+</head>
+
+<body>
+<canvas id="game"></canvas>
+<div id="scanlines"></div>
+<div id="damageOverlay"></div>
+
+<div id="hudDesktop">
+  <div class="hud-line">积分：<span data-bind="score">0</span></div>
+  <div class="hud-line">生命：<span data-bind="hp">50</span></div>
+  <div class="hud-line">存活：<span data-bind="time">0.0</span>s</div>
+  <div class="hud-line">水晶：<span data-bind="crystal">蓝色 +5</span></div>
+  <div class="hud-line">敌人速度等级：<span data-bind="enemyLevel">1</span></div>
+  <div class="hud-line">场上敌人：<span data-bind="enemyCount">0</span></div>
+  <div class="hud-line">FPS：<span data-bind="fps">0</span></div>
+  <div class="hud-line">紫色精英怪：<span data-bind="purpleCount">0</span>/5</div>
+  <div class="hud-line">幽灵BOSS：<span data-bind="ghostBossCount">0</span></div>
+  <div class="hud-line">状态果实：<span data-bind="fruitInfo">25秒后加速果实</span></div>
+  <div class="hud-line">加速剩余：<span data-bind="speedBuff">0.0</span>s</div>
+  <div class="hud-line">无敌剩余：<span data-bind="invincibleBuff">0.0</span>s</div>
+</div>
+
+<div id="hudMobile">
+  <div class="mobile-hud-panel">
+    <div class="mobile-hud-item"><span class="mobile-hud-label">积分</span><span class="mobile-hud-value" data-bind="score">0</span></div>
+    <div class="mobile-hud-item"><span class="mobile-hud-label">生命</span><span class="mobile-hud-value" data-bind="hp">50</span></div>
+    <div class="mobile-hud-item"><span class="mobile-hud-label">时间</span><span class="mobile-hud-value"><span data-bind="time">0.0</span>s</span></div>
+    <div class="mobile-hud-item"><span class="mobile-hud-label">敌人</span><span class="mobile-hud-value" data-bind="enemyCount">0</span></div>
+    <div class="mobile-hud-item"><span class="mobile-hud-label">紫怪</span><span class="mobile-hud-value"><span data-bind="purpleCount">0</span>/5</span></div>
+    <div class="mobile-hud-item"><span class="mobile-hud-label">幽灵</span><span class="mobile-hud-value" data-bind="ghostBossCount">0</span></div>
+    <div class="mobile-hud-item"><span class="mobile-hud-label">FPS</span><span class="mobile-hud-value" data-bind="fps">0</span></div>
+    <div class="mobile-hud-item"><span class="mobile-hud-label">加速</span><span class="mobile-hud-value"><span data-bind="speedBuff">0.0</span>s</span></div>
+    <div class="mobile-hud-item"><span class="mobile-hud-label">无敌</span><span class="mobile-hud-value"><span data-bind="invincibleBuff">0.0</span>s</span></div>
+    <div class="mobile-hud-item mobile-hud-wide"><span class="mobile-hud-label">水晶</span><span class="mobile-hud-value" data-bind="crystal">蓝色 +5</span></div>
+    <div class="mobile-hud-item mobile-hud-wide"><span class="mobile-hud-label">果实</span><span class="mobile-hud-value" data-bind="fruitInfo">25秒后加速果实</span></div>
+  </div>
+</div>
+
+<div id="warning">警告：生命值过低！</div>
+<div id="startToast">您已来到阿尔法星球，请存活下去并收集更多的晶石。</div>
+<div id="tip"></div>
+<div id="joystick"><div id="stick"></div></div>
+
+<button id="pauseBtn" type="button" title="暂停 (P / ESC)" aria-label="暂停游戏">
+  <span class="pb-bar"></span><span class="pb-bar"></span><span class="pb-play"></span>
+</button>
+
+<button id="restartGameBtn" type="button" title="重新开始" aria-label="重新开始">
+  <span class="rg-icon">&#8635;</span><span class="rg-label">重新开始</span>
+</button>
+
+<div id="debugOverlay">
+  <div class="dbg-vignette"></div>
+  <div class="dbg-grid-overlay"></div>
+  <div class="dbg-corner dbg-tl"></div>
+  <div class="dbg-corner dbg-tr"></div>
+  <div class="dbg-corner dbg-bl"></div>
+  <div class="dbg-corner dbg-br"></div>
+  <div id="debugCrosshair"></div>
+  <div id="debugTopBar"><span class="dbg-dot"></span>PAUSED · SCENE CONTROL</div>
+  <div id="debugHelp">
+    <h4>控制说明</h4>
+    <ul>
+      <li>移动 <b>W A S D</b></li>
+      <li>升 / 降 <b>Q / E</b></li>
+      <li>视角旋转 <b>右键拖拽</b></li>
+      <li>选中模型 <b>左键点击</b></li>
+      <li>视角缩放 <b>滚轮</b></li>
+      <li>速度提升 <b>Shift</b></li>
+      <li>恢复游戏 <b>P / ESC</b></li>
+    </ul>
+    <h4>速度档位</h4>
+    <div class="dbg-row">
+      <button class="dbg-speed-btn" data-speed="0">慢</button>
+      <button class="dbg-speed-btn active" data-speed="1">中</button>
+      <button class="dbg-speed-btn" data-speed="2">快</button>
+    </div>
+    <label class="dbg-toggle"><input type="checkbox" id="dbgHighlightToggle" checked />高亮场景模型</label>
+    <label class="dbg-toggle"><input type="checkbox" id="dbgWireframeToggle" />线框模式</label>
+    <label class="dbg-toggle"><input type="checkbox" id="dbgCollisionToggle" />显示碰撞体</label>
+    <h4>DEBUG 生成</h4>
+    <button id="dbgSpawnInvincible" class="dbg-action-btn">生成20个无敌果实</button>
+    <button id="dbgSpawnBoss" class="dbg-action-btn dbg-action-danger">生成BOSS怪</button>
+    <button id="dbgSpawnBothFruits" class="dbg-action-btn dbg-action-mixed">生成30个无敌+加速果实</button>
+  </div>
+  <div id="debugInfo">
+    <h4>选中对象</h4>
+    <div id="debugInfoBody"><div class="dbg-empty">点击模型查看属性</div></div>
+  </div>
+  <div id="debugTooltip"></div>
+</div>
+
+<div id="gameOverScreen" style="display:none;">
+  <div class="panel panel-home panel-gameover">
+    <div class="panel-shell">
+      <div class="panel-pin panel-pin-left" aria-hidden="true"></div>
+      <div class="panel-pin panel-pin-right" aria-hidden="true"></div>
+      <div class="panel-ornament panel-planet" aria-hidden="true">🪐</div>
+      <div class="panel-ornament panel-meteor" aria-hidden="true">☄</div>
+      <div class="panel-header">
+        <div class="panel-kicker">MISSION RESULT</div>
+        <h1>游戏结束</h1>
+        <div class="result-meta">
+          <p>最终得分：<span id="finalScore">0</span></p>
+          <p>存活时间：<span id="finalTime">0.0</span>s</p>
+        </div>
+        <p class="panel-lead" id="gameOverLead">本次阿尔法星探索结束，继续挑战更高积分与更长生存时间。</p>
+      </div>
+      <div class="hero-strip hero-strip-gameover">
+        <div class="hero-stat"><span>探索评价</span><strong>继续冲榜</strong></div>
+        <div class="hero-stat"><span>主要目标</span><strong>突破新纪录</strong></div>
+        <div class="hero-stat"><span>下一步</span><strong>再次出发</strong></div>
+      </div>
+    <div id="gameoverAchievementPanel" class="achievement-panel"></div>
+      <div class="cta-row">
+        <div class="cta-center"><button id="restartBtn" class="cta-button"><span class="cta-icon">🚀</span><span>重新开始</span></button></div>
+        <button id="shopEntryBtn2" class="shop-main-btn"><span class="sm-icon">🏠</span><span>返回主页</span></button>
+      </div>
+      <div class="bgm-volume">
+        <span class="bgm-vol-label">🔊 BGM</span>
+        <input type="range" id="bgmVolSlider2" min="0" max="100" value="50" class="bgm-vol-slider">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="loadingScreen">
+  <div class="l-bg"></div>
+  <div class="l-wrap">
+    <div class="l-orbit" aria-hidden="true">🪐</div>
+    <div class="l-title">LOADING...</div>
+    <div class="l-subtitle">正在部署阿尔法星任务环境</div>
+    <div class="l-spinner"></div>
+    <div class="l-bar-outer"><div class="l-bar-inner" id="lBar"></div></div>
+    <div class="l-pct" id="lPct">0％</div>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module" src="scripts/game.js"></script>
+</body>
+</html>

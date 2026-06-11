@@ -1,62 +1,98 @@
-$root = "e:\AIgame\game\game"
+$root = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "."))
 $mimeTypes = @{
   ".html" = "text/html; charset=utf-8"
-  ".js"   = "application/javascript"
-  ".css"  = "text/css"
+  ".js"   = "application/javascript; charset=utf-8"
+  ".css"  = "text/css; charset=utf-8"
+  ".json" = "application/json; charset=utf-8"
   ".png"  = "image/png"
   ".jpg"  = "image/jpeg"
+  ".jpeg" = "image/jpeg"
+  ".gif"  = "image/gif"
+  ".webp" = "image/webp"
+  ".svg"  = "image/svg+xml"
   ".fbx"  = "application/octet-stream"
   ".mp3"  = "audio/mpeg"
 }
 
-function ServeFile($ctx) {
-    try {
-        $path = $ctx.Request.Url.LocalPath
-        if ($path -eq "/") { $path = "/index.html" }
-        $filePath = Join-Path $root $path.Substring(1)
-        $ext = ([System.IO.Path]::GetExtension($filePath)).ToLower()
-        $mime = $mimeTypes[$ext]
-        if (-not $mime) { $mime = "application/octet-stream" }
-        if (Test-Path $filePath -PathType Leaf) {
-            $buf = [System.IO.File]::ReadAllBytes($filePath)
-            $ctx.Response.ContentLength64 = $buf.Length
-            $ctx.Response.ContentType = $mime
-            $ctx.Response.OutputStream.Write($buf, 0, $buf.Length)
-        } else {
-            $ctx.Response.StatusCode = 404
-        }
-    } catch {} finally { 
-        try { $ctx.Response.Close() } catch {} 
-    }
+function Get-SafeFilePath {
+  param([string]$requestPath)
+
+  $relativePath = [System.Uri]::UnescapeDataString($requestPath.TrimStart('/'))
+  if ([string]::IsNullOrWhiteSpace($relativePath)) {
+    $relativePath = "index.html"
+  }
+
+  $candidate = [System.IO.Path]::GetFullPath((Join-Path $root $relativePath))
+  if (-not $candidate.StartsWith($root, [System.StringComparison]::OrdinalIgnoreCase)) {
+    return $null
+  }
+  return $candidate
 }
 
-$listener = New-Object System.Net.HttpListener
+function Write-Response {
+  param(
+    [Parameter(Mandatory = $true)]$Context,
+    [int]$StatusCode,
+    [byte[]]$Body = @(),
+    [string]$ContentType = "text/plain; charset=utf-8"
+  )
+
+  $Context.Response.StatusCode = $StatusCode
+  $Context.Response.ContentType = $ContentType
+  $Context.Response.ContentLength64 = $Body.Length
+  if ($Body.Length -gt 0) {
+    $Context.Response.OutputStream.Write($Body, 0, $Body.Length)
+  }
+}
+
+function Serve-Request {
+  param([Parameter(Mandatory = $true)]$Context)
+
+  try {
+    $filePath = Get-SafeFilePath -requestPath $Context.Request.Url.LocalPath
+    if (-not $filePath) {
+      $body = [System.Text.Encoding]::UTF8.GetBytes("403 Forbidden")
+      Write-Response -Context $Context -StatusCode 403 -Body $body
+      return
+    }
+
+    if (-not (Test-Path $filePath -PathType Leaf)) {
+      $body = [System.Text.Encoding]::UTF8.GetBytes("404 Not Found")
+      Write-Response -Context $Context -StatusCode 404 -Body $body
+      return
+    }
+
+    $ext = ([System.IO.Path]::GetExtension($filePath)).ToLowerInvariant()
+    $mime = $mimeTypes[$ext]
+    if (-not $mime) {
+      $mime = "application/octet-stream"
+    }
+
+    $buffer = [System.IO.File]::ReadAllBytes($filePath)
+    Write-Response -Context $Context -StatusCode 200 -Body $buffer -ContentType $mime
+  } catch {
+    $body = [System.Text.Encoding]::UTF8.GetBytes("500 Internal Server Error")
+    Write-Response -Context $Context -StatusCode 500 -Body $body
+    Write-Warning $_
+  } finally {
+    try { $Context.Response.Close() } catch {}
+  }
+}
+
+$listener = [System.Net.HttpListener]::new()
 $listener.Prefixes.Add("http://localhost:8080/")
 $listener.Start()
 Write-Host "Server running at http://localhost:8080/"
+Write-Host "Serving root: $root"
 
-while ($listener.IsListening) {
-    $ctx = $listener.GetContext()
-    Start-Job -ScriptBlock {
-        param($ctxParam, $rootParam, $mimeTypesParam)
-        [System.Reflection.Assembly]::LoadWithPartialName("System.Net") | Out-Null
-        try {
-            $path = $ctxParam.Request.Url.LocalPath
-            if ($path -eq "/") { $path = "/index.html" }
-            $filePath = Join-Path $rootParam $path.Substring(1)
-            $ext = ([System.IO.Path]::GetExtension($filePath)).ToLower()
-            $mime = $mimeTypesParam[$ext]
-            if (-not $mime) { $mime = "application/octet-stream" }
-            if (Test-Path $filePath -PathType Leaf) {
-                $buf = [System.IO.File]::ReadAllBytes($filePath)
-                $ctxParam.Response.ContentLength64 = $buf.Length
-                $ctxParam.Response.ContentType = $mime
-                $ctxParam.Response.OutputStream.Write($buf, 0, $buf.Length)
-            } else {
-                $ctxParam.Response.StatusCode = 404
-            }
-        } catch {} finally {
-            try { $ctxParam.Response.Close() } catch {}
-        }
-    } -ArgumentList $ctx, $root, $mimeTypes | Out-Null
+try {
+  while ($listener.IsListening) {
+    $context = $listener.GetContext()
+    Serve-Request -Context $context
+  }
+} finally {
+  if ($listener.IsListening) {
+    $listener.Stop()
+  }
+  $listener.Close()
 }
