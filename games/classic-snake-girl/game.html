@@ -55,6 +55,8 @@
       --playfield-width: 512px;
       --playfield-height: 416px;
       --hud-side-width: 17rem;
+      --hud-left-width: var(--hud-side-width);
+      --hud-right-width: var(--hud-side-width);
       --hud-logo-width: min(22rem, calc(var(--playfield-width) * 0.92));
       --hud-progress-width: min(30rem, calc(var(--playfield-width) * 0.98));
       --bottom-dock-width: min(44rem, calc(100vw - 2rem));
@@ -81,6 +83,66 @@
       background: #040714;
       font-family: "Trebuchet MS", "Microsoft YaHei", sans-serif;
       color: #fff;
+    }
+
+    body.theme-sunset {
+      --cyan: #ffd59c;
+      --blue: #ffb166;
+      --pink: #ff8d5d;
+      --violet: #822f1d;
+      --yellow: #fff0ac;
+      --panel-border: rgba(255, 183, 108, .62);
+      --pixel-surface-main:
+        linear-gradient(180deg, rgba(72, 31, 20, .76), rgba(28, 14, 18, .78)),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 2px, transparent 2px 6px),
+        repeating-linear-gradient(90deg, rgba(255, 183, 108, .05) 0 2px, transparent 2px 6px);
+      --pixel-surface-soft:
+        linear-gradient(180deg, rgba(83, 34, 21, .6), rgba(46, 18, 18, .56)),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.028) 0 2px, transparent 2px 5px),
+        repeating-linear-gradient(90deg, rgba(255, 128, 78, .04) 0 2px, transparent 2px 5px);
+      --pixel-surface-accent:
+        linear-gradient(180deg, rgba(110, 48, 24, .78), rgba(54, 21, 15, .72)),
+        repeating-linear-gradient(90deg, rgba(255, 222, 142, .06) 0 2px, transparent 2px 6px);
+    }
+
+    body.theme-ice {
+      --cyan: #9cf6ff;
+      --blue: #73c7ff;
+      --pink: #63b0ff;
+      --violet: #2f6ca8;
+      --yellow: #d7f7ff;
+      --panel-border: rgba(135, 232, 255, .6);
+      --pixel-surface-main:
+        linear-gradient(180deg, rgba(22, 45, 84, .74), rgba(7, 20, 42, .76)),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 2px, transparent 2px 6px),
+        repeating-linear-gradient(90deg, rgba(156, 246, 255, .05) 0 2px, transparent 2px 6px);
+      --pixel-surface-soft:
+        linear-gradient(180deg, rgba(24, 58, 92, .6), rgba(10, 25, 46, .56)),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.028) 0 2px, transparent 2px 5px),
+        repeating-linear-gradient(90deg, rgba(115, 199, 255, .04) 0 2px, transparent 2px 5px);
+      --pixel-surface-accent:
+        linear-gradient(180deg, rgba(32, 76, 120, .78), rgba(12, 33, 60, .72)),
+        repeating-linear-gradient(90deg, rgba(215, 247, 255, .06) 0 2px, transparent 2px 6px);
+    }
+
+    body.theme-aurora {
+      --cyan: #9dffe6;
+      --blue: #69f5cf;
+      --pink: #66f3a9;
+      --violet: #1f8c66;
+      --yellow: #f8ffb1;
+      --panel-border: rgba(162, 255, 204, .62);
+      --pixel-surface-main:
+        linear-gradient(180deg, rgba(17, 67, 52, .74), rgba(8, 33, 27, .76)),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 2px, transparent 2px 6px),
+        repeating-linear-gradient(90deg, rgba(157, 255, 230, .05) 0 2px, transparent 2px 6px);
+      --pixel-surface-soft:
+        linear-gradient(180deg, rgba(16, 78, 58, .6), rgba(8, 40, 30, .56)),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.028) 0 2px, transparent 2px 5px),
+        repeating-linear-gradient(90deg, rgba(102, 243, 169, .04) 0 2px, transparent 2px 5px);
+      --pixel-surface-accent:
+        linear-gradient(180deg, rgba(22, 104, 76, .78), rgba(9, 51, 37, .72)),
+        repeating-linear-gradient(90deg, rgba(248, 255, 177, .06) 0 2px, transparent 2px 6px);
     }
 
     .bg-video {
@@ -167,11 +229,13 @@
 
     .hud-col.left {
       left: max(var(--page-pad), env(safe-area-inset-left));
+      width: min(var(--hud-left-width), calc(max(0px, var(--playfield-left) - var(--page-pad) - 0.5rem)));
     }
 
     .hud-col.right {
       right: max(var(--page-pad), env(safe-area-inset-right));
       align-items: stretch;
+      width: min(var(--hud-right-width), calc(max(0px, 100vw - var(--playfield-right) - var(--page-pad) - 0.5rem)));
     }
 
     .ui-panel {
@@ -1171,7 +1235,6 @@
       .hud-col.right {
         top: max(3.95rem, env(safe-area-inset-top) + 3.65rem);
         bottom: calc(var(--dock-height) + max(0.45rem, env(safe-area-inset-bottom)));
-        width: min(var(--hud-side-width), calc(var(--playfield-left) - var(--page-pad) - 0.5rem));
         max-height: calc(100vh - var(--dock-height) - 4.5rem);
         overflow: auto;
       }
@@ -1186,7 +1249,6 @@
         left: auto;
         right: max(var(--page-pad), env(safe-area-inset-right));
         top: max(4.9rem, env(safe-area-inset-top) + 4.6rem);
-        width: min(var(--hud-side-width), calc(100vw - var(--playfield-right) - var(--page-pad) - 0.5rem));
         display: flex;
       }
 
@@ -1256,6 +1318,138 @@
       .dock-btn .label {
         font-size: 0.84rem;
         letter-spacing: 0.06rem;
+      }
+    }
+
+    @media (max-width: 767px) and (orientation: landscape), (max-width: 767px) and (max-height: 500px) {
+      body.landscape-tight .home-link {
+        top: max(0.25rem, env(safe-area-inset-top));
+        right: max(0.25rem, env(safe-area-inset-right));
+        min-height: 2.15rem;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.68rem;
+        letter-spacing: 0.04rem;
+      }
+
+      body.landscape-tight .hud-col.left,
+      body.landscape-tight .hud-col.right {
+        gap: 0.4rem;
+        max-height: calc(100vh - var(--dock-height) - 4rem);
+      }
+
+      body.landscape-tight .hud-col.left {
+        top: max(3.45rem, env(safe-area-inset-top) + 3.2rem);
+      }
+
+      body.landscape-tight .hud-col.right {
+        top: max(4rem, env(safe-area-inset-top) + 3.75rem);
+      }
+
+      body.landscape-tight .scoreBox,
+      body.landscape-tight .rankBox,
+      body.landscape-tight .nextBox,
+      body.landscape-tight .timerBox {
+        padding: 0.55rem 0.6rem 0.6rem;
+      }
+
+      body.landscape-tight .scoreValue {
+        margin-top: 0.15rem;
+        font-size: clamp(1.45rem, 4vw, 2.25rem);
+      }
+
+      body.landscape-tight .scoreBest,
+      body.landscape-tight .timerLabel {
+        margin-top: 0.3rem;
+        font-size: 0.68rem;
+        letter-spacing: 0.04rem;
+      }
+
+      body.landscape-tight .panel-title {
+        margin-bottom: 0.45rem;
+        font-size: clamp(0.82rem, 1.25vw, 1rem);
+      }
+
+      body.landscape-tight .rankBox {
+        min-height: 0;
+        max-height: min(8.2rem, calc(100vh - var(--dock-height) - 8rem));
+      }
+
+      body.landscape-tight .rankList {
+        gap: 0.3rem;
+      }
+
+      body.landscape-tight .rank-row {
+        grid-template-columns: 1.3rem 1fr minmax(2.6rem, 3rem);
+        gap: 0.3rem;
+        min-height: 1.5rem;
+        padding: 0.22rem 0.3rem;
+        font-size: 0.62rem;
+      }
+
+      body.landscape-tight .rank-medal {
+        width: 1.15rem;
+        height: 1.15rem;
+        font-size: 0.62rem;
+      }
+
+      body.landscape-tight .nextBox {
+        min-height: 6.8rem;
+      }
+
+      body.landscape-tight #nextCanvas,
+      body.landscape-tight .timerRing {
+        width: min(4.2rem, 100%);
+      }
+
+      body.landscape-tight .timerRing::before {
+        inset: 0.42rem;
+        border-width: 0.24rem;
+      }
+
+      body.landscape-tight .timerValue {
+        font-size: 1.05rem;
+      }
+
+      body.landscape-tight .timerValue small {
+        font-size: 0.7rem;
+      }
+
+      body.landscape-tight .arenaBadge {
+        top: -0.45rem;
+        left: 0.2rem;
+        padding: 0.2rem 0.42rem;
+        font-size: 0.56rem;
+      }
+
+      body.landscape-tight .arenaMascot {
+        right: -0.1rem;
+        top: -1.45rem;
+        font-size: 1.3rem;
+      }
+
+      body.landscape-tight .bottomDock {
+        width: min(calc(var(--playfield-width) + 1rem), calc(100vw - 2 * var(--page-pad)));
+        gap: 0.35rem;
+      }
+
+      body.landscape-tight .dock-btn {
+        min-height: 2.9rem;
+        height: 3.05rem;
+      }
+
+      body.landscape-tight .dock-btn .icon {
+        font-size: 1.2rem;
+      }
+
+      body.landscape-tight .dock-btn .label {
+        font-size: 0.68rem;
+        letter-spacing: 0.04rem;
+      }
+
+      body.landscape-tight .drawer {
+        bottom: calc(var(--dock-height) + max(0.35rem, env(safe-area-inset-bottom)));
+        max-height: min(15rem, calc(100vh - var(--dock-height) - 4.5rem));
+        padding: 0.75rem;
       }
     }
   </style>
@@ -1598,6 +1792,13 @@
 
     // ------------------------- Matter.js 模块别名 -------------------------
     const { Engine, World, Bodies, Body, Events, Composite } = Matter;
+    const PROFILE_KEY = "classic-snake-girl-profile-v1";
+    const GAME_THEME_CLASS_MAP = Object.freeze({
+      "theme-neon": "",
+      "theme-sunset": "theme-sunset",
+      "theme-ice": "theme-ice",
+      "theme-aurora": "theme-aurora"
+    });
 
     const bgVideo = document.querySelector(".bg-video");
     const canvas = document.getElementById("gameCanvas");
@@ -1649,16 +1850,26 @@
     let galleryFilter = "all";
     let scaledTypes = [];
     let coreSpriteCache = new Map();
+    let profile = loadProfile();
     let bestScore = Number(localStorage.getItem("neonCoreBest") || 0);
     let scoreUIScheduled = false;
     let rankUIScheduled = false;
     let pendingPointerX = null;
     let pointerMoveScheduled = false;
+    let dropInterval = 460;
+    let dropsThisRun = 0;
+    let settledScoreThisRun = 0;
+    let runCountedThisRun = false;
 
     // 性能关键参数：限制单帧物理步数、粒子数量和场上刚体数量，避免连续点击造成 CPU 峰值。
     const FIXED_STEP = 1000 / 60;
     const MAX_PHYSICS_STEPS = 2;
-    const DROP_INTERVAL = 460;
+    const BASE_DROP_INTERVAL = 460;
+    const STARTER_BAG_PROTECTED_DROPS = 6;
+    const BASE_DANGER_DURATION = 3000;
+    const WARNING_BUFFER_DURATION = 3800;
+    const CREDIT_BOOST_MULTIPLIER = 1.15;
+    const MERGE_BONUS_MULTIPLIER = 1.2;
     const MAX_PARTICLES = 150;
     const MAX_CORES = 90;
     const PLAYFIELD_DESIGN_WIDTH = 512;
@@ -1699,6 +1910,183 @@
       { r: 118, sides: 14, c1: "#fff45f", c2: "#ff2bd6", glow: "#fff45f", score: 66 }
     ];
 
+    function createDefaultProfile() {
+      const stamp = getTodayStamp();
+      return {
+        credits: 0,
+        lifetimeScore: 0,
+        lastRunScore: 0,
+        bestScore: 0,
+        totalRuns: 0,
+        totalPurchases: 0,
+        activeThemeId: "theme-neon",
+        ownedThemes: { "theme-neon": true },
+        upgrades: { cooling: false, mergeBonus: false, creditBoost: false, warningBuffer: false, starterBag: false },
+        inventory: { reviveChip: 0 },
+        daily: {
+          stamp,
+          rewards: {},
+          tasks: {},
+          rewardClaims: 0,
+          taskClaims: 0,
+          runs: 0,
+          totalScore: 0,
+          bestScore: 0,
+          purchases: 0
+        }
+      };
+    }
+
+    function getTodayStamp() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const dd = String(now.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function loadProfile() {
+      const fallback = createDefaultProfile();
+      try {
+        const raw = localStorage.getItem(PROFILE_KEY);
+        const parsed = raw ? JSON.parse(raw) : {};
+        const next = {
+          ...fallback,
+          ...parsed,
+          ownedThemes: { ...fallback.ownedThemes, ...(parsed.ownedThemes || {}) },
+          upgrades: { ...fallback.upgrades, ...(parsed.upgrades || {}) },
+          inventory: { ...fallback.inventory, ...(parsed.inventory || {}) },
+          daily: {
+            ...fallback.daily,
+            ...(parsed.daily || {}),
+            rewards: { ...fallback.daily.rewards, ...((parsed.daily && parsed.daily.rewards) || {}) },
+            tasks: { ...fallback.daily.tasks, ...((parsed.daily && parsed.daily.tasks) || {}) }
+          }
+        };
+
+        if (!next.ownedThemes[next.activeThemeId]) next.activeThemeId = "theme-neon";
+
+        const today = getTodayStamp();
+        if (next.daily.stamp !== today) {
+          next.daily = { ...fallback.daily, stamp: today };
+        }
+
+        return next;
+      } catch (error) {
+        console.warn("成长档案读取失败，将使用默认配置。", error);
+        return fallback;
+      }
+    }
+
+    function saveProfile() {
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+    }
+
+    function getThemeLogStore() {
+      if (!window.__classicSnakeGirlThemeLogs) window.__classicSnakeGirlThemeLogs = [];
+      return window.__classicSnakeGirlThemeLogs;
+    }
+
+    function logThemeEvent(level, message, detail = {}) {
+      const entry = {
+        time: new Date().toISOString(),
+        level,
+        message,
+        detail,
+        source: "game"
+      };
+      getThemeLogStore().push(entry);
+      const logger = typeof console[level] === "function" ? console[level] : console.log;
+      logger(`[Theme][Game] ${message}`, detail);
+    }
+
+    function applyGameplayTheme(reason = "runtime") {
+      try {
+        const themeId = GAME_THEME_CLASS_MAP[profile.activeThemeId] !== undefined ? profile.activeThemeId : "theme-neon";
+        document.body.classList.remove("theme-sunset", "theme-ice", "theme-aurora");
+        const themeClass = GAME_THEME_CLASS_MAP[themeId];
+        if (themeClass) document.body.classList.add(themeClass);
+        document.body.dataset.activeTheme = themeId;
+        logThemeEvent("info", "游戏页主题应用完成。", { themeId, reason });
+      } catch (error) {
+        document.body.classList.remove("theme-sunset", "theme-ice", "theme-aurora");
+        document.body.dataset.activeTheme = "theme-neon";
+        logThemeEvent("error", "游戏页主题应用失败，已回退默认主题。", {
+          reason,
+          error: error && error.message ? error.message : String(error)
+        });
+      }
+    }
+
+    function refreshGameplayProfile() {
+      profile = loadProfile();
+      dropInterval = profile.upgrades.cooling ? 420 : BASE_DROP_INTERVAL;
+      applyGameplayTheme("refresh-profile");
+      bestScore = Math.max(Number(profile.bestScore || 0), Number(localStorage.getItem("neonCoreBest") || 0));
+      bestScoreEl.textContent = String(bestScore);
+      updateReviveButton();
+    }
+
+    function updateReviveButton() {
+      if (!reviveBtn) return;
+      const chipCount = Number(profile.inventory.reviveChip || 0);
+      reviveBtn.textContent = chipCount > 0
+        ? `消耗复活芯片复活（库存 ${chipCount}）`
+        : "观看广告复活：清除顶部 3 个障碍物";
+    }
+
+    function calculateRunCredits(finalScore) {
+      const baseCredits = Math.max(0, Math.round(finalScore));
+      return profile.upgrades.creditBoost
+        ? Math.round(baseCredits * CREDIT_BOOST_MULTIPLIER)
+        : baseCredits;
+    }
+
+    function getDangerDuration() {
+      return profile.upgrades.warningBuffer ? WARNING_BUFFER_DURATION : BASE_DANGER_DURATION;
+    }
+
+    function getUnlockedTaskHints(finalScore) {
+      const unlocked = [];
+      if (finalScore >= 3000) unlocked.push("3000 分任务");
+      if (finalScore >= 5000) unlocked.push("5000 分任务");
+      if (finalScore >= 8000) unlocked.push("8000 分任务");
+      return unlocked;
+    }
+
+    function settleRunIfNeeded() {
+      if (runCountedThisRun) return settledScoreThisRun;
+      profile = loadProfile();
+      const finalScore = Math.max(0, Math.round(score));
+      const earnedCredits = calculateRunCredits(finalScore);
+
+      settledScoreThisRun = earnedCredits;
+      runCountedThisRun = true;
+      profile.credits += earnedCredits;
+      profile.lastRunScore = finalScore;
+      profile.lifetimeScore += finalScore;
+      profile.bestScore = Math.max(Number(profile.bestScore || 0), finalScore);
+      profile.totalRuns = Number(profile.totalRuns || 0) + 1;
+      profile.daily.runs = Number(profile.daily.runs || 0) + 1;
+      profile.daily.totalScore = Number(profile.daily.totalScore || 0) + finalScore;
+      profile.daily.bestScore = Math.max(Number(profile.daily.bestScore || 0), finalScore);
+
+      bestScore = Math.max(bestScore, profile.bestScore);
+      bestScoreEl.textContent = String(bestScore);
+      localStorage.setItem("neonCoreBest", String(bestScore));
+      saveProfile();
+      updateReviveButton();
+      return earnedCredits;
+    }
+
+    function clearTopObstacles() {
+      const topBodies = [...cores].sort((a, b) => a.position.y - b.position.y).slice(0, 3);
+      for (const body of topBodies) {
+        spawnParticles(body.position.x, body.position.y, scaledType(body.plugin.level).glow, 18);
+        removeCore(body);
+      }
+    }
+
     // ------------------------- 初始化与自适应 -------------------------
     init();
 
@@ -1709,6 +2097,7 @@
       setupInput();
       setupGalleryUI();
       setupChromeUI();
+      refreshGameplayProfile();
       restartGame(false);
       // BGM 音量滑块
       bgmSlider.addEventListener("input", () => {
@@ -1770,11 +2159,11 @@
       const isMobile = W < 768;
       const isTablet = W >= 768 && W < 1200;
       const isCompactMobile = isMobile && (W > H || H < 500);
-      const pagePad = isMobile ? 12 : isTablet ? 16 : 20;
+      const pagePad = isCompactMobile ? 8 : (isMobile ? 12 : isTablet ? 16 : 20);
       const sideTarget = isCompactMobile
-        ? clamp(W * 0.15, 96, 128)
+        ? clamp(W * 0.11, 72, 104)
         : (isMobile ? 0 : (isTablet ? clamp(W * 0.16, 132, 190) : clamp(W * 0.16, 220, 304)));
-      const gapAllowance = (isMobile && !isCompactMobile) ? 0 : 24;
+      const gapAllowance = isCompactMobile ? 12 : ((isMobile && !isCompactMobile) ? 0 : 24);
       const maxContainerWidth = Math.max(isMobile ? 280 : 320, W - pagePad * 2 - sideTarget * 2 - gapAllowance);
       const minContainerWidth = Math.min(maxContainerWidth, isMobile ? 280 : (isTablet ? 340 : 420));
       const containerWidth = clamp(
@@ -1787,16 +2176,16 @@
       layout.right = layout.left + containerWidth;
 
       const topReserve = isCompactMobile
-        ? clamp(H * 0.2, 78, 92)
+        ? clamp(H * 0.16, 58, 74)
         : (isMobile
           ? clamp(H * 0.28, 168, 220)
           : (isTablet ? clamp(H * 0.18, 112, 160) : clamp(H * 0.14, 104, 148)));
       const bottomReserve = isCompactMobile
-        ? clamp(H * 0.24, 88, 112)
+        ? clamp(H * 0.19, 68, 88)
         : (isMobile
           ? clamp(H * 0.31, 208, 286)
           : (isTablet ? clamp(H * 0.22, 168, 220) : clamp(H * 0.24, 190, 260)));
-      const minTop = isCompactMobile ? 78 : (isMobile ? 104 : 88);
+      const minTop = isCompactMobile ? 58 : (isMobile ? 104 : 88);
       const maxArenaSpace = Math.max(isCompactMobile ? 170 : 220, H - bottomReserve - minTop);
       const minArenaHeight = isCompactMobile ? 170 : (isMobile ? 220 : (isTablet ? 300 : 360));
       const arenaHeight = clamp(
@@ -1813,15 +2202,23 @@
       layout.spawnY = Math.max(56, layout.top - (isCompactMobile ? 34 : (isMobile ? 42 : 58)));
       dropX = clamp(dropX || W / 2, layout.left + 25, layout.right - 25);
 
-      const sideSpace = Math.max(0, layout.left - pagePad);
-      const sideWidth = isCompactMobile
-        ? clamp(sideSpace, 96, 128)
-        : (isMobile ? W - pagePad * 2 : clamp(sideSpace, isTablet ? 132 : 220, isTablet ? 190 : 304));
+      const leftSpace = Math.max(0, layout.left - pagePad);
+      const rightSpace = Math.max(0, W - layout.right - pagePad);
+      const leftSideWidth = isCompactMobile
+        ? clamp(leftSpace, 72, 104)
+        : (isMobile ? W - pagePad * 2 : clamp(leftSpace, isTablet ? 132 : 220, isTablet ? 190 : 304));
+      const rightSideWidth = isCompactMobile
+        ? clamp(rightSpace, 72, 104)
+        : (isMobile ? W - pagePad * 2 : clamp(rightSpace, isTablet ? 132 : 220, isTablet ? 190 : 304));
+      const sideWidth = Math.min(leftSideWidth, rightSideWidth);
+      const landscapeTight = isCompactMobile && (H <= 430 || W <= 740 || Math.min(leftSpace, rightSpace) <= 104);
       const logoWidth = isMobile ? Math.min(containerWidth * 0.92, W - pagePad * 2) : Math.min(containerWidth * 0.9, 416);
       const progressWidth = Math.min(containerWidth + ((isMobile && !isCompactMobile) ? 0 : 72), W - pagePad * 2);
-      const bottomDockWidth = (isMobile && !isCompactMobile)
-        ? W - pagePad * 2
-        : Math.min(containerWidth + sideWidth * 1.65, W - pagePad * 2);
+      const bottomDockWidth = landscapeTight
+        ? Math.min(containerWidth + 16, W - pagePad * 2)
+        : ((isMobile && !isCompactMobile)
+          ? W - pagePad * 2
+          : Math.min(containerWidth + sideWidth * 1.65, W - pagePad * 2));
 
       root.style.setProperty("--page-pad", `${pagePad}px`);
       root.style.setProperty("--playfield-left", `${layout.left}px`);
@@ -1831,9 +2228,12 @@
       root.style.setProperty("--playfield-width", `${layout.width}px`);
       root.style.setProperty("--playfield-height", `${layout.height}px`);
       root.style.setProperty("--hud-side-width", `${sideWidth}px`);
+      root.style.setProperty("--hud-left-width", `${leftSideWidth}px`);
+      root.style.setProperty("--hud-right-width", `${rightSideWidth}px`);
       root.style.setProperty("--hud-logo-width", `${logoWidth}px`);
       root.style.setProperty("--hud-progress-width", `${progressWidth}px`);
       root.style.setProperty("--bottom-dock-width", `${bottomDockWidth}px`);
+      document.body.classList.toggle("landscape-tight", landscapeTight);
       rebuildScaledTypes();
       rebuildBackgroundCache();
     }
@@ -1870,6 +2270,8 @@
     }
 
     function restartGame(withAd = true) {
+      if (gameOver && !runCountedThisRun) settleRunIfNeeded();
+      refreshGameplayProfile();
       localStorage.setItem("neonCoreBest", String(bestScore));
       if (withAd) triggerInterstitialAd();
 
@@ -1889,13 +2291,14 @@
       canDrop = true;
       physicsAccumulator = 0;
       lastDropTime = 0;
+      dropsThisRun = 0;
+      settledScoreThisRun = 0;
+      runCountedThisRun = false;
       mergeLock.clear();
-      currentLevel = randomNextLevel();
-      nextLevel = randomNextLevel();
+      currentLevel = randomNextLevel(0);
+      nextLevel = randomNextLevel(1);
       dropX = W / 2;
       scoreEl.textContent = "0";
-      bestScore = Number(localStorage.getItem("neonCoreBest") || 0);
-      bestScoreEl.textContent = String(bestScore);
       updateRankUI();
       updateNextPreview();
       renderGallery();
@@ -1908,19 +2311,24 @@
       SFX.restart();
     }
 
+    function leaveToHome() {
+      if (gameOver && !runCountedThisRun) settleRunIfNeeded();
+      window.location.href = homeLink.getAttribute("href") || "home.html";
+    }
+
     function setupChromeUI() {
       if (homeLink) {
         homeLink.addEventListener("click", (e) => {
           e.preventDefault();
           SFX.uiClick();
-          window.location.href = homeLink.getAttribute("href") || "home.html";
+          leaveToHome();
         });
 
         homeLink.addEventListener("pointerup", (e) => {
           if (e.pointerType === "mouse") return;
           e.preventDefault();
           SFX.uiClick();
-          window.location.href = homeLink.getAttribute("href") || "home.html";
+          leaveToHome();
         });
       }
 
@@ -1964,8 +2372,8 @@
 
     function updateCooldownUI(now = performance.now()) {
       if (!cooldownRingEl || !cooldownValueEl) return;
-      const remain = Math.max(0, DROP_INTERVAL - (now - lastDropTime));
-      const ratio = canDrop ? 1 : clamp(1 - remain / DROP_INTERVAL, 0, 1);
+      const remain = Math.max(0, dropInterval - (now - lastDropTime));
+      const ratio = canDrop ? 1 : clamp(1 - remain / dropInterval, 0, 1);
       cooldownRingEl.style.setProperty("--cooldown-progress", `${Math.max(0.05, ratio)}turn`);
       cooldownValueEl.innerHTML = `${(remain / 1000).toFixed(1)}<small>s</small>`;
     }
@@ -2046,20 +2454,21 @@
     // ------------------------- 核心生成、碰撞、合成 -------------------------
     function dropCore() {
       const now = performance.now();
-      if (!canDrop || cores.length >= MAX_CORES || now - lastDropTime < DROP_INTERVAL) return;
+      if (!canDrop || cores.length >= MAX_CORES || now - lastDropTime < dropInterval) return;
 
       canDrop = false;
       lastDropTime = now;
       updateCooldownUI(now);
       SFX.drop();
       createCore(currentLevel, dropX, layout.spawnY, false);
+      dropsThisRun += 1;
       currentLevel = nextLevel;
-      nextLevel = randomNextLevel();
+      nextLevel = randomNextLevel(1);
       updateNextPreview();
       setTimeout(() => {
         canDrop = true;
         updateCooldownUI();
-      }, DROP_INTERVAL);
+      }, dropInterval);
     }
 
     function createCore(level, x, y, isMerged) {
@@ -2122,7 +2531,10 @@
       const next = createCore(level + 1, x, y, true);
       Body.setVelocity(next, { x: vx * 0.55, y: vy * 0.55 - 1.4 });
 
-      score += scaledType(level + 1).score * 10;
+      const baseMergeScore = scaledType(level + 1).score * 10;
+      score += profile.upgrades.mergeBonus
+        ? Math.round(baseMergeScore * MERGE_BONUS_MULTIPLIER)
+        : baseMergeScore;
       SFX.merge(level);
       updateScoreUI();
     }
@@ -2137,8 +2549,13 @@
       mergeLock.delete(body.id);
     }
 
-    function randomNextLevel() {
-      // 复刻合成类玩法：只从较小等级中随机生成，避免直接刷出大核心。
+    function randomNextLevel(previewOffset = 0) {
+      if (profile.upgrades.starterBag && dropsThisRun + previewOffset < STARTER_BAG_PROTECTED_DROPS) {
+        const safeBag = [0, 0, 0, 1, 1, 1, 0, 1];
+        return safeBag[Math.floor(Math.random() * safeBag.length)];
+      }
+
+      // 常规投放池保留少量中阶核心，避免节奏过慢，同时不直接跳到高阶。
       const bag = [0, 0, 0, 0, 1, 1, 1, 2, 2, 3];
       return bag[Math.floor(Math.random() * bag.length)];
     }
@@ -2177,7 +2594,7 @@
           dangerPlayed = true;
           SFX.warn();
         }
-        if (now - dangerStart > 3000) showGameOver();
+        if (now - dangerStart > getDangerDuration()) showGameOver();
       } else {
         dangerStart = 0;
       }
@@ -2186,27 +2603,39 @@
     function showGameOver() {
       gameOver = true;
       SFX.gameOver();
+      const earnedCredits = calculateRunCredits(score);
+      const unlockedTaskHints = getUnlockedTaskHints(score);
+      const taskHintText = unlockedTaskHints.length
+        ? ` 已解锁 ${unlockedTaskHints.join("、")} 的领取条件。`
+        : "";
       localStorage.setItem("neonCoreBest", String(bestScore));
-      finalText.textContent = `最终得分：${score}。能量仓已越过警戒线。`;
+      finalText.textContent = `最终得分：${score}，结束本局可结算 ${earnedCredits} 积分${profile.upgrades.creditBoost ? "（已含 +15% 结算增幅）" : ""}。返回主页或重新开始后会同步更新任务与商店。${taskHintText}`;
+      updateReviveButton();
       modal.classList.add("show");
     }
 
     function reviveByAd() {
-      triggerRewardedAd().then((ok) => {
-        if (!ok) return;
-
-        // 复活规则：清除最靠近顶部的 3 个障碍物，为玩家争取空间。
-        const topBodies = [...cores].sort((a, b) => a.position.y - b.position.y).slice(0, 3);
-        for (const body of topBodies) {
-          spawnParticles(body.position.x, body.position.y, scaledType(body.plugin.level).glow, 18);
-          removeCore(body);
-        }
-
+      const chipCount = Number(profile.inventory.reviveChip || 0);
+      const finishRevive = () => {
+        clearTopObstacles();
         gameOver = false;
         dangerStart = 0;
         dangerPlayed = false;
         SFX.revive();
         modal.classList.remove("show");
+      };
+
+      if (chipCount > 0) {
+        profile.inventory.reviveChip = chipCount - 1;
+        saveProfile();
+        updateReviveButton();
+        finishRevive();
+        return;
+      }
+
+      triggerRewardedAd().then((ok) => {
+        if (!ok) return;
+        finishRevive();
       });
     }
 
@@ -2340,7 +2769,7 @@
     }
 
     function drawWarningLine(now) {
-      const dangerRatio = dangerStart ? clamp((now - dangerStart) / 3000, 0, 1) : 0;
+      const dangerRatio = dangerStart ? clamp((now - dangerStart) / getDangerDuration(), 0, 1) : 0;
       ctx.save();
       ctx.setLineDash([14, 9]);
       ctx.lineDashOffset = -now * 0.04;
@@ -2356,7 +2785,7 @@
 
       ctx.font = "bold 12px 'Trebuchet MS', 'Microsoft YaHei'";
       ctx.fillStyle = dangerStart ? "#ff8aa4" : "rgba(208, 248, 255, .88)";
-      ctx.fillText(dangerStart ? `警戒：${Math.ceil(3 - dangerRatio * 3)}s` : "WARNING LINE", layout.left + 12, layout.warningY - 10);
+      ctx.fillText(dangerStart ? `警戒：${Math.ceil(getDangerDuration() / 1000 - dangerRatio * (getDangerDuration() / 1000))}s` : "WARNING LINE", layout.left + 12, layout.warningY - 10);
       ctx.restore();
     }
 

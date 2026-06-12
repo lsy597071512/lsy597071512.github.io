@@ -13,10 +13,38 @@
       --panel-border: rgba(95, 209, 255, 0.5);
       --glow: 0 0 28px rgba(55, 242, 255, 0.16), 0 0 36px rgba(255, 43, 214, 0.14);
       --cyan: #37f2ff;
+      --pink: #ff2bd6;
+      --violet: #7f1da4;
       --yellow: #ffe76e;
       --green: #7bffbe;
       --text: #f6f8ff;
       --text-soft: rgba(221, 232, 255, 0.8);
+      --section-kicker-color: #d4dfff;
+      --button-border: rgba(109, 232, 255, 0.46);
+      --button-hover-border: rgba(145, 237, 255, 0.78);
+      --button-hover-shadow: 0 0 24px rgba(55, 242, 255, 0.16), 0 8px 24px rgba(255, 43, 214, 0.16);
+      --hero-panel-border: rgba(109, 232, 255, 0.18);
+      --view-title-shadow: 0 0 16px rgba(55, 242, 255, 0.18), 0 0 22px rgba(255, 43, 214, 0.2);
+      --hero-highlight-shadow: 0 0 18px rgba(255, 231, 110, 0.28);
+      --active-card-border: rgba(255, 111, 225, 0.7);
+      --active-card-bg: linear-gradient(180deg, rgba(66, 22, 101, 0.46), rgba(23, 11, 67, 0.34));
+      --active-card-shadow: 0 0 28px rgba(255, 43, 214, 0.16);
+      --selected-card-border: rgba(123, 255, 190, 0.52);
+      --selected-card-shadow: 0 0 20px rgba(123, 255, 190, 0.12);
+      --selected-card-bg: linear-gradient(180deg, rgba(27, 57, 54, 0.28), rgba(10, 24, 32, 0.18));
+      --equipped-card-border: rgba(95, 209, 255, 0.62);
+      --equipped-card-shadow: 0 0 20px rgba(55, 242, 255, 0.14);
+      --done-status-color: #022016;
+      --done-status-bg: linear-gradient(90deg, var(--green), #d4ffd2);
+      --tag-bg: rgba(255, 255, 255, 0.05);
+      --tag-text: rgba(255, 255, 255, 0.88);
+      --soft-border: rgba(255, 255, 255, 0.12);
+      --toast-border: rgba(109, 232, 255, 0.26);
+      --primary-button-bg:
+        linear-gradient(180deg, rgba(255, 126, 224, 0.58), rgba(255, 47, 166, 0.46) 55%, rgba(127, 29, 164, 0.42)),
+        repeating-linear-gradient(90deg, rgba(255, 240, 168, 0.08) 0 2px, transparent 2px 6px);
+      --primary-button-border: rgba(255, 196, 237, 0.58);
+      --primary-button-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 3px 3px 0 rgba(67, 15, 72, 0.3), 0 0 28px rgba(255, 43, 214, 0.2);
       --space-2: clamp(0.85rem, 1.4vw, 1.15rem);
       --space-3: clamp(1rem, 2vw, 1.5rem);
       --shell-width: min(1280px, calc(100vw - 1.5rem));
@@ -75,6 +103,107 @@
         url("Tex/beijing01.png") center / cover no-repeat fixed;
     }
 
+    body.theme-sunset {
+      --panel-border: rgba(255, 183, 108, 0.62);
+      --cyan: #ffd59c;
+      --pink: #ff8d5d;
+      --violet: #822f1d;
+      --yellow: #fff0ac;
+      --green: #ffcd8d;
+      --text-soft: rgba(255, 230, 212, 0.82);
+      --section-kicker-color: #ffe0b7;
+      --pixel-shadow-hard:
+        0 0 0 2px rgba(34, 14, 10, 0.6),
+        4px 4px 0 rgba(42, 16, 12, 0.34),
+        0 0 0 3px rgba(255, 232, 214, 0.05),
+        0 0 20px rgba(255, 176, 102, 0.16),
+        0 0 28px rgba(255, 95, 76, 0.14);
+      --pixel-shadow-soft:
+        0 0 0 1px rgba(255, 240, 227, 0.05),
+        3px 3px 0 rgba(42, 16, 12, 0.28),
+        0 0 14px rgba(255, 176, 102, 0.1);
+      --pixel-surface-main:
+        linear-gradient(180deg, rgba(72, 31, 20, 0.76), rgba(28, 14, 18, 0.78)),
+        repeating-linear-gradient(0deg, rgba(255, 236, 220, 0.04) 0 2px, transparent 2px 6px),
+        repeating-linear-gradient(90deg, rgba(255, 183, 108, 0.05) 0 2px, transparent 2px 6px);
+      --pixel-surface-soft:
+        linear-gradient(180deg, rgba(83, 34, 21, 0.56), rgba(46, 18, 18, 0.48)),
+        repeating-linear-gradient(0deg, rgba(255, 238, 226, 0.028) 0 2px, transparent 2px 5px),
+        repeating-linear-gradient(90deg, rgba(255, 128, 78, 0.04) 0 2px, transparent 2px 5px);
+      --pixel-surface-accent:
+        linear-gradient(180deg, rgba(110, 48, 24, 0.78), rgba(54, 21, 15, 0.72)),
+        repeating-linear-gradient(90deg, rgba(255, 222, 142, 0.06) 0 2px, transparent 2px 6px);
+      --button-border: rgba(255, 194, 121, 0.52);
+      --button-hover-border: rgba(255, 221, 175, 0.86);
+      --button-hover-shadow: 0 0 24px rgba(255, 180, 102, 0.18), 0 8px 24px rgba(255, 95, 76, 0.16);
+      --hero-panel-border: rgba(255, 194, 121, 0.24);
+      --view-title-shadow: 0 0 16px rgba(255, 194, 121, 0.22), 0 0 22px rgba(255, 95, 76, 0.24);
+      --hero-highlight-shadow: 0 0 18px rgba(255, 221, 142, 0.3);
+      --active-card-border: rgba(255, 161, 106, 0.74);
+      --active-card-bg: linear-gradient(180deg, rgba(123, 51, 24, 0.52), rgba(56, 24, 19, 0.38));
+      --active-card-shadow: 0 0 28px rgba(255, 128, 78, 0.18);
+      --selected-card-border: rgba(255, 199, 118, 0.56);
+      --selected-card-shadow: 0 0 20px rgba(255, 169, 96, 0.14);
+      --selected-card-bg: linear-gradient(180deg, rgba(94, 48, 28, 0.28), rgba(42, 20, 18, 0.2));
+      --equipped-card-border: rgba(255, 213, 156, 0.64);
+      --equipped-card-shadow: 0 0 20px rgba(255, 183, 108, 0.16);
+      --done-status-color: #321200;
+      --done-status-bg: linear-gradient(90deg, #ffcf8a, #fff0c5);
+      --tag-bg: rgba(255, 202, 146, 0.08);
+      --tag-text: rgba(255, 245, 232, 0.92);
+      --soft-border: rgba(255, 220, 193, 0.16);
+      --toast-border: rgba(255, 194, 121, 0.28);
+      --primary-button-bg:
+        linear-gradient(180deg, rgba(255, 186, 110, 0.62), rgba(255, 108, 78, 0.5) 55%, rgba(130, 45, 20, 0.44)),
+        repeating-linear-gradient(90deg, rgba(255, 242, 189, 0.08) 0 2px, transparent 2px 6px);
+      --primary-button-border: rgba(255, 224, 171, 0.62);
+      --primary-button-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 3px 3px 0 rgba(83, 29, 11, 0.32), 0 0 28px rgba(255, 116, 79, 0.22);
+    }
+
+    body.theme-ice {
+      --panel-border: rgba(135, 232, 255, 0.56);
+      --cyan: #9cf6ff;
+      --pink: #73c7ff;
+      --violet: #2f6ca8;
+      --yellow: #d7f7ff;
+      --green: #a7fff0;
+      --text-soft: rgba(222, 243, 255, 0.82);
+      --section-kicker-color: #d6f7ff;
+      --pixel-surface-main:
+        linear-gradient(180deg, rgba(22, 45, 84, 0.74), rgba(7, 20, 42, 0.76)),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.04) 0 2px, transparent 2px 6px),
+        repeating-linear-gradient(90deg, rgba(156, 246, 255, 0.05) 0 2px, transparent 2px 6px);
+      --pixel-surface-soft:
+        linear-gradient(180deg, rgba(24, 58, 92, 0.56), rgba(10, 25, 46, 0.48)),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.028) 0 2px, transparent 2px 5px),
+        repeating-linear-gradient(90deg, rgba(115, 199, 255, 0.04) 0 2px, transparent 2px 5px);
+      --pixel-surface-accent:
+        linear-gradient(180deg, rgba(32, 76, 120, 0.78), rgba(12, 33, 60, 0.72)),
+        repeating-linear-gradient(90deg, rgba(215, 247, 255, 0.06) 0 2px, transparent 2px 6px);
+    }
+
+    body.theme-aurora {
+      --panel-border: rgba(162, 255, 204, 0.56);
+      --cyan: #9dffe6;
+      --pink: #66f3a9;
+      --violet: #1f8c66;
+      --yellow: #f8ffb1;
+      --green: #9cffd7;
+      --text-soft: rgba(225, 255, 240, 0.82);
+      --section-kicker-color: #ddffef;
+      --pixel-surface-main:
+        linear-gradient(180deg, rgba(17, 67, 52, 0.74), rgba(8, 33, 27, 0.76)),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.04) 0 2px, transparent 2px 6px),
+        repeating-linear-gradient(90deg, rgba(157, 255, 230, 0.05) 0 2px, transparent 2px 6px);
+      --pixel-surface-soft:
+        linear-gradient(180deg, rgba(16, 78, 58, 0.56), rgba(8, 40, 30, 0.48)),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.028) 0 2px, transparent 2px 5px),
+        repeating-linear-gradient(90deg, rgba(102, 243, 169, 0.04) 0 2px, transparent 2px 5px);
+      --pixel-surface-accent:
+        linear-gradient(180deg, rgba(22, 104, 76, 0.78), rgba(9, 51, 37, 0.72)),
+        repeating-linear-gradient(90deg, rgba(248, 255, 177, 0.06) 0 2px, transparent 2px 6px);
+    }
+
     body::before,
     body::after {
       content: "";
@@ -118,7 +247,7 @@
       border-radius: inherit;
       border: 1px solid rgba(255, 255, 255, 0.09);
       background:
-        linear-gradient(90deg, rgba(55, 242, 255, 0.05), transparent 22%, transparent 78%, rgba(255, 43, 214, 0.06)),
+        linear-gradient(90deg, color-mix(in srgb, var(--cyan) 18%, transparent), transparent 22%, transparent 78%, color-mix(in srgb, var(--pink) 18%, transparent)),
         linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 16%, transparent 84%, rgba(255, 231, 110, 0.03));
       pointer-events: none;
     }
@@ -130,7 +259,7 @@
       bottom: 6px;
       width: 12px;
       height: 12px;
-      background: linear-gradient(135deg, transparent 0 50%, rgba(255, 231, 110, 0.82) 50% 100%);
+      background: linear-gradient(135deg, transparent 0 50%, color-mix(in srgb, var(--yellow) 82%, transparent) 50% 100%);
       filter: drop-shadow(2px 2px 0 rgba(4, 7, 20, 0.46));
       pointer-events: none;
       opacity: 0.82;
@@ -188,7 +317,7 @@
     .ghost-btn,
     .inline-btn {
       appearance: none;
-      border: var(--pixel-border-strong) solid rgba(109, 232, 255, 0.46);
+      border: var(--pixel-border-strong) solid var(--button-border);
       color: var(--text);
       cursor: pointer;
       border-radius: var(--pixel-radius-md);
@@ -206,8 +335,8 @@
     .ghost-btn:hover,
     .inline-btn:hover {
       transform: translateY(-2px);
-      border-color: rgba(145, 237, 255, 0.78);
-      box-shadow: 0 0 24px rgba(55, 242, 255, 0.16), 0 8px 24px rgba(255, 43, 214, 0.16);
+      border-color: var(--button-hover-border);
+      box-shadow: var(--button-hover-shadow);
     }
 
     .action-btn:active,
@@ -227,7 +356,7 @@
     .shop-btn:focus-visible,
     .ghost-btn:focus-visible,
     .inline-btn:focus-visible {
-      outline: 2px solid rgba(255, 231, 110, 0.92);
+      outline: 2px solid color-mix(in srgb, var(--yellow) 92%, transparent);
       outline-offset: 2px;
     }
 
@@ -383,7 +512,7 @@
     .section-kicker {
       font-size: 0.76rem;
       font-weight: 900;
-      color: #d4dfff;
+      color: var(--section-kicker-color);
       opacity: 0.82;
     }
 
@@ -391,7 +520,7 @@
       margin: 0;
       font-size: clamp(2rem, 3.2vw, 3.6rem);
       line-height: 1;
-      text-shadow: 0 0 16px rgba(55, 242, 255, 0.18), 0 0 22px rgba(255, 43, 214, 0.2);
+      text-shadow: var(--view-title-shadow);
     }
 
     .view-caption {
@@ -404,7 +533,7 @@
       padding: clamp(1.2rem, 2vw, 1.5rem);
       border-radius: var(--pixel-radius-md);
       background: var(--pixel-surface-accent);
-      border: var(--pixel-border-strong) solid rgba(109, 232, 255, 0.18);
+      border: var(--pixel-border-strong) solid var(--hero-panel-border);
       box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), var(--pixel-shadow-soft);
       display: grid;
       gap: 1rem;
@@ -431,7 +560,7 @@
 
     .hero-highlight {
       color: var(--yellow);
-      text-shadow: 0 0 18px rgba(255, 231, 110, 0.28);
+      text-shadow: var(--hero-highlight-shadow);
     }
 
     .hero-subtitle {
@@ -475,9 +604,9 @@
     }
 
     .action-btn.active {
-      border-color: rgba(255, 111, 225, 0.7);
-      background: linear-gradient(180deg, rgba(66, 22, 101, 0.46), rgba(23, 11, 67, 0.34));
-      box-shadow: 0 0 28px rgba(255, 43, 214, 0.16);
+      border-color: var(--active-card-border);
+      background: var(--active-card-bg);
+      box-shadow: var(--active-card-shadow);
     }
 
     .action-symbol {
@@ -498,7 +627,7 @@
     .quick-grid {
       width: min(100%, 58rem);
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: var(--space-2);
     }
 
@@ -555,12 +684,10 @@
     }
 
     .primary-btn {
-      background:
-        linear-gradient(180deg, rgba(255, 126, 224, 0.58), rgba(255, 47, 166, 0.46) 55%, rgba(127, 29, 164, 0.42)),
-        repeating-linear-gradient(90deg, rgba(255, 240, 168, 0.08) 0 2px, transparent 2px 6px);
-      border-color: rgba(255, 196, 237, 0.58);
+      background: var(--primary-button-bg);
+      border-color: var(--primary-button-border);
       color: #fff;
-      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 3px 3px 0 rgba(67, 15, 72, 0.3), 0 0 28px rgba(255, 43, 214, 0.2);
+      box-shadow: var(--primary-button-shadow);
     }
 
     .secondary-btn,
@@ -597,7 +724,7 @@
       padding: 1rem;
       border-radius: var(--pixel-radius-md);
       background: var(--pixel-surface-soft);
-      border: var(--pixel-border-strong) solid rgba(255, 255, 255, 0.1);
+      border: var(--pixel-border-strong) solid color-mix(in srgb, var(--panel-border) 28%, rgba(255, 255, 255, 0.1));
       transition: transform var(--fast), border-color var(--fast), box-shadow var(--fast);
       box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
     }
@@ -606,15 +733,24 @@
     .task-item:hover,
     .shop-item:hover {
       transform: translateY(-2px);
-      border-color: rgba(145, 237, 255, 0.42);
+      border-color: color-mix(in srgb, var(--cyan) 48%, transparent);
     }
 
     .reward-item.claimed,
     .task-item.done,
     .shop-item.selected {
-      border-color: rgba(123, 255, 190, 0.52);
-      box-shadow: 0 0 20px rgba(123, 255, 190, 0.12);
-      background: linear-gradient(180deg, rgba(27, 57, 54, 0.28), rgba(10, 24, 32, 0.18));
+      border-color: var(--selected-card-border);
+      box-shadow: var(--selected-card-shadow);
+      background: var(--selected-card-bg);
+    }
+
+    .shop-item.equipped {
+      border-color: var(--equipped-card-border);
+      box-shadow: var(--equipped-card-shadow);
+    }
+
+    .shop-item.locked {
+      opacity: 0.82;
     }
 
     .item-tag,
@@ -625,11 +761,11 @@
       min-height: 1.8rem;
       padding: 0.25rem 0.6rem;
       border-radius: var(--pixel-radius-sm);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid color-mix(in srgb, var(--panel-border) 22%, rgba(255, 255, 255, 0.08));
       font-size: 0.7rem;
       font-weight: 900;
-      background: rgba(255, 255, 255, 0.05);
-      color: rgba(255, 255, 255, 0.88);
+      background: var(--tag-bg);
+      color: var(--tag-text);
     }
 
     .item-title,
@@ -700,7 +836,7 @@
       min-width: 6.25rem;
       padding: 0.55rem 0.9rem;
       border-radius: var(--pixel-radius-sm);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid color-mix(in srgb, var(--panel-border) 22%, rgba(255, 255, 255, 0.08));
       text-align: center;
       font-size: 0.82rem;
       font-weight: 900;
@@ -708,8 +844,8 @@
     }
 
     .task-item.done .task-status {
-      color: #022016;
-      background: linear-gradient(90deg, var(--green), #d4ffd2);
+      color: var(--done-status-color);
+      background: var(--done-status-bg);
     }
 
     .shop-grid {
@@ -722,9 +858,18 @@
       min-height: 5.5rem;
       margin: 0.85rem 0;
       border-radius: var(--pixel-radius-md);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid color-mix(in srgb, var(--panel-border) 18%, rgba(255, 255, 255, 0.08));
       background: radial-gradient(circle at center, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02));
       font-size: 2rem;
+    }
+
+    .shop-effect,
+    .shop-stock {
+      display: block;
+      margin-top: 0.55rem;
+      color: rgba(217, 228, 255, 0.76);
+      font-size: 0.82rem;
+      line-height: 1.5;
     }
 
     .detail-list {
@@ -738,7 +883,7 @@
       padding: 1rem;
       border-radius: var(--pixel-radius-md);
       background: var(--pixel-surface-soft);
-      border: var(--pixel-border-soft) solid rgba(255, 255, 255, 0.12);
+      border: var(--pixel-border-soft) solid var(--soft-border);
       text-align: left;
     }
 
@@ -756,7 +901,7 @@
       padding: 0.8rem 1.1rem;
       border-radius: var(--pixel-radius-md);
       background: var(--pixel-surface-soft);
-      border: var(--pixel-border-strong) solid rgba(109, 232, 255, 0.26);
+      border: var(--pixel-border-strong) solid var(--toast-border);
       color: rgba(248, 250, 255, 0.94);
       font-size: 0.78rem;
       font-weight: 800;
@@ -1039,7 +1184,7 @@
             <span class="view-indicator"></span>
             <span id="viewStatusLabel">主页</span>
           </div>
-          <div class="progress-copy" id="topProgress">奖励 0/3 | 任务 0/3 | 商店未选择</div>
+          <div class="progress-copy" id="topProgress">积分 0 | 奖励 0/3 | 任务 0/4 | 芯片 0</div>
           <p class="view-summary" id="viewStatusDesc">在主页中央查看完整入口、快速状态和推荐操作。</p>
         </div>
 
@@ -1061,16 +1206,20 @@
                   <div class="hero-side">
                     <div class="hero-card">
                       <strong id="heroRewardState">每日奖励待领取</strong>
-                      <p class="metric-text">奖励领取情况会自动保存在本地。</p>
+                      <p class="metric-text" id="heroRewardNote">奖励领取情况会自动保存在本地。</p>
                     </div>
                     <div class="hero-card">
                       <strong id="heroTaskState">任务完成 0/3</strong>
-                      <p class="metric-text">任务进度与商店选择都会跨切换保留。</p>
+                      <p class="metric-text" id="heroTaskNote">任务进度与商店选择都会跨切换保留。</p>
+                    </div>
+                    <div class="hero-card">
+                      <strong id="heroCreditState">当前积分 0</strong>
+                      <p class="metric-text" id="heroCreditNote">单局得分、每日奖励和任务奖励都会汇入这里。</p>
                     </div>
                   </div>
                 </div>
                 <div class="footer-bar">
-                  <p class="footer-note">推荐先查看奖励和任务，再进入游戏页面。</p>
+                  <p class="footer-note" id="footerEconomyNote">推荐先领取每日奖励，再完成一局对战，用结算积分在商店购买强化模块。</p>
                   <button class="primary-btn" type="button" id="heroStartBtn">开始游戏</button>
                 </div>
               </section>
@@ -1095,31 +1244,35 @@
 
               <section class="quick-grid">
                 <div class="stat-card">
+                  <span class="stat-value" id="summaryCreditValue">0</span>
+                  <span class="stat-label">当前积分余额</span>
+                </div>
+                <div class="stat-card">
                   <span class="stat-value" id="summaryRewardValue">0 / 3</span>
                   <span class="stat-label">今日奖励领取</span>
                 </div>
                 <div class="stat-card">
-                  <span class="stat-value" id="summaryTaskValue">0 / 3</span>
+                  <span class="stat-value" id="summaryTaskValue">0 / 4</span>
                   <span class="stat-label">任务完成度</span>
                 </div>
                 <div class="stat-card">
-                  <span class="stat-value" id="summaryShopValue">未选择</span>
-                  <span class="stat-label">当前商店方案</span>
+                  <span class="stat-value" id="summaryShopValue">未装备</span>
+                  <span class="stat-label">当前激活方案</span>
                 </div>
               </section>
 
               <section class="metric-row">
                 <div class="metric-card">
-                  <span class="metric-label">布局规范</span>
-                  <p class="metric-text">所有模块统一放入中心工作区，内部滚动、外层固定居中，确保不同终端稳定显示。</p>
+                  <span class="metric-label">积分闭环</span>
+                  <p class="metric-text">单局得分会直接结算为可消费积分，每日奖励和任务奖励作为额外加成补充商店成长线。</p>
                 </div>
                 <div class="metric-card">
-                  <span class="metric-label">切换逻辑</span>
-                  <p class="metric-text">模块以单页视图方式切换，支持浏览器返回与手动返回主页。</p>
+                  <span class="metric-label">成长方向</span>
+                  <p class="metric-text">商店提供主题、冷却优化、结算增幅和复活芯片，既保留风格展示也能反哺对局体验。</p>
                 </div>
                 <div class="metric-card">
                   <span class="metric-label">状态留存</span>
-                  <p class="metric-text">奖励、任务、商店和当前页面状态会持久化，刷新后仍可恢复。</p>
+                  <p class="metric-text">奖励、任务、积分、库存和已购强化都会持久化，刷新后仍能继续当前成长进度。</p>
                 </div>
               </section>
             </div>
@@ -1130,7 +1283,7 @@
               <header class="module-header">
                 <div class="section-kicker">Daily Reward</div>
                 <h2 class="view-title">每日奖励</h2>
-                <p class="view-caption">奖励模块固定在主页容器内切换展示，所有卡片保持整齐居中，领取状态实时更新并保留。</p>
+                <p class="view-caption">每日奖励会为今天的对战提供启动积分，先领取再进入游戏，可以更快凑齐第一批核心强化和复活芯片。</p>
               </header>
 
               <section class="module-grid reward-grid" id="rewardGrid"></section>
@@ -1141,8 +1294,8 @@
                   <p class="metric-text" id="rewardSummaryText">今天尚未领取奖励，建议先完成签到。</p>
                 </div>
                 <div class="detail-card">
-                  <strong>切换体验</strong>
-                  <p class="metric-text">进入和退出奖励页不会重复创建节点，仅更新按钮状态与说明内容。</p>
+                  <strong>奖励策略</strong>
+                  <p class="metric-text" id="rewardBonusText">奖励会直接汇入积分余额，可用于购买商店中的功能强化与主题方案。</p>
                 </div>
               </section>
             </div>
@@ -1153,7 +1306,7 @@
               <header class="module-header">
                 <div class="section-kicker">Mission Board</div>
                 <h2 class="view-title">任务中心</h2>
-                <p class="view-caption">任务模块整合到主页中，完成和领取反馈清晰可感知，当前页面状态可通过返回操作回到主页界面。</p>
+                <p class="view-caption">任务围绕真实玩法展开：完成对局、冲击高分、消费积分，都会反向驱动奖励与商店成长。</p>
               </header>
 
               <section class="task-list" id="taskList"></section>
@@ -1164,8 +1317,8 @@
                   <p class="metric-text" id="taskSummaryText">当前尚未完成任务，可逐项领取主页演示奖励。</p>
                 </div>
                 <div class="detail-card">
-                  <strong>状态同步</strong>
-                  <p class="metric-text">任务按钮状态、顶部进度和主页摘要会同步更新，不会出现模块信息不一致。</p>
+                  <strong>对战联动</strong>
+                  <p class="metric-text" id="taskBonusText">任务会读取今日对局成绩与购买行为，达到目标后可再领取额外积分奖励。</p>
                 </div>
               </section>
             </div>
@@ -1176,19 +1329,23 @@
               <header class="module-header">
                 <div class="section-kicker">Store Center</div>
                 <h2 class="view-title">商店</h2>
-                <p class="view-caption">商店作为主页子模块展示主题和方案卡片，选择结果会保留并反映到主页概览，切换过程中无跳页重载。</p>
+                <p class="view-caption">商店整合了主题、成长强化和复活芯片。对局得分会结算成积分，再通过这里转化为下局更稳定的成长优势。</p>
               </header>
 
               <section class="module-grid shop-grid" id="shopGrid"></section>
 
               <section class="detail-list">
                 <div class="detail-card">
-                  <strong>当前选择</strong>
+                  <strong>积分汇总</strong>
                   <p class="metric-text" id="shopSummaryText">尚未选择主题方案，当前使用默认主页样式。</p>
                 </div>
                 <div class="detail-card">
-                  <strong>交互反馈</strong>
-                  <p class="metric-text">已选商品会高亮显示，主页摘要和顶部状态会立即反馈当前选择。</p>
+                  <strong>库存与加成</strong>
+                  <p class="metric-text" id="shopInventoryText">已购商品、复活芯片库存和永久加成会在这里汇总显示。</p>
+                </div>
+                <div class="detail-card">
+                  <strong>当前装配</strong>
+                  <p class="metric-text" id="shopLoadoutText">当前尚未激活额外主题或对局强化。</p>
                 </div>
               </section>
             </div>
@@ -1202,83 +1359,44 @@
   <script>
     "use strict";
 
-    const STORAGE_KEY = "classic-snake-girl-home-state-v2";
+    const STORAGE_KEY = "classic-snake-girl-home-state-v3";
+    const PROFILE_KEY = "classic-snake-girl-profile-v1";
     const VIEW_KEY = "classic-snake-girl-home-current-view";
     const DEFAULT_VIEW = "home";
 
     const rewardItems = [
-      {
-        id: "reward-1",
-        day: "DAY 01",
-        title: "霓虹签到礼包",
-        desc: "领取 100 金币与 1 张快速开始卡。",
-        value: "+100 金币"
-      },
-      {
-        id: "reward-2",
-        day: "DAY 02",
-        title: "加速补给箱",
-        desc: "解锁 1 次任务加速演示奖励。",
-        value: "+1 加速券"
-      },
-      {
-        id: "reward-3",
-        day: "DAY 03",
-        title: "主题试用包",
-        desc: "获得 1 套主页主题试用方案。",
-        value: "+1 主题券"
-      }
+      { id: "reward-login", day: "DAY 01", title: "签到能量包", desc: "领取今天的启动积分，用于解锁第一批强化与主题。", credits: 250 },
+      { id: "reward-core-cache", day: "DAY 02", title: "核心缓存仓", desc: "额外补充一笔中量积分，帮助你更快购买复活芯片。", credits: 400 },
+      { id: "reward-market-boost", day: "DAY 03", title: "市场补贴券", desc: "今日商店返利，建议搭配高分对局一起使用。", credits: 650 }
     ];
 
     const taskItems = [
-      {
-        id: "task-1",
-        tag: "新手",
-        title: "查看每日奖励",
-        desc: "进入奖励模块并至少领取 1 个今日奖励。"
-      },
-      {
-        id: "task-2",
-        tag: "引导",
-        title: "浏览商店方案",
-        desc: "进入商店并选中 1 个主题方案。"
-      },
-      {
-        id: "task-3",
-        tag: "准备",
-        title: "完成主页巡检",
-        desc: "确认奖励、任务、商店三个模块都已浏览。"
-      }
+      { id: "task-run-1", tag: "实战", title: "完成 1 局对战", desc: "任意分数结算 1 局，即可领取今日首场奖励。", reward: 320, metric: "runs", target: 1 },
+      { id: "task-run-3", tag: "坚持", title: "完成 3 局对战", desc: "把今天的手感跑起来，累计三局后再收一笔稳定补贴。", reward: 680, metric: "runs", target: 3 },
+      { id: "task-score-3000", tag: "冲分", title: "单局达到 3000 分", desc: "稳定完成合成链，把今天最高分推到 3000。", reward: 480, metric: "bestScore", target: 3000 },
+      { id: "task-score-5000", tag: "进阶", title: "单局达到 5000 分", desc: "进入中高分区间后，可以开始考虑购买永久强化。", reward: 780, metric: "bestScore", target: 5000 },
+      { id: "task-score-8000", tag: "挑战", title: "单局达到 8000 分", desc: "高分局奖励更高，适合冲刺高阶强化与主题全收集。", reward: 1200, metric: "bestScore", target: 8000 },
+      { id: "task-total-12000", tag: "累积", title: "今日累计 12000 分", desc: "即使单局没有爆发，只要稳定多打几局也能拿到成长补给。", reward: 900, metric: "totalScore", target: 12000 },
+      { id: "task-shop-1", tag: "经营", title: "购买任意 1 件商品", desc: "把积分投入商店，建立对局与成长的正向循环。", reward: 380, metric: "purchases", target: 1 },
+      { id: "task-shop-3", tag: "经营", title: "购买任意 3 件商品", desc: "持续投入成长，把外观、强化和容错都逐步配齐。", reward: 820, metric: "purchases", target: 3 }
     ];
 
     const shopItems = [
-      {
-        id: "theme-neon",
-        tag: "经典",
-        title: "霓虹核心",
-        desc: "保留当前赛博霓虹风格，强化主页高亮感。",
-        preview: "N",
-        price: "免费"
-      },
-      {
-        id: "theme-sunset",
-        tag: "限定",
-        title: "落日脉冲",
-        desc: "切换为暖色渐变主题，突出开始游戏按钮。",
-        preview: "S",
-        price: "280 金币"
-      },
-      {
-        id: "theme-ice",
-        tag: "稀有",
-        title: "冰蓝矩阵",
-        desc: "切换为冷色高亮方案，增强模块边框反馈。",
-        preview: "I",
-        price: "360 金币"
-      }
+      { id: "theme-neon", type: "theme", tag: "默认", title: "霓虹核心外观", desc: "保留当前赛博霓虹风格，适合作为默认主页主题。", preview: "N", price: 0, effect: "免费装备，经典主题" },
+      { id: "theme-sunset", type: "theme", tag: "主题", title: "末日脉冲", desc: "暖色主题，强调开始游戏、奖励入口和高风险冲分氛围。", preview: "S", price: 1100, effect: "主页与游戏 HUD 主题切换" },
+      { id: "theme-ice", type: "theme", tag: "主题", title: "冰蓝矩阵", desc: "冷色主页主题，让进度和商店模块更醒目。", preview: "I", price: 1450, effect: "主页主题切换" },
+      { id: "theme-aurora", type: "theme", tag: "主题", title: "极光脉冲", desc: "更偏成长向的荧绿主题，适合突出积分与任务完成状态。", preview: "A", price: 1900, effect: "主页主题切换" },
+      { id: "upgrade-cooling", type: "upgrade", upgradeKey: "cooling", tag: "强化", title: "快速投放模块", desc: "缩短核心投放冷却，更容易打出连续合成。", preview: "C", price: 2400, effect: "投放冷却 460ms -> 420ms" },
+      { id: "upgrade-merge-bonus", type: "upgrade", upgradeKey: "mergeBonus", tag: "强化", title: "聚变放大器", desc: "每次成功合成时额外提高得分，适合稳扎稳打的中期收益路线。", preview: "M", price: 2600, effect: "合成得分 x1.2" },
+      { id: "upgrade-credit-boost", type: "upgrade", upgradeKey: "creditBoost", tag: "强化", title: "结算增幅器", desc: "高分对局收益进一步放大，适合长期冲榜。", preview: "+", price: 3200, effect: "每局结算积分 +15%" },
+      { id: "upgrade-warning-buffer", type: "upgrade", upgradeKey: "warningBuffer", tag: "强化", title: "缓冲护盾", desc: "当核心越过警戒线时，给你多一点整理局面的时间。", preview: "W", price: 3400, effect: "警戒容错 3.0s -> 3.8s" },
+      { id: "upgrade-starter-bag", type: "upgrade", upgradeKey: "starterBag", tag: "强化", title: "起步稳态协议", desc: "开局前几次掉落只会生成低阶核心，显著降低前期炸仓概率。", preview: "S", price: 3900, effect: "前 6 次掉落仅出现 L1-L2" },
+      { id: "revive-chip", type: "consumable", itemKey: "reviveChip", quantity: 1, tag: "消耗", title: "复活芯片", desc: "失败时可直接使用 1 枚芯片复活，不需要观看广告。", preview: "❤", price: 1500, effect: "购买后库存 +1" },
+      { id: "revive-chip-pack", type: "consumable", itemKey: "reviveChip", quantity: 3, tag: "礼包", title: "复活芯片组三", desc: "适合准备连续冲榜时提前囤货，单价低于单枚购买。", preview: "❤+", price: 3900, effect: "购买后库存 +3" }
     ];
 
     const state = loadState();
+    const profile = loadProfile(state);
 
     const actionButtons = Array.from(document.querySelectorAll("[data-nav-target]"));
     const views = Array.from(document.querySelectorAll(".module-view"));
@@ -1292,20 +1410,45 @@
     const viewStatusLabel = document.getElementById("viewStatusLabel");
     const viewStatusDesc = document.getElementById("viewStatusDesc");
     const topProgress = document.getElementById("topProgress");
+    const summaryCreditValue = document.getElementById("summaryCreditValue");
     const summaryRewardValue = document.getElementById("summaryRewardValue");
     const summaryTaskValue = document.getElementById("summaryTaskValue");
     const summaryShopValue = document.getElementById("summaryShopValue");
     const heroRewardState = document.getElementById("heroRewardState");
+    const heroRewardNote = document.getElementById("heroRewardNote");
     const heroTaskState = document.getElementById("heroTaskState");
+    const heroTaskNote = document.getElementById("heroTaskNote");
+    const heroCreditState = document.getElementById("heroCreditState");
+    const heroCreditNote = document.getElementById("heroCreditNote");
+    const footerEconomyNote = document.getElementById("footerEconomyNote");
     const rewardSummaryText = document.getElementById("rewardSummaryText");
+    const rewardBonusText = document.getElementById("rewardBonusText");
     const taskSummaryText = document.getElementById("taskSummaryText");
+    const taskBonusText = document.getElementById("taskBonusText");
     const shopSummaryText = document.getElementById("shopSummaryText");
+    const shopInventoryText = document.getElementById("shopInventoryText");
+    const shopLoadoutText = document.getElementById("shopLoadoutText");
+    const THEME_EVENT = "classic-snake-girl:theme-applied";
+    const THEME_CLASS_MAP = Object.freeze({
+      "theme-neon": "",
+      "theme-sunset": "theme-sunset",
+      "theme-ice": "theme-ice",
+      "theme-aurora": "theme-aurora"
+    });
+    const THEME_SCOPE_TARGETS = Object.freeze({
+      global: [".app-shell", ".view-card", ".view-topbar", ".toast"],
+      reward: ['.module-view[data-view="reward"]', "#rewardGrid", "#rewardSummaryText", "#rewardBonusText"],
+      task: ['.module-view[data-view="task"]', "#taskList", "#taskSummaryText", "#taskBonusText"],
+      shop: ['.module-view[data-view="shop"]', "#shopGrid", "#shopSummaryText", "#shopInventoryText", "#shopLoadoutText"]
+    });
 
     let toastTimer = 0;
 
     init();
 
     function init() {
+      bindThemeLifecycle();
+      applyThemeSafely("init");
       applyLandscapeGuard();
       renderRewardGrid();
       renderTaskList();
@@ -1317,13 +1460,45 @@
       applyView(initialView, false);
     }
 
+    function createDefaultProfile() {
+      const stamp = getTodayStamp();
+      return {
+        credits: 0,
+        lifetimeScore: 0,
+        lastRunScore: 0,
+        bestScore: 0,
+        totalRuns: 0,
+        totalPurchases: 0,
+        activeThemeId: "theme-neon",
+        ownedThemes: { "theme-neon": true },
+        upgrades: { cooling: false, mergeBonus: false, creditBoost: false, warningBuffer: false, starterBag: false },
+        inventory: { reviveChip: 0 },
+        daily: {
+          stamp,
+          rewards: {},
+          tasks: {},
+          rewardClaims: 0,
+          taskClaims: 0,
+          runs: 0,
+          totalScore: 0,
+          bestScore: 0,
+          purchases: 0
+        }
+      };
+    }
+
+    function getTodayStamp() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const dd = String(now.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
     function loadState() {
       const fallback = {
         currentView: DEFAULT_VIEW,
         visited: { home: true, reward: false, task: false, shop: false },
-        rewards: {},
-        tasks: {},
-        selectedShopId: "",
         lastAction: "主页已准备就绪。"
       };
 
@@ -1334,12 +1509,60 @@
         return {
           ...fallback,
           ...parsed,
-          visited: { ...fallback.visited, ...(parsed.visited || {}) },
-          rewards: { ...(parsed.rewards || {}) },
-          tasks: { ...(parsed.tasks || {}) }
+          visited: { ...fallback.visited, ...(parsed.visited || {}) }
         };
       } catch (error) {
         console.warn("主页状态读取失败，将使用默认状态。", error);
+        return fallback;
+      }
+    }
+
+    function loadProfile(legacyState) {
+      const fallback = createDefaultProfile();
+
+      try {
+        const raw = localStorage.getItem(PROFILE_KEY);
+        const parsed = raw ? JSON.parse(raw) : {};
+        const profileData = {
+          ...fallback,
+          ...parsed,
+          ownedThemes: { ...fallback.ownedThemes, ...(parsed.ownedThemes || {}) },
+          upgrades: { ...fallback.upgrades, ...(parsed.upgrades || {}) },
+          inventory: { ...fallback.inventory, ...(parsed.inventory || {}) },
+          daily: {
+            ...fallback.daily,
+            ...(parsed.daily || {}),
+            rewards: { ...fallback.daily.rewards, ...((parsed.daily && parsed.daily.rewards) || {}) },
+            tasks: { ...fallback.daily.tasks, ...((parsed.daily && parsed.daily.tasks) || {}) }
+          }
+        };
+
+        if (!profileData.activeThemeId) {
+          profileData.activeThemeId = legacyState && legacyState.selectedShopId ? legacyState.selectedShopId : "theme-neon";
+        }
+
+        if (!profileData.ownedThemes[profileData.activeThemeId]) {
+          profileData.activeThemeId = "theme-neon";
+        }
+
+        const today = getTodayStamp();
+        if (profileData.daily.stamp !== today) {
+          profileData.daily = {
+            stamp: today,
+            rewards: {},
+            tasks: {},
+            rewardClaims: 0,
+            taskClaims: 0,
+            runs: 0,
+            totalScore: 0,
+            bestScore: 0,
+            purchases: 0
+          };
+        }
+
+        return profileData;
+      } catch (error) {
+        console.warn("成长数据读取失败，将重置为默认档案。", error);
         return fallback;
       }
     }
@@ -1349,22 +1572,12 @@
       sessionStorage.setItem(VIEW_KEY, state.currentView);
     }
 
-    function getInitialView() {
-      const hashView = window.location.hash.replace("#", "");
-      if (isValidView(hashView)) {
-        state.currentView = hashView;
-        return hashView;
-      }
-      const sessionView = sessionStorage.getItem(VIEW_KEY);
-      if (isValidView(sessionView)) {
-        state.currentView = sessionView;
-        return sessionView;
-      }
-      return isValidView(state.currentView) ? state.currentView : DEFAULT_VIEW;
+    function saveProfile() {
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
     }
 
-    function isValidView(view) {
-      return ["home", "reward", "task", "shop"].includes(view);
+    function formatNumber(value) {
+      return Number(value || 0).toLocaleString("zh-CN");
     }
 
     function bindEvents() {
@@ -1388,6 +1601,24 @@
       window.addEventListener("orientationchange", applyLandscapeGuard);
     }
 
+    function getInitialView() {
+      const hashView = window.location.hash.replace("#", "");
+      if (isValidView(hashView)) {
+        state.currentView = hashView;
+        return hashView;
+      }
+      const sessionView = sessionStorage.getItem(VIEW_KEY);
+      if (isValidView(sessionView)) {
+        state.currentView = sessionView;
+        return sessionView;
+      }
+      return isValidView(state.currentView) ? state.currentView : DEFAULT_VIEW;
+    }
+
+    function isValidView(view) {
+      return ["home", "reward", "task", "shop"].includes(view);
+    }
+
     function getViewportSize() {
       const viewport = window.visualViewport;
       return {
@@ -1408,6 +1639,97 @@
       document.body.classList.toggle("landscape-required", required);
       if (orientationGuard) {
         orientationGuard.setAttribute("aria-hidden", required ? "false" : "true");
+      }
+    }
+
+    function getThemeLogStore() {
+      if (!window.__classicSnakeGirlThemeLogs) window.__classicSnakeGirlThemeLogs = [];
+      return window.__classicSnakeGirlThemeLogs;
+    }
+
+    function logThemeEvent(level, message, detail = {}) {
+      const entry = {
+        time: new Date().toISOString(),
+        level,
+        message,
+        detail
+      };
+      getThemeLogStore().push(entry);
+      const logger = typeof console[level] === "function" ? console[level] : console.log;
+      logger(`[Theme] ${message}`, detail);
+    }
+
+    function collectThemeCoverage(themeId) {
+      const missingTargets = [];
+      Object.entries(THEME_SCOPE_TARGETS).forEach(([scope, selectors]) => {
+        selectors.forEach((selector) => {
+          if (!document.querySelector(selector)) {
+            missingTargets.push({ scope, selector });
+          }
+        });
+      });
+
+      const computed = getComputedStyle(document.body);
+      return {
+        themeId,
+        panelBorder: computed.getPropertyValue("--panel-border").trim(),
+        panelSurface: computed.getPropertyValue("--pixel-surface-soft").trim(),
+        textSoft: computed.getPropertyValue("--text-soft").trim(),
+        missingTargets
+      };
+    }
+
+    function applyThemeToScopeTargets(themeId) {
+      document.body.dataset.activeTheme = themeId;
+      Object.values(THEME_SCOPE_TARGETS).flat().forEach((selector) => {
+        const node = document.querySelector(selector);
+        if (node) node.dataset.activeTheme = themeId;
+      });
+    }
+
+    function bindThemeLifecycle() {
+      document.addEventListener(THEME_EVENT, (event) => {
+        const detail = event.detail || {};
+        if (detail.verification && detail.verification.missingTargets && detail.verification.missingTargets.length) {
+          logThemeEvent("warn", "主题已应用，但部分作用域节点缺失。", detail.verification);
+        }
+      });
+    }
+
+    function applyActiveTheme(reason = "runtime") {
+      const themeId = THEME_CLASS_MAP[profile.activeThemeId] !== undefined ? profile.activeThemeId : "theme-neon";
+      if (themeId !== profile.activeThemeId) {
+        logThemeEvent("warn", "检测到未注册主题，已回退到默认主题。", { requestedThemeId: profile.activeThemeId });
+        profile.activeThemeId = themeId;
+      }
+
+      document.body.classList.remove("theme-sunset", "theme-ice", "theme-aurora");
+      const themeClass = THEME_CLASS_MAP[themeId];
+      if (themeClass) document.body.classList.add(themeClass);
+
+      applyThemeToScopeTargets(themeId);
+      const verification = collectThemeCoverage(themeId);
+      document.dispatchEvent(new CustomEvent(THEME_EVENT, {
+        detail: { themeId, reason, verification }
+      }));
+      logThemeEvent("info", "主题应用完成。", { themeId, reason, verification });
+      return verification;
+    }
+
+    function applyThemeSafely(reason = "runtime") {
+      try {
+        return applyActiveTheme(reason);
+      } catch (error) {
+        logThemeEvent("error", "主题应用失败，已回退到默认主题。", {
+          reason,
+          themeId: profile.activeThemeId,
+          error: error && error.message ? error.message : String(error)
+        });
+        document.body.classList.remove("theme-sunset", "theme-ice", "theme-aurora");
+        profile.activeThemeId = "theme-neon";
+        document.body.dataset.activeTheme = "theme-neon";
+        saveProfile();
+        return null;
       }
     }
 
@@ -1439,13 +1761,10 @@
       });
 
       backBtn.classList.toggle("show", view !== DEFAULT_VIEW);
-      const label = getViewLabel(view);
-      viewStatusLabel.textContent = label;
+      viewStatusLabel.textContent = getViewLabel(view);
       viewStatusDesc.textContent = getViewDescription(view);
 
-      if (announce) {
-        showToast(`已切换到${label}`);
-      }
+      if (announce) showToast(`已切换到${getViewLabel(view)}`);
     }
 
     function getViewLabel(view) {
@@ -1459,30 +1778,84 @@
 
     function getViewDescription(view) {
       return {
-        home: "在主页中央查看完整入口、快速状态和推荐操作。",
-        reward: "查看今日奖励、领取进度和当前签到反馈。",
-        task: "查看模块任务、完成情况和当前进度说明。",
-        shop: "查看并选择主题方案，结果会同步回主页摘要。"
-      }[view] || "在主页中央查看完整入口、快速状态和推荐操作。";
+        home: "在主页中央查看积分余额、每日奖励、任务进度和成长入口。",
+        reward: "领取今日积分补给，为本轮对战和商店消费准备启动资金。",
+        task: "通过真实对局、冲分和购物行为领取额外积分奖励。",
+        shop: "把对局得分转化为可持续成长，购买主题、强化与复活芯片。"
+      }[view] || "在主页中央查看积分余额、每日奖励、任务进度和成长入口。";
+    }
+
+    function getRewardItem(rewardId) {
+      return rewardItems.find((item) => item.id === rewardId);
+    }
+
+    function getTaskItem(taskId) {
+      return taskItems.find((item) => item.id === taskId);
+    }
+
+    function getShopItem(shopId) {
+      return shopItems.find((item) => item.id === shopId);
+    }
+
+    function getTaskMetricValue(task) {
+      return Number(profile.daily[task.metric] || 0);
+    }
+
+    function canClaimTask(taskId) {
+      const task = getTaskItem(taskId);
+      if (!task) return false;
+      return getTaskMetricValue(task) >= task.target;
+    }
+
+    function getTaskProgressText(task) {
+      const current = getTaskMetricValue(task);
+      if (current >= task.target) return "已达成";
+      if (task.metric === "bestScore") return `今日最高 ${formatNumber(current)} / ${formatNumber(task.target)}`;
+      if (task.metric === "totalScore") return `今日累计 ${formatNumber(current)} / ${formatNumber(task.target)}`;
+      return `${current} / ${task.target}`;
+    }
+
+    function isOwnedShopItem(item) {
+      if (item.type === "theme") return Boolean(profile.ownedThemes[item.id]);
+      if (item.type === "upgrade") return Boolean(profile.upgrades[item.upgradeKey]);
+      return false;
+    }
+
+    function isEquippedShopItem(item) {
+      return item.type === "theme" && profile.activeThemeId === item.id;
+    }
+
+    function getShopButtonLabel(item) {
+      if (item.type === "consumable") return profile.credits >= item.price ? "购买 +1" : "积分不足";
+      if (item.type === "theme" && isEquippedShopItem(item)) return "已装备";
+      if (item.type === "theme" && isOwnedShopItem(item)) return "装备主题";
+      if (item.type === "upgrade" && isOwnedShopItem(item)) return "已拥有";
+      if (item.price === 0) return "免费装备";
+      return "购买商品";
+    }
+
+    function isShopButtonDisabled(item) {
+      if (item.type === "theme" && isEquippedShopItem(item)) return true;
+      if (item.type === "upgrade" && isOwnedShopItem(item)) return true;
+      if (item.type !== "theme" && profile.credits < item.price) return true;
+      if (item.type === "theme" && !isOwnedShopItem(item) && profile.credits < item.price) return true;
+      return false;
     }
 
     function renderRewardGrid() {
       rewardGrid.innerHTML = "";
       rewardItems.forEach((item) => {
+        const claimed = Boolean(profile.daily.rewards[item.id]);
         const card = document.createElement("article");
-        card.className = "reward-item";
+        card.className = `reward-item ${claimed ? "claimed" : ""}`;
         card.dataset.rewardId = item.id;
-
-        const claimed = Boolean(state.rewards[item.id]);
-        if (claimed) card.classList.add("claimed");
-
         card.innerHTML = `
           <span class="item-tag">${item.day}</span>
           <h3 class="item-title">${item.title}</h3>
           <p class="reward-desc">${item.desc}</p>
           <div class="reward-foot">
-            <span class="reward-value">${item.value}</span>
-            <button class="reward-btn" type="button">${claimed ? "已领取" : "立即领取"}</button>
+            <span class="reward-value">+${formatNumber(item.credits)} 积分</span>
+            <button class="reward-btn" type="button">${claimed ? "已领取" : "领取奖励"}</button>
           </div>
         `;
 
@@ -1496,9 +1869,10 @@
     function renderTaskList() {
       taskList.innerHTML = "";
       taskItems.forEach((item) => {
-        const done = Boolean(state.tasks[item.id]);
+        const claimed = Boolean(profile.daily.tasks[item.id]);
+        const canClaim = canClaimTask(item.id);
         const card = document.createElement("article");
-        card.className = `task-item ${done ? "done" : ""}`;
+        card.className = `task-item ${claimed ? "done" : ""}`;
         card.dataset.taskId = item.id;
         card.innerHTML = `
           <div class="task-meta">
@@ -1507,17 +1881,13 @@
             <p class="task-desc">${item.desc}</p>
           </div>
           <div class="task-foot">
-            <span class="task-progress">${done ? "已完成" : getTaskProgressText(item.id)}</span>
-            <button class="inline-btn" type="button">${done ? "已领取" : "领取任务奖励"}</button>
+            <span class="task-progress">${claimed ? `+${formatNumber(item.reward)} 已领取` : getTaskProgressText(item)}</span>
+            <button class="inline-btn" type="button">${claimed ? "已领取" : canClaim ? `领取 +${formatNumber(item.reward)}` : "未达成"}</button>
           </div>
         `;
 
         const button = card.querySelector(".inline-btn");
-        if (!canClaimTask(item.id) || done) {
-          button.disabled = true;
-          if (!done) button.textContent = "未达成";
-        }
-
+        button.disabled = claimed || !canClaim;
         button.addEventListener("click", () => completeTask(item.id));
         taskList.appendChild(card);
       });
@@ -1526,115 +1896,225 @@
     function renderShopGrid() {
       shopGrid.innerHTML = "";
       shopItems.forEach((item) => {
-        const selected = state.selectedShopId === item.id;
+        const owned = isOwnedShopItem(item);
+        const equipped = isEquippedShopItem(item);
+        const locked = !owned && item.price > 0 && profile.credits < item.price;
         const card = document.createElement("article");
-        card.className = `shop-item ${selected ? "selected" : ""}`;
+        card.className = `shop-item ${owned ? "selected" : ""} ${equipped ? "equipped" : ""} ${locked ? "locked" : ""}`;
         card.dataset.shopId = item.id;
         card.innerHTML = `
           <span class="shop-tag">${item.tag}</span>
           <h3 class="shop-title">${item.title}</h3>
           <div class="shop-preview">${item.preview}</div>
           <p class="shop-desc">${item.desc}</p>
+          <span class="shop-effect">${item.effect}</span>
+          ${item.type === "consumable" ? `<span class="shop-stock">当前库存：${profile.inventory[item.itemKey] || 0}</span>` : ""}
           <div class="shop-foot">
-            <span class="shop-price">${item.price}</span>
-            <button class="shop-btn" type="button">${selected ? "已使用" : "选择方案"}</button>
+            <span class="shop-price">${item.price === 0 ? "免费" : `${formatNumber(item.price)} 积分`}</span>
+            <button class="shop-btn" type="button">${getShopButtonLabel(item)}</button>
           </div>
         `;
 
         const button = card.querySelector(".shop-btn");
-        button.disabled = selected;
-        button.addEventListener("click", () => selectShopItem(item.id));
+        button.disabled = isShopButtonDisabled(item);
+        button.addEventListener("click", () => handleShopAction(item.id));
         shopGrid.appendChild(card);
       });
     }
 
     function claimReward(rewardId) {
-      if (state.rewards[rewardId]) return;
-      state.rewards[rewardId] = true;
-      state.lastAction = `已领取 ${getRewardTitle(rewardId)}`;
+      const item = getRewardItem(rewardId);
+      if (!item || profile.daily.rewards[rewardId]) return;
+      profile.daily.rewards[rewardId] = true;
+      profile.daily.rewardClaims += 1;
+      profile.credits += item.credits;
+      state.lastAction = `已领取 ${item.title}`;
+      saveProfile();
+      saveState();
       syncDerivedState();
       renderRewardGrid();
       renderTaskList();
-      saveState();
-      showToast(`${getRewardTitle(rewardId)} 已领取`);
+      showToast(`${item.title} 已到账 ${formatNumber(item.credits)} 积分`);
     }
 
     function completeTask(taskId) {
-      if (!canClaimTask(taskId) || state.tasks[taskId]) return;
-      state.tasks[taskId] = true;
-      state.lastAction = `已完成任务 ${getTaskTitle(taskId)}`;
+      const item = getTaskItem(taskId);
+      if (!item || !canClaimTask(taskId) || profile.daily.tasks[taskId]) return;
+      profile.daily.tasks[taskId] = true;
+      profile.daily.taskClaims += 1;
+      profile.credits += item.reward;
+      state.lastAction = `已完成任务 ${item.title}`;
+      saveProfile();
+      saveState();
       syncDerivedState();
       renderTaskList();
-      saveState();
-      showToast(`${getTaskTitle(taskId)} 已完成`);
+      renderShopGrid();
+      showToast(`${item.title} 奖励已到账 ${formatNumber(item.reward)} 积分`);
     }
 
-    function selectShopItem(shopId) {
-      if (state.selectedShopId === shopId) return;
-      state.selectedShopId = shopId;
-      state.lastAction = `已切换商店方案 ${getShopTitle(shopId)}`;
-      syncDerivedState();
-      renderShopGrid();
-      renderTaskList();
-      saveState();
-      showToast(`当前方案已切换为 ${getShopTitle(shopId)}`);
+    function handleShopAction(shopId) {
+      const item = getShopItem(shopId);
+      if (!item) return;
+
+      if (item.type === "theme") {
+        if (isOwnedShopItem(item)) {
+          profile.activeThemeId = item.id;
+          state.lastAction = `已切换主题 ${item.title}`;
+          applyThemeSafely("equip-theme");
+          saveProfile();
+          saveState();
+          syncDerivedState();
+          renderShopGrid();
+          showToast(`已装备 ${item.title}`);
+          return;
+        }
+
+        if (!spendCredits(item.price, item.title)) return;
+        profile.ownedThemes[item.id] = true;
+        profile.activeThemeId = item.id;
+        applyPurchaseRecord();
+        state.lastAction = `已购买并装备 ${item.title}`;
+        applyThemeSafely("purchase-theme");
+        saveProfile();
+        saveState();
+        syncDerivedState();
+        renderShopGrid();
+        renderTaskList();
+        showToast(`已购买并装备 ${item.title}`);
+        return;
+      }
+
+      if (item.type === "upgrade") {
+        if (isOwnedShopItem(item)) return;
+        if (!spendCredits(item.price, item.title)) return;
+        profile.upgrades[item.upgradeKey] = true;
+        applyPurchaseRecord();
+        state.lastAction = `已解锁 ${item.title}`;
+        saveProfile();
+        saveState();
+        syncDerivedState();
+        renderShopGrid();
+        renderTaskList();
+        showToast(`${item.title} 已解锁`);
+        return;
+      }
+
+      if (item.type === "consumable") {
+        if (!spendCredits(item.price, item.title)) return;
+        const quantity = Number(item.quantity || 1);
+        profile.inventory[item.itemKey] = Number(profile.inventory[item.itemKey] || 0) + quantity;
+        applyPurchaseRecord();
+        state.lastAction = `已购买 ${item.title}`;
+        saveProfile();
+        saveState();
+        syncDerivedState();
+        renderShopGrid();
+        renderTaskList();
+        showToast(`${item.title} 已加入库存 +${quantity}`);
+      }
+    }
+
+    function spendCredits(amount, itemTitle) {
+      if (profile.credits < amount) {
+        showToast(`积分不足，无法购买 ${itemTitle}`);
+        return false;
+      }
+      profile.credits -= amount;
+      return true;
+    }
+
+    function applyPurchaseRecord() {
+      profile.totalPurchases += 1;
+      profile.daily.purchases += 1;
+    }
+
+    function countClaimedRewards() {
+      return rewardItems.filter((item) => profile.daily.rewards[item.id]).length;
+    }
+
+    function countClaimedTasks() {
+      return taskItems.filter((item) => profile.daily.tasks[item.id]).length;
+    }
+
+    function countOwnedThemes() {
+      return shopItems.filter((item) => item.type === "theme" && isOwnedShopItem(item)).length;
+    }
+
+    function countUnlockedUpgrades() {
+      return shopItems.filter((item) => item.type === "upgrade" && isOwnedShopItem(item)).length;
+    }
+
+    function getActiveThemeTitle() {
+      const activeTheme = getShopItem(profile.activeThemeId);
+      return activeTheme ? activeTheme.title : "霓虹核心外观";
+    }
+
+    function getNextAffordableHint() {
+      const preferredRoute = [];
+      if (!profile.upgrades.cooling) preferredRoute.push("upgrade-cooling");
+      if (profile.upgrades.cooling && !profile.upgrades.mergeBonus) preferredRoute.push("upgrade-merge-bonus");
+      if (profile.daily.bestScore >= 5000 && !profile.upgrades.creditBoost) preferredRoute.push("upgrade-credit-boost");
+      if (profile.inventory.reviveChip < 1) preferredRoute.push("revive-chip");
+      if (profile.daily.bestScore >= 8000 && !profile.upgrades.warningBuffer) preferredRoute.push("upgrade-warning-buffer");
+
+      for (const itemId of preferredRoute) {
+        const item = getShopItem(itemId);
+        if (!item || isOwnedShopItem(item)) continue;
+        if (profile.credits >= item.price) {
+          return `推荐路线：优先购买 ${item.title}，它最契合你当前的对局节奏。`;
+        }
+      }
+
+      const lockedItems = shopItems
+        .filter((item) => item.price > 0 && !isOwnedShopItem(item))
+        .sort((a, b) => a.price - b.price);
+
+      const affordable = lockedItems.find((item) => profile.credits >= item.price);
+      if (affordable) {
+        return `当前积分足够购买 ${affordable.title}，建议优先构建下一局成长优势。`;
+      }
+
+      const target = lockedItems[0];
+      if (!target) return "核心强化已基本解锁完毕，可以继续冲击更高分数。";
+      return `距离 ${target.title} 还差 ${formatNumber(Math.max(0, target.price - profile.credits))} 积分。`;
     }
 
     function syncDerivedState() {
-      const rewardClaimed = rewardItems.filter((item) => state.rewards[item.id]).length;
-      const taskDone = taskItems.filter((item) => state.tasks[item.id]).length;
-      const selectedShop = shopItems.find((item) => item.id === state.selectedShopId);
+      const rewardClaimed = countClaimedRewards();
+      const taskClaimed = countClaimedTasks();
       const rewardRemaining = rewardItems.length - rewardClaimed;
+      const activeTheme = getActiveThemeTitle();
+      const totalDailyRewardCredits = rewardItems.reduce((sum, item) => sum + item.credits, 0);
 
+      summaryCreditValue.textContent = formatNumber(profile.credits);
       summaryRewardValue.textContent = `${rewardClaimed} / ${rewardItems.length}`;
-      summaryTaskValue.textContent = `${taskDone} / ${taskItems.length}`;
-      summaryShopValue.textContent = selectedShop ? selectedShop.title : "未选择";
-      topProgress.textContent = `奖励 ${rewardClaimed}/${rewardItems.length} | 任务 ${taskDone}/${taskItems.length} | 商店 ${selectedShop ? selectedShop.title : "未选择"}`;
+      summaryTaskValue.textContent = `${taskClaimed} / ${taskItems.length}`;
+      summaryShopValue.textContent = activeTheme;
+      topProgress.textContent = `积分 ${formatNumber(profile.credits)} | 奖励 ${rewardClaimed}/${rewardItems.length} | 任务 ${taskClaimed}/${taskItems.length} | 芯片 ${profile.inventory.reviveChip}`;
 
-      heroRewardState.textContent = rewardClaimed === rewardItems.length ? "每日奖励已全部领取" : `每日奖励待领取 ${rewardRemaining} 项`;
-      heroTaskState.textContent = `任务完成 ${taskDone}/${taskItems.length}`;
+      heroRewardState.textContent = rewardClaimed === rewardItems.length ? "今日奖励已全部领取" : `今日奖励待领取 ${rewardRemaining} 项`;
+      heroRewardNote.textContent = `今日奖励共可领取 ${formatNumber(totalDailyRewardCredits)} 积分，每日 00:00 自动重置。`;
+      heroTaskState.textContent = `任务完成 ${taskClaimed}/${taskItems.length}`;
+      heroTaskNote.textContent = `今日已完成 ${profile.daily.runs} 局，最高 ${formatNumber(profile.daily.bestScore)} 分，已购物 ${profile.daily.purchases} 件。`;
+      heroCreditState.textContent = `当前积分 ${formatNumber(profile.credits)}`;
+      heroCreditNote.textContent = `上局结算 ${formatNumber(profile.lastRunScore)} 分 | 生涯最高 ${formatNumber(Math.max(profile.bestScore, profile.daily.bestScore))} 分`;
+      footerEconomyNote.textContent = getNextAffordableHint();
+
       rewardSummaryText.textContent = rewardClaimed === 0
-        ? "今天尚未领取奖励，建议先完成签到。"
+        ? "今日尚未领取任何奖励，建议先补足启动积分再开始对局。"
         : rewardClaimed === rewardItems.length
-          ? "今日奖励已全部领取完毕，刷新页面后状态仍会保留。"
-          : `今天已领取 ${rewardClaimed} 项奖励，还剩 ${rewardRemaining} 项可领取。`;
-      taskSummaryText.textContent = taskDone === 0
-        ? "当前尚未完成任务，可逐项领取主页演示奖励。"
-        : taskDone === taskItems.length
-          ? "任务已全部完成，模块状态同步正常。"
-          : `当前已完成 ${taskDone} 项任务，剩余 ${taskItems.length - taskDone} 项。`;
-      shopSummaryText.textContent = selectedShop
-        ? `当前已启用 ${selectedShop.title} 方案，选择状态会同步回主页摘要。`
-        : "尚未选择主题方案，当前使用默认主页样式。";
-    }
+          ? "今日奖励已经全部领取完毕，可以把重心转向冲分和购物。"
+          : `今日已领取 ${rewardClaimed} 项奖励，还剩 ${rewardRemaining} 项可继续补充积分。`;
+      rewardBonusText.textContent = `奖励会直接汇入积分余额，不占用额外背包位，可立即用于商店消费。`;
 
-    function canClaimTask(taskId) {
-      if (taskId === "task-1") return rewardItems.some((item) => state.rewards[item.id]);
-      if (taskId === "task-2") return Boolean(state.selectedShopId);
-      if (taskId === "task-3") return state.visited.reward && state.visited.task && state.visited.shop;
-      return false;
-    }
+      taskSummaryText.textContent = taskClaimed === taskItems.length
+        ? "今日任务已全部完成，当前经济循环已经打通。"
+        : `当前已领取 ${taskClaimed} 项任务奖励，未领取部分会随你的今日对局和消费进度继续解锁。`;
+      taskBonusText.textContent = `今日对局 ${profile.daily.runs} 局，今日累计得分 ${formatNumber(profile.daily.totalScore)}，今日最高分 ${formatNumber(profile.daily.bestScore)}。`;
 
-    function getTaskProgressText(taskId) {
-      if (taskId === "task-1") return rewardItems.some((item) => state.rewards[item.id]) ? "已达成" : "待完成";
-      if (taskId === "task-2") return state.selectedShopId ? "已达成" : "待完成";
-      if (taskId === "task-3") return state.visited.reward && state.visited.task && state.visited.shop ? "已达成" : "待完成";
-      return "待完成";
-    }
-
-    function getRewardTitle(rewardId) {
-      const item = rewardItems.find((entry) => entry.id === rewardId);
-      return item ? item.title : "奖励";
-    }
-
-    function getTaskTitle(taskId) {
-      const item = taskItems.find((entry) => entry.id === taskId);
-      return item ? item.title : "任务";
-    }
-
-    function getShopTitle(shopId) {
-      const item = shopItems.find((entry) => entry.id === shopId);
-      return item ? item.title : "商店方案";
+      shopSummaryText.textContent = `当前可用积分 ${formatNumber(profile.credits)}，生涯累计得分 ${formatNumber(profile.lifetimeScore)}，累计完成对局 ${profile.totalRuns} 局。`;
+      shopInventoryText.textContent = `复活芯片 ${profile.inventory.reviveChip} 枚；永久强化 ${countUnlockedUpgrades()} 项；已购主题 ${countOwnedThemes()} 套。`;
+      shopLoadoutText.textContent = `当前主题 ${activeTheme}；投放冷却 ${profile.upgrades.cooling ? "420ms" : "460ms"}；合成得分 ${profile.upgrades.mergeBonus ? "x1.2" : "基础"}；结算增幅 ${profile.upgrades.creditBoost ? "+15%" : "未激活"}；警戒缓冲 ${profile.upgrades.warningBuffer ? "3.8s" : "3.0s"}；稳态协议 ${profile.upgrades.starterBag ? "已激活" : "未激活"}。`;
     }
 
     function showToast(message) {
@@ -1647,6 +2127,8 @@
     }
 
     function startGame() {
+      saveState();
+      saveProfile();
       showToast("正在进入游戏页...");
       window.setTimeout(() => {
         window.location.href = "game.html";
