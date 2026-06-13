@@ -1884,6 +1884,155 @@
       }
     }
 
+    @media (max-width: 900px) and (orientation: landscape) and (max-height: 560px) {
+      .view-topbar {
+        gap: 0.4rem;
+      }
+
+      .topbar-actions {
+        min-width: 4.6rem;
+      }
+
+      .settings-trigger {
+        width: clamp(3.8rem, 10vh, 4.8rem);
+        min-width: clamp(3.8rem, 10vh, 4.8rem);
+        min-height: clamp(3.8rem, 10vh, 4.8rem);
+        font-size: clamp(1.9rem, 5vh, 2.6rem);
+      }
+
+      .settings-panel {
+        width: min(18rem, calc(100vw - 1rem));
+      }
+
+      .view-card {
+        padding: 0.55rem 0.68rem;
+        gap: 0.45rem;
+      }
+
+      .view-stage {
+        overflow: auto;
+        padding-right: 0.12rem;
+        scrollbar-width: thin;
+      }
+
+      .view-stage::-webkit-scrollbar {
+        width: 5px;
+      }
+
+      .view-stage::-webkit-scrollbar-thumb {
+        border-radius: var(--pixel-radius-sm);
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .module-view.active {
+        height: auto;
+        min-height: 100%;
+      }
+
+      .module-view[data-view="home"] .module-main,
+      .module-view[data-view="home"] .module-main[data-resizable="false"] {
+        grid-template-columns: minmax(0, 1.22fr) minmax(9.8rem, 0.78fr);
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        gap: 0.4rem;
+        overflow: visible;
+      }
+
+      .module-view[data-view="home"] .hero-row {
+        grid-template-columns: minmax(0, 1fr) minmax(8.8rem, 10.4rem);
+        gap: 0.42rem;
+        align-items: start;
+      }
+
+      .module-view[data-view="home"] .hero-side {
+        grid-template-columns: 1fr;
+        gap: 0.35rem;
+      }
+
+      .module-view[data-view="home"] .quick-grid,
+      .module-view[data-view="home"] .action-grid {
+        gap: 0.35rem;
+      }
+
+      .hero-panel {
+        min-height: 0;
+        padding: 0.68rem 0.74rem;
+        gap: 0.55rem;
+      }
+
+      .view-title {
+        font-size: clamp(1.55rem, 4.2vw, 2.1rem);
+      }
+
+      .view-caption,
+      .view-summary,
+      .progress-copy {
+        font-size: 0.76rem;
+        line-height: 1.28;
+      }
+
+      .hero-title {
+        font-size: clamp(1.35rem, 3.7vw, 1.95rem);
+      }
+
+      .hero-subtitle,
+      .metric-text,
+      .task-desc,
+      .reward-desc,
+      .shop-desc,
+      .footer-note,
+      .action-text,
+      .settings-panel-copy,
+      .language-option {
+        font-size: 0.76rem;
+        line-height: 1.28;
+      }
+
+      .action-btn,
+      .stat-card,
+      .metric-card,
+      .hero-card,
+      .detail-card,
+      .reward-item,
+      .task-item,
+      .shop-item {
+        padding: 0.45rem 0.5rem;
+      }
+
+      .action-btn {
+        min-height: 3.65rem;
+      }
+
+      .action-symbol {
+        font-size: 1rem;
+      }
+
+      .action-title {
+        font-size: 0.8rem;
+      }
+
+      .stat-value {
+        font-size: 1rem;
+      }
+
+      .stat-label {
+        font-size: 0.68rem;
+      }
+
+      .hero-card strong {
+        font-size: 0.9rem;
+      }
+
+      .footer-bar {
+        gap: 0.35rem;
+      }
+
+      #heroStartBtn {
+        min-height: 3.4rem;
+        padding: 0.9rem 1.05rem;
+        font-size: 1.12rem;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *,
       *::before,
