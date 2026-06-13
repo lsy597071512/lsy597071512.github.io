@@ -444,6 +444,7 @@
     }
 
     .back-btn {
+      display: none;
       justify-self: start;
       min-width: 6.25rem;
       min-height: 3rem;
@@ -453,6 +454,7 @@
     }
 
     .back-btn.show {
+      display: inline-flex;
       opacity: 1;
       pointer-events: auto;
     }
@@ -1138,7 +1140,7 @@
       margin-right: auto;
       padding-left: clamp(0rem, 0.4vw, 0.35rem);
       padding-right: 0;
-      overflow: hidden;
+      overflow: visible;
     }
 
     .module-view[data-view="home"] .hero-panel {
@@ -2030,6 +2032,139 @@
         min-height: 3.4rem;
         padding: 0.9rem 1.05rem;
         font-size: 1.12rem;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .view-topbar {
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+          "back settings"
+          "progress settings";
+        align-items: start;
+        gap: 0.5rem;
+      }
+
+      .back-btn {
+        grid-area: back;
+      }
+
+      .progress-copy {
+        grid-area: progress;
+        justify-self: start;
+        text-align: left;
+        max-width: 100%;
+      }
+
+      .topbar-actions {
+        grid-area: settings;
+        min-width: 4.8rem;
+        justify-self: end;
+        align-self: start;
+      }
+
+      .settings-trigger {
+        width: clamp(4.1rem, 8.8vw, 5.4rem);
+        min-width: clamp(4.1rem, 8.8vw, 5.4rem);
+        min-height: clamp(4.1rem, 8.8vw, 5.4rem);
+        font-size: clamp(2rem, 4.8vw, 3rem);
+      }
+
+      .view-stage {
+        overflow: auto;
+        padding-right: 0.12rem;
+        scrollbar-width: thin;
+      }
+
+      .view-stage::-webkit-scrollbar {
+        width: 5px;
+      }
+
+      .view-stage::-webkit-scrollbar-thumb {
+        border-radius: var(--pixel-radius-sm);
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .module-view.active {
+        height: auto;
+        min-height: 100%;
+      }
+
+      .module-view[data-view="home"] .module-main,
+      .module-view[data-view="home"] .module-main[data-resizable="false"] {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto auto;
+        height: auto;
+        max-height: none;
+        gap: 0.55rem;
+        overflow: visible;
+      }
+
+      .module-view[data-view="home"] .module-header,
+      .module-view[data-view="home"] .module-main[data-resizable="false"] .module-header,
+      .module-view[data-view="home"] .hero-panel,
+      .module-view[data-view="home"] .module-main[data-resizable="false"] .hero-panel,
+      .module-view[data-view="home"] .quick-grid,
+      .module-view[data-view="home"] .module-main[data-resizable="false"] .quick-grid,
+      .module-view[data-view="home"] .action-grid,
+      .module-view[data-view="home"] .module-main[data-resizable="false"] .action-grid {
+        grid-column: 1 / 2;
+        grid-row: auto;
+      }
+
+      .module-view[data-view="home"] .module-header,
+      .module-view[data-view="home"] .module-main[data-resizable="false"] .module-header {
+        max-width: 100%;
+      }
+
+      .module-view[data-view="home"] .hero-row {
+        grid-template-columns: 1fr;
+        gap: 0.55rem;
+      }
+
+      .module-view[data-view="home"] .hero-side {
+        grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+        gap: 0.45rem;
+      }
+
+      .module-view[data-view="home"] .quick-grid {
+        grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+        align-self: start;
+      }
+
+      .module-view[data-view="home"] .action-grid {
+        grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+        align-self: start;
+      }
+
+      .hero-panel,
+      .action-btn,
+      .stat-card,
+      .hero-card {
+        text-align: left;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .topbar-actions {
+        min-width: 4.1rem;
+      }
+
+      .settings-trigger {
+        width: 4rem;
+        min-width: 4rem;
+        min-height: 4rem;
+        font-size: 1.95rem;
+      }
+
+      .language-options {
+        grid-template-columns: 1fr;
+      }
+
+      .module-view[data-view="home"] .hero-side,
+      .module-view[data-view="home"] .quick-grid,
+      .module-view[data-view="home"] .action-grid {
+        grid-template-columns: 1fr;
       }
     }
 
