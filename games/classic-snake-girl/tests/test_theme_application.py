@@ -4,6 +4,7 @@ import unittest
 
 
 PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[1]
+INDEX_HTML = (PROJECT_ROOT / "index.html").read_text(encoding="utf-8")
 HOME_HTML = (PROJECT_ROOT / "home.html").read_text(encoding="utf-8")
 GAME_HTML = (PROJECT_ROOT / "game.html").read_text(encoding="utf-8")
 
@@ -56,6 +57,21 @@ class ThemeApplicationTest(unittest.TestCase):
       self.assertIn("function applyGameplayTheme", GAME_HTML)
       for theme_class in ("theme-sunset", "theme-ice", "theme-aurora"):
         self.assertIn(f"body.{theme_class} {{", GAME_HTML)
+
+    def test_loading_page_uses_fast_entry_gate_and_local_matter(self):
+      self.assertIn('const FAST_ENTRY_GATE_MS = 2200;', INDEX_HTML)
+      self.assertIn('url: "vendor/matter.min.js"', INDEX_HTML)
+      self.assertNotIn('url: "music/bgm01.mp3"', INDEX_HTML)
+      self.assertIn('priority: "critical"', INDEX_HTML)
+      self.assertIn('function withTimeout(', INDEX_HTML)
+      self.assertIn('Promise.allSettled(criticalTasks)', INDEX_HTML)
+
+    def test_game_uses_local_matter_and_runtime_safe_area_tokens(self):
+      self.assertIn('<script src="vendor/matter.min.js"></script>', GAME_HTML)
+      self.assertIn("--viewport-safe-bottom", GAME_HTML)
+      self.assertIn("--ui-safe-bottom", GAME_HTML)
+      self.assertIn("function syncViewportCSSVars()", GAME_HTML)
+      self.assertIn("window.visualViewport.addEventListener", GAME_HTML)
 
 
 if __name__ == "__main__":
