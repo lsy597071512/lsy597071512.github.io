@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>星空水晶生存战 - 玩法说明</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Exo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
+<link rel="stylesheet" href="styles/app.css" />
+</head>
+<body>
+<div id="guideScreen">
+  <div class="panel panel-home panel-guide">
+    <div class="panel-shell">
+      <div class="panel-pin panel-pin-left" aria-hidden="true"></div>
+      <div class="panel-pin panel-pin-right" aria-hidden="true"></div>
+      <div class="panel-ornament panel-planet" aria-hidden="true">🪐</div>
+      <div class="panel-ornament panel-meteor" aria-hidden="true">☄</div>
+      <div class="panel-header">
+        <div class="panel-kicker">MISSION BRIEFING</div>
+        <h1 data-i18n="guide.title">玩法说明</h1>
+        <p class="panel-lead" data-i18n="guide.lead">在阿尔法星上尽量存活并收集晶石，积分越高，挑战越强，回报也越大。</p>
+      </div>
+
+      <div class="guide-content">
+        <section class="guide-section">
+          <h2 class="guide-section-title"><span class="guide-icon">★</span> <span data-i18n="guide.sec.score">积分怎么获得？</span></h2>
+          <ul class="guide-list">
+            <li data-i18n-html="guide.score.l1">靠近并拾取<strong>积分水晶</strong>即可获得积分，是本局得分的唯一来源。</li>
+            <li data-i18n-html="guide.score.l2">当前积分越高，场上水晶颜色越高级，单颗分值从 <strong>+5</strong> 逐步升到 <strong>+80</strong>。</li>
+            <li data-i18n-html="guide.score.l3">处于<strong>加速</strong>或<strong>无敌</strong>状态时，拾取水晶有额外倍率：加速 ×1.2、无敌 ×1.6、两者同时 ×2.0。</li>
+            <li data-i18n-html="guide.score.l4">本局结束后，积分会计入<strong>最高纪录</strong>与<strong>累计积分</strong>（可在星际商店消费）。</li>
+          </ul>
+        </section>
+
+        <section class="guide-section">
+          <h2 class="guide-section-title"><span class="guide-icon">💎</span> <span data-i18n="guide.sec.crystal">积分水晶</span></h2>
+          <p class="guide-text" data-i18n="guide.crystal.text">彩色晶石持续刷新在平台上，是主要的收集目标。积分档位提升后，水晶会变色并更值钱，同时敌人也会同步变强。</p>
+        </section>
+
+        <section class="guide-section">
+          <h2 class="guide-section-title"><span class="guide-icon">👾</span> <span data-i18n="guide.sec.enemy">怪物</span></h2>
+          <p class="guide-text" data-i18n="guide.enemy.text">敌人会主动追击，碰撞会扣血并击退。存活越久，数量与速度都会增加；后期还会出现紫色精英与幽灵 BOSS，威胁更大。</p>
+        </section>
+
+        <section class="guide-section">
+          <h2 class="guide-section-title"><span class="guide-icon">🍎</span> <span data-i18n="guide.sec.fruit">状态果实</span></h2>
+          <ul class="guide-list guide-list-compact">
+            <li data-i18n-html="guide.fruit.speed"><strong>加速果实</strong>：短时间移速提升，便于脱困与刷分。</li>
+            <li data-i18n-html="guide.fruit.heal"><strong>回血果实</strong>：恢复生命值，低血时优先拾取。</li>
+            <li data-i18n-html="guide.fruit.inv"><strong>无敌果实</strong>：短时间免疫伤害，并可撞开敌人。</li>
+          </ul>
+        </section>
+      </div>
+
+      <div class="guide-actions">
+        <a href="home.html" class="guide-back-btn" data-i18n="guide.back">← 返回主页</a>
+        <a href="game.html" class="guide-start-link"><span>🚀</span> <span data-i18n="guide.start">开始游戏</span></a>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="module" src="scripts/guide.js"></script>
+</body>
+</html>

@@ -1,5 +1,5 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
-<html lang="zh-CN">
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <title>星空水晶生存战</title>
@@ -19,49 +19,45 @@
 <div id="scanlines"></div>
 <div id="damageOverlay"></div>
 
-<div id="hudDesktop">
-  <div class="hud-line">积分：<span data-bind="score">0</span></div>
-  <div class="hud-line">生命：<span data-bind="hp">50</span></div>
-  <div class="hud-line">存活：<span data-bind="time">0.0</span>s</div>
-  <div class="hud-line">水晶：<span data-bind="crystal">蓝色 +5</span></div>
-  <div class="hud-line">敌人速度等级：<span data-bind="enemyLevel">1</span></div>
-  <div class="hud-line">场上敌人：<span data-bind="enemyCount">0</span></div>
-  <div class="hud-line">FPS：<span data-bind="fps">0</span></div>
-  <div class="hud-line">紫色精英怪：<span data-bind="purpleCount">0</span>/5</div>
-  <div class="hud-line">幽灵BOSS：<span data-bind="ghostBossCount">0</span></div>
-  <div class="hud-line">状态果实：<span data-bind="fruitInfo">25秒后加速果实</span></div>
-  <div class="hud-line">加速剩余：<span data-bind="speedBuff">0.0</span>s</div>
-  <div class="hud-line">无敌剩余：<span data-bind="invincibleBuff">0.0</span>s</div>
-</div>
-
-<div id="hudMobile">
-  <div class="mobile-hud-panel">
-    <div class="mobile-hud-item"><span class="mobile-hud-label">积分</span><span class="mobile-hud-value" data-bind="score">0</span></div>
-    <div class="mobile-hud-item"><span class="mobile-hud-label">生命</span><span class="mobile-hud-value" data-bind="hp">50</span></div>
-    <div class="mobile-hud-item"><span class="mobile-hud-label">时间</span><span class="mobile-hud-value"><span data-bind="time">0.0</span>s</span></div>
-    <div class="mobile-hud-item"><span class="mobile-hud-label">敌人</span><span class="mobile-hud-value" data-bind="enemyCount">0</span></div>
-    <div class="mobile-hud-item"><span class="mobile-hud-label">紫怪</span><span class="mobile-hud-value"><span data-bind="purpleCount">0</span>/5</span></div>
-    <div class="mobile-hud-item"><span class="mobile-hud-label">幽灵</span><span class="mobile-hud-value" data-bind="ghostBossCount">0</span></div>
-    <div class="mobile-hud-item"><span class="mobile-hud-label">FPS</span><span class="mobile-hud-value" data-bind="fps">0</span></div>
-    <div class="mobile-hud-item"><span class="mobile-hud-label">加速</span><span class="mobile-hud-value"><span data-bind="speedBuff">0.0</span>s</span></div>
-    <div class="mobile-hud-item"><span class="mobile-hud-label">无敌</span><span class="mobile-hud-value"><span data-bind="invincibleBuff">0.0</span>s</span></div>
-    <div class="mobile-hud-item mobile-hud-wide"><span class="mobile-hud-label">水晶</span><span class="mobile-hud-value" data-bind="crystal">蓝色 +5</span></div>
-    <div class="mobile-hud-item mobile-hud-wide"><span class="mobile-hud-label">果实</span><span class="mobile-hud-value" data-bind="fruitInfo">25秒后加速果实</span></div>
+<div id="hudGame">
+  <div class="hud-stat" data-hud="score">
+    <span class="hud-label" data-i18n="hud.score">积分</span>
+    <span class="hud-value" data-bind="score">0</span>
+  </div>
+  <div class="hud-stat" data-hud="time">
+    <span class="hud-label" data-i18n="hud.time">存活</span>
+    <span class="hud-value"><span data-bind="time">0.0</span>s</span>
+  </div>
+  <div class="hud-stat" data-hud="fps">
+    <span class="hud-label" data-i18n="hud.fps">FPS</span>
+    <span class="hud-value" data-bind="fps">0</span>
   </div>
 </div>
 
-<div id="warning">警告：生命值过低！</div>
-<div id="startToast">您已来到阿尔法星球，请存活下去并收集更多的晶石。</div>
+<div id="warning" data-i18n="game.warning">警告：生命值过低！</div>
+<div id="startToast" data-i18n="game.startToast">您已来到阿尔法星球，请存活下去并收集更多的晶石。</div>
 <div id="tip"></div>
 <div id="joystick"><div id="stick"></div></div>
 
-<button id="pauseBtn" type="button" title="暂停 (P / ESC)" aria-label="暂停游戏">
+<button id="pauseBtn" type="button" data-i18n-title="game.pauseTitle" data-i18n-aria="game.pauseAria" title="暂停 (P / ESC)" aria-label="暂停游戏">
   <span class="pb-bar"></span><span class="pb-bar"></span><span class="pb-play"></span>
 </button>
 
-<button id="restartGameBtn" type="button" title="重新开始" aria-label="重新开始">
-  <span class="rg-icon">&#8635;</span><span class="rg-label">重新开始</span>
-</button>
+<div id="pauseMenu" style="display:none;" aria-hidden="true">
+  <div class="pause-menu-card">
+    <div class="pause-menu-kicker">MISSION PAUSED</div>
+    <h2 class="pause-menu-title" data-i18n="game.pauseHeading">游戏暂停</h2>
+    <p class="pause-menu-note" data-i18n="game.pauseNote">返回主页不会保存本局进度，也不会计入成绩与积分。</p>
+    <div class="pause-menu-actions">
+      <button id="pauseResumeBtn" type="button" class="pause-menu-btn pause-menu-btn-primary">
+        <span class="pause-menu-btn-icon">▶</span><span data-i18n="game.resume">继续游戏</span>
+      </button>
+      <button id="pauseHomeBtn" type="button" class="pause-menu-btn pause-menu-btn-secondary">
+        <span class="pause-menu-btn-icon">🏠</span><span data-i18n="game.home">返回主页</span>
+      </button>
+    </div>
+  </div>
+</div>
 
 <div id="debugOverlay">
   <div class="dbg-vignette"></div>
@@ -113,22 +109,22 @@
       <div class="panel-ornament panel-meteor" aria-hidden="true">☄</div>
       <div class="panel-header">
         <div class="panel-kicker">MISSION RESULT</div>
-        <h1>游戏结束</h1>
+        <h1 data-i18n="game.overTitle">游戏结束</h1>
         <div class="result-meta">
-          <p>最终得分：<span id="finalScore">0</span></p>
-          <p>存活时间：<span id="finalTime">0.0</span>s</p>
+          <p><span data-i18n="game.finalScore">最终得分：</span><span id="finalScore">0</span></p>
+          <p><span data-i18n="game.finalTime">存活时间：</span><span id="finalTime">0.0</span>s</p>
         </div>
-        <p class="panel-lead" id="gameOverLead">本次阿尔法星探索结束，继续挑战更高积分与更长生存时间。</p>
+        <p class="panel-lead" id="gameOverLead" data-i18n="game.overLead">本次阿尔法星探索结束，继续挑战更高积分与更长生存时间。</p>
       </div>
       <div class="hero-strip hero-strip-gameover">
-        <div class="hero-stat"><span>探索评价</span><strong>继续冲榜</strong></div>
-        <div class="hero-stat"><span>主要目标</span><strong>突破新纪录</strong></div>
-        <div class="hero-stat"><span>下一步</span><strong>再次出发</strong></div>
+        <div class="hero-stat"><span data-i18n="game.evalExplore">探索评价</span><strong data-i18n="game.evalExploreVal">继续冲榜</strong></div>
+        <div class="hero-stat"><span data-i18n="game.evalGoal">主要目标</span><strong data-i18n="game.evalGoalVal">突破新纪录</strong></div>
+        <div class="hero-stat"><span data-i18n="game.evalNext">下一步</span><strong data-i18n="game.evalNextVal">再次出发</strong></div>
       </div>
     <div id="gameoverAchievementPanel" class="achievement-panel"></div>
       <div class="cta-row">
-        <div class="cta-center"><button id="restartBtn" class="cta-button"><span class="cta-icon">🚀</span><span>重新开始</span></button></div>
-        <button id="shopEntryBtn2" class="shop-main-btn"><span class="sm-icon">🏠</span><span>返回主页</span></button>
+        <div class="cta-center"><button id="restartBtn" class="cta-button"><span class="cta-icon">🚀</span><span data-i18n="game.restart">重新开始</span></button></div>
+        <button id="shopEntryBtn2" class="shop-main-btn"><span class="sm-icon">🏠</span><span data-i18n="game.goHome">返回主页</span></button>
       </div>
       <div class="bgm-volume">
         <span class="bgm-vol-label">🔊 BGM</span>
@@ -143,7 +139,7 @@
   <div class="l-wrap">
     <div class="l-orbit" aria-hidden="true">🪐</div>
     <div class="l-title">LOADING...</div>
-    <div class="l-subtitle">正在部署阿尔法星任务环境</div>
+    <div class="l-subtitle" data-i18n="game.loadingSubtitle">正在部署阿尔法星任务环境</div>
     <div class="l-spinner"></div>
     <div class="l-bar-outer"><div class="l-bar-inner" id="lBar"></div></div>
     <div class="l-pct" id="lPct">0％</div>

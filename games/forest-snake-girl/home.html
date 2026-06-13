@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <title>星空水晶生存战 - 主页菜单</title>
@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Exo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preload" href="music/jiemian01.mp3" as="audio" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
 <link rel="stylesheet" href="styles/app.css" />
 </head>
@@ -15,25 +16,29 @@
 <div id="startScreen">
   <div class="panel panel-home panel-start">
     <div class="panel-shell">
+      <button id="settingsBtn" class="panel-settings-btn" type="button" data-i18n-aria="settings.btnLabel" aria-label="设置">
+        <span class="panel-settings-icon" aria-hidden="true">⚙</span>
+      </button>
       <div class="panel-pin panel-pin-left" aria-hidden="true"></div>
       <div class="panel-pin panel-pin-right" aria-hidden="true"></div>
       <div class="panel-ornament panel-planet" aria-hidden="true">🪐</div>
       <div class="panel-ornament panel-meteor" aria-hidden="true">☄</div>
       <div class="panel-header">
         <div class="panel-kicker">ALPHA STAR SURVIVAL</div>
-        <h1>星空水晶生存战</h1>
-        <p class="panel-lead">在阿尔法星的赤色荒原上收集晶石、躲避怪物、刷新段位，冲击更高纪录。</p>
+        <h1 data-i18n="home.title">星空水晶生存战</h1>
+        <p class="panel-lead" data-i18n="home.lead">在阿尔法星的赤色荒原上收集晶石、躲避怪物、刷新段位，冲击更高纪录。</p>
       </div>
-      <div class="cta-row">
-        <div class="cta-center"><button id="startBtn" class="cta-button"><span class="cta-icon">🚀</span><span>开始游戏</span></button></div>
-        <button id="shopEntryBtn" class="shop-main-btn"><span class="sm-icon">🛒</span><span>星际商店</span></button>
+      <div class="cta-row cta-row-triple">
+        <a id="guideEntryBtn" class="guide-main-btn cta-side-btn" href="guide.html"><span class="gm-icon">📖</span><span data-i18n="home.guide">玩法说明</span></a>
+        <button id="startBtn" class="cta-button cta-main-btn"><span class="cta-icon">🚀</span><span data-i18n="home.start">开始游戏</span></button>
+        <button id="shopEntryBtn" class="shop-main-btn cta-side-btn"><span class="sm-icon">🛒</span><span data-i18n="home.shop">星际商店</span></button>
       </div>
-      <div class="panel-intro">每一局都会提升晶石价值与敌人强度，合理利用加速、回血和无敌果实才能冲上更高段位。</div>
+      <div class="panel-intro" data-i18n="home.intro">每一局都会提升晶石价值与敌人强度，合理利用加速、回血和无敌果实才能冲上更高段位。</div>
       <div id="startAchievementPanel" class="achievement-panel"></div>
       <div class="hero-strip">
-        <div class="hero-stat"><span>模式</span><strong>生存收集</strong></div>
-        <div class="hero-stat"><span>操作</span><strong>WASD / 摇杆</strong></div>
-        <div class="hero-stat"><span>目标</span><strong>刷分解锁成就</strong></div>
+        <div class="hero-stat"><span data-i18n="home.stat.mode">模式</span><strong data-i18n="home.stat.modeVal">生存收集</strong></div>
+        <div class="hero-stat"><span data-i18n="home.stat.control">操作</span><strong data-i18n="home.stat.controlVal">WASD / 摇杆</strong></div>
+        <div class="hero-stat"><span data-i18n="home.stat.goal">目标</span><strong data-i18n="home.stat.goalVal">刷分解锁成就</strong></div>
       </div>
       <div class="bgm-volume">
         <span class="bgm-vol-label">🔊 BGM</span>
@@ -52,15 +57,15 @@
       <div class="panel-ornament panel-meteor" aria-hidden="true">☄</div>
       <div class="panel-header">
         <div class="panel-kicker">STAR MARKET</div>
-        <h1>星际商店</h1>
+        <h1 data-i18n="shop.title">星际商店</h1>
       </div>
       <div class="shop-points-bar">
-        <span class="sp-label">✨ 累计积分</span>
+        <span class="sp-label" data-i18n="shop.points">✨ 累计积分</span>
         <span class="sp-value" id="shopPointsDisplay">0</span>
       </div>
       <div class="shop-grid" id="shopGrid"></div>
       <div class="shop-back-row" style="text-align:center">
-        <button class="shop-back-btn" id="shopBackBtn">← 返回主页</button>
+        <button class="shop-back-btn" id="shopBackBtn" data-i18n="shop.back">← 返回主页</button>
       </div>
     </div>
   </div>
@@ -68,16 +73,28 @@
 
 <div id="shopConfirm">
   <div class="shop-confirm-card">
-    <h3>确认购买</h3>
+    <h3 data-i18n="shop.confirmTitle">确认购买</h3>
     <p id="shopConfirmText"></p>
     <div class="shop-confirm-btns">
-      <button class="shop-confirm-yes" id="shopConfirmYes">确认</button>
-      <button class="shop-confirm-no" id="shopConfirmNo">取消</button>
+      <button class="shop-confirm-yes" id="shopConfirmYes" data-i18n="shop.confirmYes">确认</button>
+      <button class="shop-confirm-no" id="shopConfirmNo" data-i18n="shop.confirmNo">取消</button>
     </div>
   </div>
 </div>
 
-<div id="shopClosedToast" class="shop-closed-toast">商店关门了，请下次再来</div>
+<div id="settingsModal" class="settings-modal" style="display:none;" aria-hidden="true">
+  <div class="settings-card">
+    <h2 class="settings-title" data-i18n="settings.title">系统设置</h2>
+    <p class="settings-label" data-i18n="settings.language">系统语言</p>
+    <div class="settings-lang-row">
+      <button type="button" class="settings-lang-btn" data-lang="zh" data-i18n="settings.langZh">中文 (Chinese)</button>
+      <button type="button" class="settings-lang-btn" data-lang="en" data-i18n="settings.langEn">English (英文)</button>
+    </div>
+    <button type="button" id="settingsCloseBtn" class="settings-close-btn" data-i18n="settings.close">关闭</button>
+  </div>
+</div>
+
+<div id="shopClosedToast" class="shop-closed-toast" data-i18n="shop.closedToast">商店关门了，请下次再来</div>
 
 <script type="module" src="scripts/home.js"></script>
 </body>

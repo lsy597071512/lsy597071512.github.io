@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>星空水晶生存战 - 游戏预览</title>
+<meta name="description" content="在阿尔法星的赤色荒原上收集晶石、躲避怪物、刷新段位。3D 生存收集类浏览器游戏，支持 PC 与移动端。" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sky-1: #cf473f;
+  --sky-2: #ef7c44;
+  --sky-3: #ffc07e;
+  --cream: #fff2dd;
+  --gold: #ffd464;
+  --panel: rgba(54, 22, 18, .78);
+  --text: #fff6ea;
+  --text-soft: rgba(255, 246, 234, .78);
+  --font-d: 'Orbitron', 'Exo 2', 'Microsoft YaHei', sans-serif;
+  --font-b: 'Exo 2', 'Microsoft YaHei', Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-b);
+  color: var(--text);
+  background: #050816;
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+
+code {
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, .28);
+  font-size: .92em;
+}
+
+/* ── Top bar ── */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+  background: rgba(5, 8, 22, .72);
+  border-bottom: 1px solid rgba(255, 228, 180, .18);
+  backdrop-filter: blur(10px);
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-d);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .5px;
+}
+
+.topbar-brand span:first-child { font-size: 20px; }
+
+.topbar-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.topbar-link {
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 228, 180, .22);
+  background: rgba(54, 22, 18, .45);
+  transition: transform .15s, background .15s;
+}
+
+.topbar-link:hover { transform: translateY(-1px); background: rgba(80, 32, 24, .72); }
+
+.topbar-link.primary {
+  color: #5a2208;
+  background: linear-gradient(180deg, #ffe08a 0%, #ffb84d 100%);
+  border-color: transparent;
+  font-weight: 800;
+}
+
+/* ── Hero ── */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 96px 20px 56px;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 12%, rgba(255, 236, 183, .45) 0, transparent 16%),
+    radial-gradient(circle at 88% 20%, rgba(255, 212, 124, .24) 0, transparent 20%),
+    linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 52%, var(--sky-3) 100%);
+}
+
+.hero-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('TEX/01_d.png') center / cover no-repeat;
+  opacity: .76;
+  filter: saturate(1.08) contrast(1.04);
+}
+
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(5, 8, 22, .12) 0%, rgba(5, 8, 22, .62) 100%),
+    radial-gradient(circle at 18% 78%, rgba(255, 212, 100, .14), transparent 42%);
+}
+
+.stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(2px 2px at 14% 14%, rgba(255, 245, 220, .95), transparent),
+    radial-gradient(2px 2px at 63% 13%, rgba(255, 209, 116, .9), transparent),
+    radial-gradient(3px 3px at 74% 10%, rgba(255, 244, 208, .95), transparent),
+    radial-gradient(2px 2px at 92% 40%, rgba(255, 242, 200, .75), transparent);
+  animation: twinkle 4.8s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  width: min(1040px, 100%);
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.hero-copy { text-align: left; }
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  margin-bottom: 14px;
+  border-radius: 999px;
+  background: rgba(255, 241, 219, .16);
+  border: 1px solid rgba(255, 233, 184, .38);
+  font-family: var(--font-d);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #ffe4b9;
+}
+
+.hero h1 {
+  margin: 0 0 14px;
+  font-family: var(--font-d);
+  font-size: clamp(34px, 6vw, 56px);
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 0 #bf5a52, 0 4px 18px rgba(69, 17, 10, .45);
+}
+
+.hero-sub {
+  margin: 0 0 26px;
+  max-width: 540px;
+  font-size: clamp(15px, 2.4vw, 18px);
+  line-height: 1.65;
+  color: rgba(255, 246, 234, .92);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 15px 28px;
+  border: none;
+  border-radius: 999px;
+  font-family: var(--font-d);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+
+.btn-primary {
+  color: #5a2208;
+  background: linear-gradient(180deg, #ffe08a 0%, #ffb84d 100%);
+  box-shadow: 0 8px 24px rgba(114, 39, 14, .35), inset 0 1px 0 rgba(255, 255, 255, .45);
+}
+
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(114, 39, 14, .42); }
+
+.btn-secondary {
+  color: var(--text);
+  background: rgba(54, 22, 18, .55);
+  border: 2px solid rgba(255, 228, 180, .35);
+}
+
+.btn-secondary:hover { transform: translateY(-2px); background: rgba(80, 32, 24, .72); }
+
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: rgba(255, 241, 219, .12);
+  border: 1px solid rgba(255, 233, 184, .28);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.hero-card {
+  padding: 22px;
+  border-radius: 24px;
+  background: rgba(54, 22, 18, .62);
+  border: 2px solid rgba(255, 228, 180, .28);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .35);
+}
+
+.hero-card h2 {
+  margin: 0 0 16px;
+  font-family: var(--font-d);
+  font-size: 15px;
+  color: var(--gold);
+  letter-spacing: 1px;
+}
+
+.flow-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+
+.flow-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, .18);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.flow-step {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffe08a, #ffb84d);
+  color: #5a2208;
+  font-family: var(--font-d);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* ── Sections ── */
+.section {
+  padding: 64px 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.section-alt {
+  background: linear-gradient(180deg, rgba(207, 71, 63, .08), transparent);
+}
+
+.section-title {
+  margin: 0 0 8px;
+  font-family: var(--font-d);
+  font-size: clamp(24px, 4vw, 32px);
+  text-align: center;
+}
+
+.section-lead {
+  margin: 0 auto 36px;
+  max-width: 620px;
+  text-align: center;
+  color: var(--text-soft);
+  line-height: 1.65;
+}
+
+.preview-layout {
+  display: grid;
+  grid-template-columns: 1.4fr .6fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.preview-frame-wrap {
+  position: relative;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 4px solid rgba(255, 228, 180, .28);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
+  background: #0a0e1a;
+  aspect-ratio: 16 / 9;
+}
+
+.preview-chrome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(20, 12, 10, .92);
+  border-bottom: 1px solid rgba(255, 228, 180, .15);
+  font-size: 12px;
+  color: rgba(255, 246, 234, .7);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ff6b5b;
+}
+
+.dot:nth-child(2) { background: #ffd464; }
+.dot:nth-child(3) { background: #4ade80; }
+
+.preview-frame {
+  width: 100%;
+  height: calc(100% - 40px);
+  border: none;
+  display: block;
+  background: #050816;
+}
+
+.preview-side {
+  display: grid;
+  gap: 14px;
+}
+
+.side-card {
+  padding: 18px;
+  border-radius: 18px;
+  background: var(--panel);
+  border: 1px solid rgba(255, 228, 180, .22);
+}
+
+.side-card h3 {
+  margin: 0 0 10px;
+  font-family: var(--font-d);
+  font-size: 14px;
+  color: var(--gold);
+}
+
+.side-card p,
+.side-card ul {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text-soft);
+}
+
+.side-card ul { padding-left: 18px; }
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.feature-card {
+  padding: 22px 20px;
+  border-radius: 20px;
+  background: var(--panel);
+  border: 1px solid rgba(255, 228, 180, .22);
+  backdrop-filter: blur(6px);
+  transition: transform .15s;
+}
+
+.feature-card:hover { transform: translateY(-3px); }
+
+.feature-card .icon {
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+.feature-card h3 {
+  margin: 0 0 8px;
+  font-family: var(--font-d);
+  font-size: 16px;
+  color: var(--gold);
+}
+
+.feature-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-soft);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.info-panel {
+  padding: 24px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(239, 149, 80, .18), rgba(54, 22, 18, .55));
+  border: 1px solid rgba(255, 228, 180, .22);
+}
+
+.info-panel h3 {
+  margin: 0 0 14px;
+  font-family: var(--font-d);
+  font-size: 15px;
+  color: var(--gold);
+}
+
+.info-panel ul {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 1.85;
+  color: rgba(255, 246, 234, .88);
+  font-size: 14px;
+}
+
+.run-box {
+  margin-top: 28px;
+  padding: 20px 22px;
+  border-radius: 18px;
+  background: rgba(0, 0, 0, .32);
+  border: 1px dashed rgba(255, 228, 180, .28);
+  text-align: center;
+}
+
+.run-box p {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: var(--text-soft);
+}
+
+.run-cmd {
+  display: inline-block;
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: rgba(5, 8, 22, .85);
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 14px;
+  color: #ffe08a;
+}
+
+.footer-cta {
+  text-align: center;
+  padding: 56px 20px 72px;
+  background: linear-gradient(180deg, transparent, rgba(207, 71, 63, .14));
+}
+
+.footer-cta p {
+  margin: 0 0 22px;
+  color: var(--text-soft);
+}
+
+@media (max-width: 900px) {
+  .hero-inner,
+  .preview-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-copy { text-align: center; }
+
+  .hero-sub { margin-left: auto; margin-right: auto; }
+
+  .hero-actions,
+  .hero-tags { justify-content: center; }
+}
+
+@media (max-width: 640px) {
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px 14px;
+  }
+
+  .topbar-nav { justify-content: center; }
+
+  .hero-actions { flex-direction: column; }
+
+  .btn { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../../index.html" class="topbar-brand">
+    <span>🪐</span><span>星空水晶生存战</span>
+  </a>
+  <nav class="topbar-nav">
+    <a class="topbar-link" href="#preview">预览</a>
+    <a class="topbar-link" href="guide.html">玩法说明</a>
+    <a class="topbar-link primary" href="index.html">立即游玩</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="stars" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <div class="kicker">ALPHA STAR SURVIVAL</div>
+      <h1>星空水晶生存战</h1>
+      <p class="hero-sub">
+        在阿尔法星的赤色荒原上收集晶石、躲避怪物、刷新段位，冲击更高纪录。
+        3D 生存收集玩法，支持 PC 键鼠与移动端虚拟摇杆。
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="index.html">
+          <span>🚀</span><span>立即游玩</span>
+        </a>
+        <a class="btn btn-secondary" href="#preview">
+          <span>👀</span><span>查看预览</span>
+        </a>
+        <a class="btn btn-secondary" href="guide.html">
+          <span>📖</span><span>玩法说明</span>
+        </a>
+      </div>
+      <div class="hero-tags">
+        <span class="tag">🎮 生存收集</span>
+        <span class="tag">💎 晶石刷分</span>
+        <span class="tag">🛒 星际商店</span>
+        <span class="tag">🏆 成就段位</span>
+        <span class="tag">📱 移动端适配</span>
+      </div>
+    </div>
+    <aside class="hero-card">
+      <h2>MISSION FLOW</h2>
+      <ol class="flow-list">
+        <li>
+          <span class="flow-step">1</span>
+          <span>从 <strong>index.html</strong> 进入加载页，预载模型与音效资源。</span>
+        </li>
+        <li>
+          <span class="flow-step">2</span>
+          <span>进入主页：开始游戏、查看玩法说明，或用累计积分逛星际商店。</span>
+        </li>
+        <li>
+          <span class="flow-step">3</span>
+          <span>战斗中收集晶石、拾取状态果实，按 <strong>P / ESC</strong> 可暂停并返回主页。</span>
+        </li>
+        <li>
+          <span class="flow-step">4</span>
+          <span>局内 HUD 显示积分、存活时间与 FPS，挑战更高段位与成就。</span>
+        </li>
+      </ol>
+    </aside>
+  </div>
+</section>
+
+<section class="section section-alt" id="preview">
+  <h2 class="section-title">游戏预览</h2>
+  <p class="section-lead">
+    下方嵌入主页菜单，可直接浏览界面与成就面板。点击「开始游戏」将进入完整 3D 战斗（需通过本地 HTTP 服务访问）。
+  </p>
+  <div class="preview-layout">
+    <div class="preview-frame-wrap">
+      <div class="preview-chrome">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span>home.html — 主页菜单预览</span>
+      </div>
+      <iframe
+        class="preview-frame"
+        src="home.html"
+        title="星空水晶生存战 - 主页预览"
+        loading="lazy"
+        sandbox="allow-scripts allow-same-origin allow-forms"
+      ></iframe>
+    </div>
+    <div class="preview-side">
+      <div class="side-card">
+        <h3>🕹️ 主页功能</h3>
+        <ul>
+          <li>玩法说明：积分规则与怪物介绍</li>
+          <li>开始游戏：进入 3D 生存战</li>
+          <li>星际商店：用累计积分购买开局 Buff</li>
+          <li>成就面板：段位与跨局成就进度</li>
+        </ul>
+      </div>
+      <div class="side-card">
+        <h3>⏸️ 局内体验</h3>
+        <p>左上角 HUD 显示积分、存活时间与 FPS。暂停菜单支持继续游戏或返回主页，不会把未完成的局计入纪录。</p>
+      </div>
+      <div class="side-card">
+        <h3>🔊 音频</h3>
+        <p>主页与战斗各有独立 BGM。首次进入若浏览器拦截自动播放，点击页面任意位置即可解锁音效。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">核心玩法</h2>
+  <p class="section-lead">积分越高，晶石价值与敌人强度同步提升，合理利用道具才能活得更久。</p>
+  <div class="feature-grid">
+    <article class="feature-card">
+      <div class="icon">💎</div>
+      <h3>收集晶石</h3>
+      <p>场上持续刷新彩色晶石，分值随积分档位从 +5 递增至 +80，是刷分与升段的核心。</p>
+    </article>
+    <article class="feature-card">
+      <div class="icon">👾</div>
+      <h3>躲避敌人</h3>
+      <p>普通怪、紫色精英与幽灵 BOSS 会随存活时间加强，碰撞扣血并附带击退效果。</p>
+    </article>
+    <article class="feature-card">
+      <div class="icon">🍎</div>
+      <h3>状态果实</h3>
+      <p>加速、回血、无敌果实随机刷新，叠加时可获得最高 2 倍得分加成。</p>
+    </article>
+    <article class="feature-card">
+      <div class="icon">🛒</div>
+      <h3>星际商店</h3>
+      <p>用累计积分购买开局 Buff，含惊喜箱随机效果；每局限购一次。</p>
+    </article>
+    <article class="feature-card">
+      <div class="icon">🏆</div>
+      <h3>段位成就</h3>
+      <p>8 大段位、9 项成就跨局保存，挑战「永恒星王」与更长存活时间。</p>
+    </article>
+    <article class="feature-card">
+      <div class="icon">🪐</div>
+      <h3>3D 场景</h3>
+      <p>基于 Three.js 渲染，含火星天空盒、平台地形、角色动画与粒子特效。</p>
+    </article>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <h2 class="section-title">操作与运行</h2>
+  <div class="info-grid">
+    <div class="info-panel">
+      <h3>🕹️ 操作方式</h3>
+      <ul>
+        <li>PC：WASD / 方向键移动</li>
+        <li>移动端：左下角虚拟摇杆</li>
+        <li>暂停：P 或 ESC（继续 / 返回主页）</li>
+        <li>调试：localhost + <code>?debug=1</code></li>
+      </ul>
+    </div>
+    <div class="info-panel">
+      <h3>⚙️ 本地运行</h3>
+      <ul>
+        <li>在项目目录执行 <code>.\server.ps1 -Port 8081</code></li>
+        <li>浏览器打开 <code>http://localhost:8081/preview.html</code></li>
+        <li>若 8080 已被占用，请换用 8081 或其他端口</li>
+        <li>不要直接用 <code>file://</code> 打开（会导致资源加载失败）</li>
+      </ul>
+    </div>
+    <div class="info-panel">
+      <h3>📂 页面入口</h3>
+      <ul>
+        <li><code>preview.html</code> — 本预览页</li>
+        <li><code>index.html</code> — 加载页 → 主页</li>
+        <li><code>home.html</code> — 主页菜单</li>
+        <li><code>guide.html</code> — 玩法说明</li>
+        <li><code>game.html</code> — 3D 战斗场景</li>
+      </ul>
+    </div>
+  </div>
+  <div class="run-box">
+    <p>在 PowerShell 中进入游戏目录后执行：</p>
+    <div class="run-cmd">.\server.ps1 -Port 8081</div>
+  </div>
+</section>
+
+<section class="footer-cta">
+  <p>准备好了吗？部署阿尔法星任务环境，开始你的生存挑战。</p>
+  <a class="btn btn-primary" href="index.html">
+    <span>🚀</span><span>开始游戏</span>
+  </a>
+</section>
+
+</body>
+</html>

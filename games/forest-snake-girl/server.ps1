@@ -1,3 +1,8 @@
+param(
+  [ValidateRange(1, 65535)]
+  [int]$Port = 8080
+)
+
 $root = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "."))
 $mimeTypes = @{
   ".html" = "text/html; charset=utf-8"
@@ -79,10 +84,18 @@ function Serve-Request {
   }
 }
 
+$prefix = "http://localhost:$Port/"
 $listener = [System.Net.HttpListener]::new()
-$listener.Prefixes.Add("http://localhost:8080/")
-$listener.Start()
-Write-Host "Server running at http://localhost:8080/"
+$listener.Prefixes.Add($prefix)
+try {
+  $listener.Start()
+} catch {
+  Write-Host "Failed to start server at $prefix" -ForegroundColor Red
+  Write-Host "Possible reasons: port is already in use, insufficient permission, or another local service is conflicting." -ForegroundColor Yellow
+  Write-Host "Try another port, for example: .\server.ps1 -Port 8081" -ForegroundColor Cyan
+  throw
+}
+Write-Host "Server running at $prefix"
 Write-Host "Serving root: $root"
 
 try {
