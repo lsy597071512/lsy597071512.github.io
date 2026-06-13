@@ -1,4 +1,4 @@
-﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
@@ -295,12 +295,12 @@
     "use strict";
 
     const TARGET_PAGE = "home.html";
+    const FAST_ENTRY_GATE_MS = 2200;
     const assetQueue = [
-      { id: "home", label: "主页代码", type: "fetch", url: "home.html" },
-      { id: "game", label: "游戏代码", type: "fetch", url: "game.html" },
-      { id: "bg", label: "背景贴图", type: "image", url: "Tex/beijing01.png" },
-      { id: "bgm", label: "背景音乐", type: "fetch", url: "music/bgm01.mp3" },
-      { id: "matter", label: "物理引擎", type: "fetch", url: "https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js" }
+      { id: "home", label: "主页代码", type: "fetch", url: "home.html", priority: "critical", timeoutMs: 2200 },
+      { id: "bg", label: "背景贴图", type: "image", url: "Tex/beijing01.png", priority: "critical", timeoutMs: 2200 },
+      { id: "game", label: "游戏代码", type: "fetch", url: "game.html", priority: "optional", timeoutMs: 3000 },
+      { id: "matter", label: "物理引擎", type: "fetch", url: "vendor/matter.min.js", priority: "optional", timeoutMs: 2600 }
     ];
 
     const progressFill = document.getElementById("progressFill");
@@ -313,6 +313,49 @@
     let finishedCount = 0;
     let redirectTimer = 0;
     let loadingStarted = false;
+    let loadingRunToken = 0;
+    let hasRedirected = false;
+
+    // #region debug-point A:loading-bootstrap
+    const DEBUG_URL = "http://127.0.0.1:7777/event";
+    const DEBUG_SESSION_ID = "mobile-load-ui";
+    const DEBUG_RUN_ID = "pre-fix";
+    const loadingDebugClock = performance.now();
+
+    function reportLoadingDebug(hypothesisId, location, msg, data = {}) {
+      fetch(DEBUG_URL, {
+        method: "POST",
+        mode: "no-cors",
+        keepalive: true,
+        headers: { "Content-Type": "text/plain;charset=UTF-8" },
+        body: JSON.stringify({
+          sessionId: DEBUG_SESSION_ID,
+          runId: DEBUG_RUN_ID,
+          hypothesisId,
+          location,
+          msg: `[DEBUG] ${msg}`,
+          data,
+          ts: Date.now()
+        })
+      }).catch(() => {});
+    }
+
+    reportLoadingDebug("A", "index:init", "loading page bootstrapped", {
+      assetCount: assetQueue.length,
+      connection: navigator.connection ? {
+        effectiveType: navigator.connection.effectiveType || "",
+        downlink: navigator.connection.downlink || 0,
+        rtt: navigator.connection.rtt || 0,
+        saveData: Boolean(navigator.connection.saveData)
+      } : null,
+      userAgent: navigator.userAgent,
+      screen: {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        dpr: window.devicePixelRatio || 1
+      }
+    });
+    // #endregion
 
     renderAssetList();
     startLoading();
@@ -321,6 +364,8 @@
       window.clearTimeout(redirectTimer);
       finishedCount = 0;
       loadingStarted = false;
+      hasRedirected = false;
+      loadingRunToken += 1;
       retryBtn.hidden = true;
       assetQueue.forEach((asset) => {
         asset.status = "pending";
@@ -364,62 +409,193 @@
       progressTrack.setAttribute("aria-valuenow", String(percent));
     }
 
+    function getHypothesisId(asset) {
+      if (asset.id === "matter") return "B";
+      if (asset.id === "bgm") return "C";
+      return "A";
+    }
+
+    function delay(ms) {
+      return new Promise((resolve) => window.setTimeout(resolve, ms));
+    }
+
+    function enterTargetPage(reason, detail) {
+      if (hasRedirected) return;
+      hasRedirected = true;
+      loadingStatus.textContent = reason;
+      // #region debug-point A:redirect
+      reportLoadingDebug("A", "index:redirect", "redirecting to target page", {
+        targetPage: TARGET_PAGE,
+        elapsedMs: Math.round(performance.now() - loadingDebugClock),
+        detail
+      });
+      // #endregion
+      redirectTimer = window.setTimeout(() => {
+        window.location.replace(TARGET_PAGE);
+      }, 140);
+    }
+
     async function startLoading() {
       if (loadingStarted) return;
       loadingStarted = true;
-      loadingStatus.textContent = "正在依次预加载核心资源...";
+      hasRedirected = false;
+      finishedCount = 0;
+      updateProgress();
+      const runToken = ++loadingRunToken;
+      loadingStatus.textContent = "正在并行预热主页与核心资源...";
+      // #region debug-point A:queue-start
+      reportLoadingDebug("A", "index:startLoading", "loading queue started", {
+        assetOrder: assetQueue.map((asset) => asset.id),
+        priorities: assetQueue.map((asset) => `${asset.id}:${asset.priority}`),
+        elapsedMs: Math.round(performance.now() - loadingDebugClock)
+      });
+      // #endregion
 
-      const results = [];
-      for (const asset of assetQueue) {
+      const tasks = assetQueue.map((asset, queueIndex) => {
         updateAssetState(asset, "loading");
-        try {
-          await loadAsset(asset);
-          results.push({ asset, ok: true });
+        const assetStart = performance.now();
+        // #region debug-point A:asset-start
+        reportLoadingDebug(getHypothesisId(asset), "index:asset-start", "asset load started", {
+          assetId: asset.id,
+          url: asset.url,
+          type: asset.type,
+          queueIndex,
+          priority: asset.priority,
+          timeoutMs: asset.timeoutMs
+        });
+        // #endregion
+        const promise = loadAsset(asset).then((result) => {
+          if (runToken !== loadingRunToken) return { asset, ok: false, ignored: true };
           updateAssetState(asset, "done");
-        } catch (error) {
+          // #region debug-point A:asset-success
+          reportLoadingDebug(getHypothesisId(asset), "index:asset-success", "asset load finished", {
+            assetId: asset.id,
+            url: asset.url,
+            durationMs: Math.round(performance.now() - assetStart),
+            size: result && typeof result.size === "number" ? result.size : null,
+            type: asset.type,
+            priority: asset.priority
+          });
+          // #endregion
+          return { asset, ok: true, result };
+        }).catch((error) => {
+          if (runToken !== loadingRunToken) return { asset, ok: false, ignored: true };
           console.warn(`资源加载失败: ${asset.url}`, error);
-          results.push({ asset, ok: false, error });
           updateAssetState(asset, "error");
-        } finally {
+          // #region debug-point B:asset-error
+          reportLoadingDebug(getHypothesisId(asset), "index:asset-error", "asset load failed", {
+            assetId: asset.id,
+            url: asset.url,
+            durationMs: Math.round(performance.now() - assetStart),
+            priority: asset.priority,
+            error: error && error.message ? error.message : String(error)
+          });
+          // #endregion
+          return { asset, ok: false, error };
+        }).finally(() => {
+          if (runToken !== loadingRunToken) return;
           finishedCount += 1;
           updateProgress();
+        });
+
+        return { asset, promise };
+      });
+
+      const criticalTasks = tasks
+        .filter((task) => task.asset.priority === "critical")
+        .map((task) => task.promise);
+
+      const gateResult = await Promise.race([
+        Promise.allSettled(criticalTasks).then((results) => ({ type: "critical-ready", results })),
+        delay(FAST_ENTRY_GATE_MS).then(() => ({ type: "gate-timeout" }))
+      ]);
+
+      if (runToken !== loadingRunToken) return;
+
+      if (gateResult.type === "gate-timeout") {
+        // #region debug-point A:fast-entry-gate
+        reportLoadingDebug("A", "index:gate-timeout", "fast entry gate reached before all critical assets settled", {
+          gateMs: FAST_ENTRY_GATE_MS,
+          elapsedMs: Math.round(performance.now() - loadingDebugClock)
+        });
+        // #endregion
+        enterTargetPage("主页预热已达到上限，正在直接进入...", { reason: "gate-timeout" });
+      } else {
+        const criticalFailures = gateResult.results
+          .filter((item) => item.status === "fulfilled" && item.value && item.value.ok === false)
+          .map((item) => item.value.asset.label);
+        enterTargetPage(
+          criticalFailures.length ? "关键资源预热未完成，已切换为按需加载进入主页..." : "主页资源就绪，正在进入主页...",
+          { reason: "critical-ready", criticalFailures }
+        );
+      }
+
+      Promise.all(tasks.map((task) => task.promise)).then((results) => {
+        if (runToken !== loadingRunToken) return;
+        const failed = results.filter((item) => item && !item.ok && !item.ignored);
+        if (failed.length === 0) {
+          // #region debug-point A:queue-success
+          reportLoadingDebug("A", "index:queue-success", "loading queue completed", {
+            elapsedMs: Math.round(performance.now() - loadingDebugClock),
+            assetCount: results.length
+          });
+          // #endregion
+          return;
         }
-      }
 
-      const failed = results.filter((item) => !item.ok);
-      if (failed.length === 0) {
-        loadingStatus.textContent = "全部资源加载完成，正在进入主页...";
-        redirectTimer = window.setTimeout(() => {
-          window.location.replace(TARGET_PAGE);
-        }, 280);
-        return;
-      }
-
-      retryBtn.hidden = false;
-      const failedLabels = failed.map((item) => item.asset.label).join("、");
-      loadingStatus.textContent = `部分资源加载失败：${failedLabels}。你可以重试，或直接进入主页。`;
+        // #region debug-point B:queue-failed
+        reportLoadingDebug("B", "index:queue-failed", "loading queue finished with failures", {
+          elapsedMs: Math.round(performance.now() - loadingDebugClock),
+          failedAssets: failed.map((item) => ({
+            id: item.asset.id,
+            url: item.asset.url,
+            error: item.error && item.error.message ? item.error.message : String(item.error)
+          }))
+        });
+        // #endregion
+      });
     }
 
     function loadAsset(asset) {
       if (asset.type === "image") {
-        return loadImage(asset.url);
+        return withTimeout(loadImage(asset.url), asset.timeoutMs, asset.label);
       }
-      return fetchResource(asset.url);
+      return withTimeout(fetchResource(asset.url), asset.timeoutMs, asset.label);
+    }
+
+    function withTimeout(promise, timeoutMs, label) {
+      if (!timeoutMs) return promise;
+      return Promise.race([
+        promise,
+        delay(timeoutMs).then(() => {
+          throw new Error(`${label} timeout`);
+        })
+      ]);
     }
 
     function fetchResource(url) {
-      return fetch(url, { cache: "force-cache", mode: "cors" }).then((response) => {
+      return fetch(url, { cache: "force-cache" }).then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
-        return response.blob();
+        return response.blob().then((blob) => ({
+          size: blob.size,
+          type: blob.type || response.headers.get("content-type") || "",
+          status: response.status,
+          url
+        }));
       });
     }
 
     function loadImage(url) {
       return new Promise((resolve, reject) => {
         const img = new Image();
-        img.onload = () => resolve();
+        img.onload = () => resolve({
+          size: (img.naturalWidth || 0) * (img.naturalHeight || 0),
+          width: img.naturalWidth || 0,
+          height: img.naturalHeight || 0,
+          url
+        });
         img.onerror = () => reject(new Error("Image load failed"));
         img.src = url;
       });

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>霓虹核心竞技场</title>
-  <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
+  <script src="vendor/matter.min.js"></script>
   <style>
     :root {
       --cyan: #37f2ff;
@@ -59,7 +59,13 @@
       --hud-right-width: var(--hud-side-width);
       --hud-logo-width: min(22rem, calc(var(--playfield-width) * 0.92));
       --hud-progress-width: min(30rem, calc(var(--playfield-width) * 0.98));
+      --arena-badge-shift: 80px;
       --bottom-dock-width: min(44rem, calc(100vw - 2rem));
+      --viewport-height: 100vh;
+      --viewport-safe-top: 0px;
+      --viewport-safe-bottom: 0px;
+      --ui-safe-top: max(env(safe-area-inset-top), var(--viewport-safe-top));
+      --ui-safe-bottom: max(env(safe-area-inset-bottom), var(--viewport-safe-bottom));
     }
 
     * {
@@ -83,6 +89,28 @@
       background: #040714;
       font-family: "Trebuchet MS", "Microsoft YaHei", sans-serif;
       color: #fff;
+    }
+
+    .orientation-title,
+    .orientation-copy,
+    .orientation-hint,
+    .home-link,
+    .scoreLabel,
+    .scoreBest,
+    .panel-title,
+    .timerLabel,
+    .arenaBadge,
+    .tips,
+    .drawer-title,
+    .settingsRow label,
+    .mini-btn,
+    .filter-tabs button,
+    #finalText,
+    #reviveBtn,
+    #restartBtn,
+    #coreName {
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
     body.theme-sunset {
@@ -206,13 +234,13 @@
 
     .hud-col {
       position: fixed;
-      top: max(var(--space-3), env(safe-area-inset-top));
-      bottom: calc(var(--dock-height) + max(var(--space-3), env(safe-area-inset-bottom)));
+      top: max(var(--space-3), var(--ui-safe-top));
+      bottom: calc(var(--dock-height) + max(var(--space-3), var(--ui-safe-bottom)));
       display: flex;
       flex-direction: column;
       gap: var(--space-2);
       width: min(var(--hud-side-width), calc((100vw - 2 * var(--page-pad)) / 2));
-      max-height: calc(100vh - var(--dock-height) - max(var(--space-3), env(safe-area-inset-top)) - max(var(--space-3), env(safe-area-inset-bottom)));
+      max-height: calc(var(--viewport-height) - var(--dock-height) - max(var(--space-3), var(--ui-safe-top)) - max(var(--space-3), var(--ui-safe-bottom)));
       overflow: auto;
       scrollbar-width: none;
       pointer-events: none;
@@ -285,7 +313,7 @@
       z-index: 40;
       display: none;
       place-items: center;
-      padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+      padding: max(1rem, var(--ui-safe-top)) max(1rem, env(safe-area-inset-right)) max(1rem, var(--ui-safe-bottom)) max(1rem, env(safe-area-inset-left));
       background:
         linear-gradient(180deg, rgba(4, 7, 20, .88), rgba(4, 7, 20, .94)),
         url("Tex/beijing01.png") center / cover no-repeat fixed;
@@ -397,7 +425,7 @@
 
     .home-link {
       position: fixed;
-      top: max(var(--space-2), calc(env(safe-area-inset-top) + 0.25rem));
+      top: max(var(--space-2), calc(var(--ui-safe-top) + 0.25rem));
       right: max(var(--page-pad), calc(env(safe-area-inset-right) + 0.25rem));
       z-index: 12;
       display: inline-flex;
@@ -435,7 +463,7 @@
       right: max(var(--page-pad), env(safe-area-inset-right));
       align-items: stretch;
       top: calc(max(var(--space-3), env(safe-area-inset-top)) + 4.5rem);
-      max-height: calc(100vh - var(--dock-height) - max(var(--space-3), env(safe-area-inset-top)) - max(var(--space-3), env(safe-area-inset-bottom)) - 4.5rem);
+      max-height: calc(var(--viewport-height) - var(--dock-height) - max(var(--space-3), var(--ui-safe-top)) - max(var(--space-3), var(--ui-safe-bottom)) - 4.5rem);
     }
 
     .scoreBox {
@@ -480,7 +508,7 @@
     .rankBox {
       position: relative;
       min-height: 15rem;
-      max-height: min(23rem, calc(100vh - var(--dock-height) - 12rem));
+      max-height: min(23rem, calc(var(--viewport-height) - var(--dock-height) - 12rem));
       margin-top: auto;
       padding: 0.875rem;
       display: flex;
@@ -638,9 +666,9 @@
 
     .drawer {
       position: fixed;
-      bottom: calc(var(--dock-height) + max(var(--space-3), env(safe-area-inset-bottom)));
+      bottom: calc(var(--dock-height) + max(var(--space-3), var(--ui-safe-bottom)));
       width: min(24rem, calc(100vw - 2 * var(--page-pad)));
-      max-height: min(28rem, calc(100vh - var(--dock-height) - 8rem));
+      max-height: min(28rem, calc(var(--viewport-height) - var(--dock-height) - 8rem));
       padding: 1.1rem;
       z-index: 8;
       opacity: 0;
@@ -894,6 +922,7 @@
       position: absolute;
       top: -1rem;
       left: 0.5rem;
+      transform: translateX(calc(-100% - var(--arena-badge-shift)));
       padding: 0.5rem 1rem;
       border: var(--pixel-border-strong) solid rgba(95, 209, 255, .72);
       background: var(--pixel-surface-accent);
@@ -905,18 +934,10 @@
       text-shadow: 2px 2px 0 rgba(4, 7, 20, .44);
     }
 
-    .arenaMascot {
-      position: absolute;
-      right: -0.625rem;
-      top: -3.25rem;
-      font-size: clamp(2.4rem, 3.8vw, 4rem);
-      filter: drop-shadow(0 0 18px rgba(255, 231, 110, .6));
-    }
-
     .tips {
       position: fixed;
       left: 50%;
-      bottom: calc(var(--dock-height) + max(4.5rem, env(safe-area-inset-bottom)));
+      bottom: calc(var(--dock-height) + max(4.5rem, var(--ui-safe-bottom)));
       transform: translateX(-50%);
       z-index: 7;
       padding: 0.5rem 1rem;
@@ -935,28 +956,32 @@
     .bottomDock {
       position: fixed;
       left: 50%;
-      bottom: max(var(--space-2), env(safe-area-inset-bottom));
+      bottom: calc(max(var(--space-2), 0.75rem) + var(--ui-safe-bottom));
       transform: translateX(-50%);
-      width: min(var(--bottom-dock-width), calc(100vw - 2 * max(var(--page-pad), env(safe-area-inset-left))));
-      min-height: var(--dock-height);
+      width: auto;
+      max-width: calc(100vw - 2 * max(var(--page-pad), env(safe-area-inset-left)));
+      min-height: 0;
       z-index: 9;
       display: grid;
-      grid-template-columns: repeat(2, minmax(5rem, 1fr));
+      grid-template-columns: repeat(2, auto);
       align-items: end;
-      gap: var(--space-2);
+      justify-content: center;
+      gap: 0.55rem;
       pointer-events: none;
     }
 
     .dock-btn {
       position: relative;
       bottom: auto;
-      width: 100%;
-      min-height: 4.75rem;
-      height: clamp(4.75rem, 9vh, 5.5rem);
+      width: clamp(3.6rem, 5vw, 4.4rem);
+      min-width: clamp(3.6rem, 5vw, 4.4rem);
+      min-height: 3.85rem;
+      height: clamp(3.85rem, 7.2vh, 4.35rem);
       display: grid;
       place-items: center;
-      gap: 0.375rem;
+      gap: 0;
       pointer-events: auto;
+      padding: 0.45rem;
     }
 
     .dock-btn.left {
@@ -973,9 +998,7 @@
     }
 
     .dock-btn .label {
-      font-size: clamp(0.98rem, 1.2vw, 1.22rem);
-      font-weight: 800;
-      text-align: center;
+      display: none;
     }
 
     .modal {
@@ -1047,7 +1070,7 @@
       }
 
       .rankBox {
-        max-height: min(25rem, calc(100vh - var(--dock-height) - 13rem));
+        max-height: min(25rem, calc(var(--viewport-height) - var(--dock-height) - 13rem));
       }
     }
 
@@ -1057,8 +1080,8 @@
       }
 
       .hud-col {
-        top: max(var(--space-2), env(safe-area-inset-top));
-        bottom: calc(var(--dock-height) + max(var(--space-2), env(safe-area-inset-bottom)));
+        top: max(var(--space-2), var(--ui-safe-top));
+        bottom: calc(var(--dock-height) + max(var(--space-2), var(--ui-safe-bottom)));
       }
 
       .rankBox {
@@ -1074,7 +1097,7 @@
       }
 
       .home-link {
-        top: max(0.5rem, env(safe-area-inset-top));
+        top: max(0.5rem, var(--ui-safe-top));
         min-width: auto;
         min-height: 2.9rem;
         padding: 0.62rem 0.9rem;
@@ -1139,32 +1162,28 @@
         font-size: 0.72rem;
       }
 
-      .arenaMascot {
-        right: 0;
-        top: -2.35rem;
-        font-size: 2.6rem;
-      }
-
       .tips {
         display: none;
       }
 
       .bottomDock {
-        width: calc(100vw - 2 * var(--page-pad));
-        grid-template-columns: repeat(2, minmax(4.5rem, 1fr));
-        gap: 0.5rem;
+        width: auto;
+        grid-template-columns: repeat(2, auto);
+        gap: 0.42rem;
       }
 
       .dock-btn {
-        min-height: 4.25rem;
-        height: 4.5rem;
+        width: 3.85rem;
+        min-width: 3.85rem;
+        min-height: 3.85rem;
+        height: 3.95rem;
       }
 
       .drawer {
         left: max(var(--page-pad), env(safe-area-inset-left));
         right: max(var(--page-pad), env(safe-area-inset-right));
         width: auto;
-        max-height: min(20rem, calc(100vh - var(--dock-height) - 6rem));
+        max-height: min(20rem, calc(var(--viewport-height) - var(--dock-height) - 6rem));
         padding: 0.95rem;
       }
 
@@ -1213,10 +1232,6 @@
         font-size: 0.72rem;
       }
 
-      .dock-btn .label {
-        letter-spacing: 0.08rem;
-      }
-
       .core-ring {
         grid-template-columns: repeat(3, 1fr);
       }
@@ -1224,7 +1239,7 @@
 
     @media (max-width: 767px) and (orientation: landscape), (max-width: 767px) and (max-height: 500px) {
       .home-link {
-        top: max(0.35rem, env(safe-area-inset-top));
+        top: max(0.35rem, var(--ui-safe-top));
         right: max(0.35rem, env(safe-area-inset-right));
         min-height: 2.5rem;
         padding: 0.5rem 0.78rem;
@@ -1233,9 +1248,9 @@
 
       .hud-col.left,
       .hud-col.right {
-        top: max(3.95rem, env(safe-area-inset-top) + 3.65rem);
-        bottom: calc(var(--dock-height) + max(0.45rem, env(safe-area-inset-bottom)));
-        max-height: calc(100vh - var(--dock-height) - 4.5rem);
+        top: max(3.95rem, var(--ui-safe-top) + 3.65rem);
+        bottom: calc(var(--dock-height) + max(0.45rem, var(--ui-safe-bottom)));
+        max-height: calc(var(--viewport-height) - var(--dock-height) - 4.5rem);
         overflow: auto;
       }
 
@@ -1248,7 +1263,7 @@
       .hud-col.right {
         left: auto;
         right: max(var(--page-pad), env(safe-area-inset-right));
-        top: max(4.9rem, env(safe-area-inset-top) + 4.6rem);
+        top: max(4.9rem, var(--ui-safe-top) + 4.6rem);
         display: flex;
       }
 
@@ -1293,6 +1308,7 @@
 
       .arenaBadge {
         top: -0.6rem;
+        left: 0.25rem;
         padding: 0.28rem 0.56rem;
         font-size: 0.66rem;
       }
@@ -1307,23 +1323,20 @@
       }
 
       .bottomDock {
-        grid-template-columns: repeat(2, minmax(4.25rem, 1fr));
+        grid-template-columns: repeat(2, auto);
       }
 
       .dock-btn {
-        min-height: 3.5rem;
-        height: 3.75rem;
-      }
-
-      .dock-btn .label {
-        font-size: 0.84rem;
-        letter-spacing: 0.06rem;
+        width: 3.25rem;
+        min-width: 3.25rem;
+        min-height: 3.25rem;
+        height: 3.4rem;
       }
     }
 
     @media (max-width: 767px) and (orientation: landscape), (max-width: 767px) and (max-height: 500px) {
       body.landscape-tight .home-link {
-        top: max(0.25rem, env(safe-area-inset-top));
+        top: max(0.25rem, var(--ui-safe-top));
         right: max(0.25rem, env(safe-area-inset-right));
         min-height: 2.15rem;
         padding: 0.4rem 0.6rem;
@@ -1334,15 +1347,15 @@
       body.landscape-tight .hud-col.left,
       body.landscape-tight .hud-col.right {
         gap: 0.4rem;
-        max-height: calc(100vh - var(--dock-height) - 4rem);
+        max-height: calc(var(--viewport-height) - var(--dock-height) - 4rem);
       }
 
       body.landscape-tight .hud-col.left {
-        top: max(3.45rem, env(safe-area-inset-top) + 3.2rem);
+        top: max(3.45rem, var(--ui-safe-top) + 3.2rem);
       }
 
       body.landscape-tight .hud-col.right {
-        top: max(4rem, env(safe-area-inset-top) + 3.75rem);
+        top: max(4rem, var(--ui-safe-top) + 3.75rem);
       }
 
       body.landscape-tight .scoreBox,
@@ -1371,7 +1384,7 @@
 
       body.landscape-tight .rankBox {
         min-height: 0;
-        max-height: min(8.2rem, calc(100vh - var(--dock-height) - 8rem));
+        max-height: min(8.2rem, calc(var(--viewport-height) - var(--dock-height) - 8rem));
       }
 
       body.landscape-tight .rankList {
@@ -1421,34 +1434,25 @@
         font-size: 0.56rem;
       }
 
-      body.landscape-tight .arenaMascot {
-        right: -0.1rem;
-        top: -1.45rem;
-        font-size: 1.3rem;
-      }
-
       body.landscape-tight .bottomDock {
-        width: min(calc(var(--playfield-width) + 1rem), calc(100vw - 2 * var(--page-pad)));
-        gap: 0.35rem;
+        width: auto;
+        gap: 0.3rem;
       }
 
       body.landscape-tight .dock-btn {
-        min-height: 2.9rem;
-        height: 3.05rem;
+        width: 2.85rem;
+        min-width: 2.85rem;
+        min-height: 2.85rem;
+        height: 2.95rem;
       }
 
       body.landscape-tight .dock-btn .icon {
         font-size: 1.2rem;
       }
 
-      body.landscape-tight .dock-btn .label {
-        font-size: 0.68rem;
-        letter-spacing: 0.04rem;
-      }
-
       body.landscape-tight .drawer {
-        bottom: calc(var(--dock-height) + max(0.35rem, env(safe-area-inset-bottom)));
-        max-height: min(15rem, calc(100vh - var(--dock-height) - 4.5rem));
+        bottom: calc(var(--dock-height) + max(0.35rem, var(--ui-safe-bottom)));
+        max-height: min(15rem, calc(var(--viewport-height) - var(--dock-height) - 4.5rem));
         padding: 0.75rem;
       }
     }
@@ -1462,33 +1466,33 @@
   <div class="orientation-guard" id="orientationGuard" aria-live="polite">
     <div class="orientation-panel">
       <div class="orientation-icon">↻</div>
-      <h2 class="orientation-title">请横屏游玩</h2>
-      <p class="orientation-copy">当前游戏界面使用统一横屏布局。手机竖屏时将暂时隐藏游戏内容，请将设备旋转为横屏后继续。</p>
-      <p class="orientation-hint">Landscape Mode Required</p>
+      <h2 class="orientation-title" id="gameOrientationTitle">请横屏游玩</h2>
+      <p class="orientation-copy" id="gameOrientationCopy">当前游戏界面使用统一横屏布局。手机竖屏时将暂时隐藏游戏内容，请将设备旋转为横屏后继续。</p>
+      <p class="orientation-hint" id="gameOrientationHint">Landscape Mode Required</p>
     </div>
   </div>
 
   <div class="game-stage">
   <canvas id="gameCanvas"></canvas>
-  <a class="home-link" href="home.html">返回主页</a>
+  <a class="home-link" id="gameHomeLink" href="home.html">返回主页</a>
 
   <section class="hud">
     <div class="hud-col left">
       <div class="ui-panel scoreBox">
-        <div class="scoreLabel">当前得分</div>
+        <div class="scoreLabel" id="scoreLabelText">当前得分</div>
         <div class="scoreValue" id="score">0</div>
-        <div class="scoreBest">BEST : <b id="bestScore">0</b></div>
+        <div class="scoreBest"><span id="bestScorePrefix">BEST</span> : <b id="bestScore">0</b></div>
       </div>
 
       <div class="ui-panel rankBox">
-        <h2 class="panel-title">今日排行榜</h2>
+        <h2 class="panel-title" id="rankTitleText">今日排行榜</h2>
         <div id="rankList" class="rankList"></div>
       </div>
     </div>
 
     <div class="hud-col right">
       <div class="ui-panel nextBox">
-        <div class="panel-title">下一个核心</div>
+        <div class="panel-title" id="nextTitleText">下一个核心</div>
         <canvas id="nextCanvas" width="160" height="160"></canvas>
       </div>
 
@@ -1496,33 +1500,32 @@
         <div class="timerRing" id="cooldownRing">
           <div class="timerValue" id="cooldownValue">0<small>s</small></div>
         </div>
-        <div class="timerLabel">倒计时</div>
+        <div class="timerLabel" id="timerLabelText">倒计时</div>
       </div>
     </div>
   </section>
 
   <div class="arenaChrome">
-    <div class="arenaBadge">核心进度</div>
-    <div class="arenaMascot">🙂</div>
+    <div class="arenaBadge" id="arenaBadgeText">核心进度</div>
   </div>
 
-  <div class="tips">拖动上方轨道并松手投放，相同核心碰撞后会升级</div>
+  <div class="tips" id="tipsText">拖动上方轨道并松手投放，相同核心碰撞后会升级</div>
 
   <div id="settingsDrawer" class="ui-panel drawer left">
-    <h3 class="drawer-title">设置</h3>
+    <h3 class="drawer-title" id="settingsDrawerTitle">设置</h3>
     <div class="settingsRow">
-      <label for="bgmSlider">背景音乐</label>
+      <label for="bgmSlider" id="bgmLabelText">背景音乐</label>
       <input type="range" id="bgmSlider" min="0" max="100" value="42">
     </div>
     <button id="drawerRestartBtn" class="mini-btn" type="button">重新开始</button>
   </div>
 
   <div id="galleryDrawer" class="ui-panel drawer right">
-    <h3 class="drawer-title">核心图鉴</h3>
+    <h3 class="drawer-title" id="galleryDrawerTitle">核心图鉴</h3>
     <div class="filter-tabs">
-      <button class="active" data-filter="all">全部</button>
-      <button data-filter="basic">基础</button>
-      <button data-filter="advanced">高阶</button>
+      <button class="active" id="filterAllBtn" data-filter="all">全部</button>
+      <button id="filterBasicBtn" data-filter="basic">基础</button>
+      <button id="filterAdvancedBtn" data-filter="advanced">高阶</button>
     </div>
     <div id="coreGallery" class="core-ring"></div>
     <div class="core-detail">
@@ -1532,19 +1535,17 @@
   </div>
 
   <div class="bottomDock">
-    <button id="settingsBtn" class="dock-btn left" type="button">
+    <button id="settingsBtn" class="dock-btn left" type="button" aria-label="设置">
       <span class="icon">⚙</span>
-      <span class="label">设置</span>
     </button>
-    <button id="galleryBtn" class="dock-btn right" type="button">
+    <button id="galleryBtn" class="dock-btn right" type="button" aria-label="道具库">
       <span class="icon">🧪</span>
-      <span class="label">道具库</span>
     </button>
   </div>
 
   <div id="gameOverModal" class="modal">
     <div class="card">
-      <h2>GAME OVER</h2>
+      <h2 id="gameOverTitle">GAME OVER</h2>
       <p id="finalText">能量仓已过载。</p>
       <div class="buttons">
         <button id="reviveBtn">观看广告复活：清除顶部 3 个障碍物</button>
@@ -1793,18 +1794,96 @@
     // ------------------------- Matter.js 模块别名 -------------------------
     const { Engine, World, Bodies, Body, Events, Composite } = Matter;
     const PROFILE_KEY = "classic-snake-girl-profile-v1";
+    const LANGUAGE_KEY = "classic-snake-girl-language-v1";
     const GAME_THEME_CLASS_MAP = Object.freeze({
       "theme-neon": "",
       "theme-sunset": "theme-sunset",
       "theme-ice": "theme-ice",
       "theme-aurora": "theme-aurora"
     });
+    const GAME_I18N = {
+      zh: {
+        docTitle: "霓虹核心竞技场",
+        orientationTitle: "请横屏游玩",
+        orientationCopy: "当前游戏界面使用统一横屏布局。手机竖屏时将暂时隐藏游戏内容，请将设备旋转为横屏后继续。",
+        orientationHint: "Landscape Mode Required",
+        homeLink: "返回主页",
+        scoreLabel: "当前得分",
+        bestPrefix: "BEST",
+        rankTitle: "今日排行榜",
+        nextTitle: "下一个核心",
+        timerLabel: "倒计时",
+        arenaBadge: "核心进度",
+        tips: "拖动上方轨道并松手投放，相同核心碰撞后会升级",
+        settingsTitle: "设置",
+        bgmLabel: "背景音乐",
+        restart: "重新开始",
+        galleryTitle: "核心图鉴",
+        filterAll: "全部",
+        filterBasic: "基础",
+        filterAdvanced: "高阶",
+        settingsAria: "设置",
+        galleryAria: "道具库",
+        defaultFinal: "能量仓已过载。",
+        reviveByAd: "观看广告复活：清除顶部 3 个障碍物",
+        reviveByChip: ({ count }) => `消耗复活芯片复活（库存 ${count}）`,
+        finalSummary: ({ score, earnedCredits, boosted, taskHintText }) => `最终得分：${score}，结束本局可结算 ${earnedCredits} 积分${boosted ? "（已含 +15% 结算增幅）" : ""}。返回主页或重新开始后会同步更新任务与商店。${taskHintText}`,
+        unlockedHints: ({ hints }) => ` 已解锁 ${hints.join("、")} 的领取条件。`,
+        taskHint30000: "30000 分任务",
+        taskHint50000: "50000 分任务",
+        taskHint80000: "80000 分任务",
+        rankNow: "当前",
+        coreNames: ["起始核心", "棱镜核心", "脉冲核心", "裂变核心", "星环核心", "光锥核心", "量子核心", "超导核心", "星耀核心", "终极核心"],
+        rankNames: ["星影", "赛博玩家", "未来果王", "终极玩家"]
+      },
+      en: {
+        docTitle: "Neon Core Arena",
+        orientationTitle: "Play in Landscape",
+        orientationCopy: "The gameplay screen uses a unified landscape layout. Game content stays hidden in portrait mode on phones. Rotate your device to continue.",
+        orientationHint: "Landscape Mode Required",
+        homeLink: "Back Home",
+        scoreLabel: "Score",
+        bestPrefix: "BEST",
+        rankTitle: "Today's Ranking",
+        nextTitle: "Next Core",
+        timerLabel: "Cooldown",
+        arenaBadge: "Core Progress",
+        tips: "Drag along the top rail and release to drop. Matching cores merge into a higher tier.",
+        settingsTitle: "Settings",
+        bgmLabel: "BGM",
+        restart: "Restart",
+        galleryTitle: "Core Gallery",
+        filterAll: "All",
+        filterBasic: "Basic",
+        filterAdvanced: "Advanced",
+        settingsAria: "Settings",
+        galleryAria: "Gallery",
+        defaultFinal: "The energy bay is overloaded.",
+        reviveByAd: "Watch an ad to revive: clear the top 3 obstacles",
+        reviveByChip: ({ count }) => `Use a revive chip (${count} in stock)`,
+        finalSummary: ({ score, earnedCredits, boosted, taskHintText }) => `Final score: ${score}. Ending this run grants ${earnedCredits} credits${boosted ? " (with +15% credit boost)" : ""}. Returning home or restarting will sync tasks and store progress.${taskHintText}`,
+        unlockedHints: ({ hints }) => ` Unlocks ready for ${hints.join(", ")}.`,
+        taskHint30000: "30000-score mission",
+        taskHint50000: "50000-score mission",
+        taskHint80000: "80000-score mission",
+        rankNow: "NOW",
+        coreNames: ["Seed Core", "Prism Core", "Pulse Core", "Fission Core", "Orbit Core", "Cone Core", "Quantum Core", "Superconductor Core", "Radiant Core", "Ultimate Core"],
+        rankNames: ["Starlit", "Cyber Ace", "Future King", "Ultimate Pro"]
+      }
+    };
 
     const bgVideo = document.querySelector(".bg-video");
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const scoreEl = document.getElementById("score");
     const bestScoreEl = document.getElementById("bestScore");
+    const scoreLabelText = document.getElementById("scoreLabelText");
+    const bestScorePrefix = document.getElementById("bestScorePrefix");
+    const rankTitleText = document.getElementById("rankTitleText");
+    const nextTitleText = document.getElementById("nextTitleText");
+    const timerLabelText = document.getElementById("timerLabelText");
+    const arenaBadgeText = document.getElementById("arenaBadgeText");
+    const tipsText = document.getElementById("tipsText");
     const rankListEl = document.getElementById("rankList");
     const nextCanvas = document.getElementById("nextCanvas");
     const nextCtx = nextCanvas.getContext("2d");
@@ -1820,12 +1899,23 @@
     const cooldownRingEl = document.getElementById("cooldownRing");
     const cooldownValueEl = document.getElementById("cooldownValue");
     const orientationGuard = document.getElementById("orientationGuard");
+    const gameOrientationTitle = document.getElementById("gameOrientationTitle");
+    const gameOrientationCopy = document.getElementById("gameOrientationCopy");
+    const gameOrientationHint = document.getElementById("gameOrientationHint");
     const homeLink = document.querySelector(".home-link");
     const settingsBtn = document.getElementById("settingsBtn");
     const galleryBtn = document.getElementById("galleryBtn");
     const settingsDrawer = document.getElementById("settingsDrawer");
     const galleryDrawer = document.getElementById("galleryDrawer");
+    const settingsDrawerTitle = document.getElementById("settingsDrawerTitle");
+    const bgmLabelText = document.getElementById("bgmLabelText");
     const drawerRestartBtn = document.getElementById("drawerRestartBtn");
+    const galleryDrawerTitle = document.getElementById("galleryDrawerTitle");
+    const filterAllBtn = document.getElementById("filterAllBtn");
+    const filterBasicBtn = document.getElementById("filterBasicBtn");
+    const filterAdvancedBtn = document.getElementById("filterAdvancedBtn");
+    const gameOverTitle = document.getElementById("gameOverTitle");
+    const bottomDock = document.querySelector(".bottomDock");
 
     let W = 0;
     let H = 0;
@@ -1860,6 +1950,69 @@
     let dropsThisRun = 0;
     let settledScoreThisRun = 0;
     let runCountedThisRun = false;
+    let currentLanguage = loadLanguagePreference();
+
+    function loadLanguagePreference() {
+      const saved = localStorage.getItem(LANGUAGE_KEY);
+      return saved === "zh" ? "zh" : "en";
+    }
+
+    function gameText(key, params) {
+      const source = GAME_I18N[currentLanguage] || GAME_I18N.zh;
+      const value = source[key];
+      return typeof value === "function" ? value(params || {}) : value;
+    }
+
+    function getCoreName(level) {
+      const names = gameText("coreNames");
+      return names[level] || names[0];
+    }
+
+    function getRankName(index) {
+      const names = gameText("rankNames");
+      return names[index] || names[0];
+    }
+
+    function applyGameLanguage() {
+      document.documentElement.lang = currentLanguage === "zh" ? "zh-CN" : "en";
+      document.title = gameText("docTitle");
+      if (gameOrientationTitle) gameOrientationTitle.textContent = gameText("orientationTitle");
+      if (gameOrientationCopy) gameOrientationCopy.textContent = gameText("orientationCopy");
+      if (gameOrientationHint) gameOrientationHint.textContent = gameText("orientationHint");
+      if (homeLink) homeLink.textContent = gameText("homeLink");
+      if (scoreLabelText) scoreLabelText.textContent = gameText("scoreLabel");
+      if (bestScorePrefix) bestScorePrefix.textContent = gameText("bestPrefix");
+      if (rankTitleText) rankTitleText.textContent = gameText("rankTitle");
+      if (nextTitleText) nextTitleText.textContent = gameText("nextTitle");
+      if (timerLabelText) timerLabelText.textContent = gameText("timerLabel");
+      if (arenaBadgeText) arenaBadgeText.textContent = gameText("arenaBadge");
+      if (tipsText) tipsText.textContent = gameText("tips");
+      if (settingsDrawerTitle) settingsDrawerTitle.textContent = gameText("settingsTitle");
+      if (bgmLabelText) bgmLabelText.textContent = gameText("bgmLabel");
+      if (drawerRestartBtn) drawerRestartBtn.textContent = gameText("restart");
+      if (galleryDrawerTitle) galleryDrawerTitle.textContent = gameText("galleryTitle");
+      if (filterAllBtn) filterAllBtn.textContent = gameText("filterAll");
+      if (filterBasicBtn) filterBasicBtn.textContent = gameText("filterBasic");
+      if (filterAdvancedBtn) filterAdvancedBtn.textContent = gameText("filterAdvanced");
+      if (settingsBtn) settingsBtn.setAttribute("aria-label", gameText("settingsAria"));
+      if (galleryBtn) galleryBtn.setAttribute("aria-label", gameText("galleryAria"));
+      if (gameOverTitle) gameOverTitle.textContent = "GAME OVER";
+      if (restartBtn) restartBtn.textContent = gameText("restart");
+      if (finalText && !gameOver) finalText.textContent = gameText("defaultFinal");
+      updateReviveButton();
+      renderGallery();
+      updateRankUI();
+    }
+
+    function bindLanguageSync() {
+      window.addEventListener("storage", (event) => {
+        if (event.key !== LANGUAGE_KEY) return;
+        const nextLanguage = event.newValue === "en" ? "en" : "zh";
+        if (nextLanguage === currentLanguage) return;
+        currentLanguage = nextLanguage;
+        applyGameLanguage();
+      });
+    }
 
     // 性能关键参数：限制单帧物理步数、粒子数量和场上刚体数量，避免连续点击造成 CPU 峰值。
     const FIXED_STEP = 1000 / 60;
@@ -1876,12 +2029,11 @@
     const PLAYFIELD_DESIGN_HEIGHT = 416;
     let lastDropTime = 0;
 
-    const coreNames = ["起始核心", "棱镜核心", "脉冲核心", "裂变核心", "星环核心", "光锥核心", "量子核心", "超导核心", "星耀核心", "终极核心"];
     const rankBase = [
-      { name: "星影", score: 2128 },
-      { name: "赛博玩家", score: 2050 },
-      { name: "未来果王", score: 1974 },
-      { name: "终极玩家", score: 1860 }
+      { score: 2128 },
+      { score: 2050 },
+      { score: 1974 },
+      { score: 1860 }
     ];
 
     // 游戏主容器优先保持固定设计尺寸，仅在极小屏幕下做安全兜底。
@@ -1895,6 +2047,136 @@
       warningY: 0,
       spawnY: 0
     };
+
+    // #region debug-point D:layout-bootstrap
+    const GAME_DEBUG_URL = "/__debug/event";
+    const GAME_DEBUG_SESSION_ID = "game-gray-freeze";
+    const GAME_DEBUG_RUN_ID = "pre-fix";
+    let layoutDebugTimer = 0;
+    let lastLoopHealthReport = 0;
+
+    function serializeDebugError(error) {
+      if (!error) return { message: "Unknown error" };
+      return {
+        name: error.name || "Error",
+        message: error.message || String(error),
+        stack: String(error.stack || "").split("\n").slice(0, 6).join("\n")
+      };
+    }
+
+    function reportGameDebug(hypothesisId, location, msg, data = {}) {
+      fetch(GAME_DEBUG_URL, {
+        method: "POST",
+        mode: "no-cors",
+        keepalive: true,
+        headers: { "Content-Type": "text/plain;charset=UTF-8" },
+        body: JSON.stringify({
+          sessionId: GAME_DEBUG_SESSION_ID,
+          runId: GAME_DEBUG_RUN_ID,
+          hypothesisId,
+          location,
+          msg: `[DEBUG] ${msg}`,
+          data,
+          ts: Date.now()
+        })
+      }).catch(() => {});
+    }
+
+    window.addEventListener("error", (event) => {
+      reportGameDebug("A", "game:window-error", "uncaught window error", {
+        message: event.message || "",
+        filename: event.filename || "",
+        lineno: event.lineno || 0,
+        colno: event.colno || 0,
+        error: serializeDebugError(event.error),
+        score,
+        cores: cores.length,
+        particles: particles.length,
+        gameOver
+      });
+    });
+
+    window.addEventListener("unhandledrejection", (event) => {
+      reportGameDebug("A", "game:unhandledrejection", "unhandled promise rejection", {
+        reason: typeof event.reason === "object" ? serializeDebugError(event.reason) : String(event.reason || ""),
+        score,
+        cores: cores.length,
+        particles: particles.length,
+        gameOver
+      });
+    });
+
+    function scheduleLayoutDebug(reason) {
+      window.clearTimeout(layoutDebugTimer);
+      layoutDebugTimer = window.setTimeout(() => {
+        const viewport = window.visualViewport;
+        const dockRect = bottomDock ? bottomDock.getBoundingClientRect() : null;
+        const computedDock = bottomDock ? window.getComputedStyle(bottomDock) : null;
+        reportGameDebug("D", "game:layout-snapshot", "layout snapshot collected", {
+          reason,
+          windowSize: { width: window.innerWidth, height: window.innerHeight },
+          viewport: viewport ? {
+            width: Math.round(viewport.width),
+            height: Math.round(viewport.height),
+            offsetTop: Math.round(viewport.offsetTop),
+            offsetLeft: Math.round(viewport.offsetLeft),
+            pageTop: Math.round(viewport.pageTop),
+            pageLeft: Math.round(viewport.pageLeft),
+            scale: viewport.scale
+          } : null,
+          dockRect: dockRect ? {
+            top: Math.round(dockRect.top),
+            bottom: Math.round(dockRect.bottom),
+            height: Math.round(dockRect.height),
+            width: Math.round(dockRect.width)
+          } : null,
+          computedBottom: computedDock ? computedDock.bottom : "",
+          computedMinHeight: computedDock ? computedDock.minHeight : "",
+          rootVars: {
+            pagePad: document.documentElement.style.getPropertyValue("--page-pad").trim(),
+            bottomDockWidth: document.documentElement.style.getPropertyValue("--bottom-dock-width").trim(),
+            playfieldBottom: document.documentElement.style.getPropertyValue("--playfield-bottom").trim()
+          },
+          bodyClasses: document.body.className
+        });
+      }, 80);
+    }
+
+    function getViewportMetrics() {
+      const viewport = window.visualViewport;
+      const visualWidth = viewport ? Math.round(viewport.width) : window.innerWidth;
+      const visualHeight = viewport ? Math.round(viewport.height) : window.innerHeight;
+      const safeTop = viewport ? Math.max(0, Math.round(viewport.offsetTop)) : 0;
+      const safeBottom = viewport
+        ? Math.max(0, Math.round(window.innerHeight - viewport.height - viewport.offsetTop))
+        : 0;
+
+      return {
+        width: Math.max(0, visualWidth),
+        height: Math.max(0, visualHeight),
+        safeTop,
+        safeBottom
+      };
+    }
+
+    function syncViewportCSSVars() {
+      const metrics = getViewportMetrics();
+      const root = document.documentElement;
+      root.style.setProperty("--viewport-height", `${metrics.height}px`);
+      root.style.setProperty("--viewport-safe-top", `${metrics.safeTop}px`);
+      root.style.setProperty("--viewport-safe-bottom", `${metrics.safeBottom}px`);
+      return metrics;
+    }
+
+    reportGameDebug("D", "game:init", "game page bootstrapped", {
+      userAgent: navigator.userAgent,
+      screen: {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        dpr: window.devicePixelRatio || 1
+      }
+    });
+    // #endregion
 
     // 不同等级“机械核心”的配置：半径、边数、颜色、得分。
     const coreTypes = [
@@ -2031,8 +2313,8 @@
       if (!reviveBtn) return;
       const chipCount = Number(profile.inventory.reviveChip || 0);
       reviveBtn.textContent = chipCount > 0
-        ? `消耗复活芯片复活（库存 ${chipCount}）`
-        : "观看广告复活：清除顶部 3 个障碍物";
+        ? gameText("reviveByChip", { count: chipCount })
+        : gameText("reviveByAd");
     }
 
     function calculateRunCredits(finalScore) {
@@ -2048,9 +2330,9 @@
 
     function getUnlockedTaskHints(finalScore) {
       const unlocked = [];
-      if (finalScore >= 3000) unlocked.push("3000 分任务");
-      if (finalScore >= 5000) unlocked.push("5000 分任务");
-      if (finalScore >= 8000) unlocked.push("8000 分任务");
+      if (finalScore >= 30000) unlocked.push(gameText("taskHint30000"));
+      if (finalScore >= 50000) unlocked.push(gameText("taskHint50000"));
+      if (finalScore >= 80000) unlocked.push(gameText("taskHint80000"));
       return unlocked;
     }
 
@@ -2091,12 +2373,15 @@
     init();
 
     function init() {
+      currentLanguage = loadLanguagePreference();
+      applyGameLanguage();
       setupBackgroundVideo();
       applyLandscapeGuard();
       preventMobileGestures();
       setupInput();
       setupGalleryUI();
       setupChromeUI();
+      bindLanguageSync();
       refreshGameplayProfile();
       restartGame(false);
       // BGM 音量滑块
@@ -2104,6 +2389,7 @@
         const v = bgmSlider.value / 100;
         if (SFX.bgmGain) SFX.bgmGain.gain.value = v;
       });
+      scheduleLayoutDebug("init");
       requestAnimationFrame(loop);
     }
 
@@ -2147,8 +2433,9 @@
 
     function resizeCanvas() {
       DPR = Math.min(window.devicePixelRatio || 1, 2);
-      W = window.innerWidth;
-      H = window.innerHeight;
+      const viewportMetrics = syncViewportCSSVars();
+      W = viewportMetrics.width || window.innerWidth;
+      H = viewportMetrics.height || window.innerHeight;
       canvas.width = Math.floor(W * DPR);
       canvas.height = Math.floor(H * DPR);
       canvas.style.width = W + "px";
@@ -2186,6 +2473,11 @@
           ? clamp(H * 0.31, 208, 286)
           : (isTablet ? clamp(H * 0.22, 168, 220) : clamp(H * 0.24, 190, 260)));
       const minTop = isCompactMobile ? 58 : (isMobile ? 104 : 88);
+      const topShift = isCompactMobile
+        ? clamp(H * 0.089, 25, 43)
+        : (isMobile
+          ? clamp(H * 0.133, 47, 85)
+          : (isTablet ? clamp(H * 0.097, 43, 70) : clamp(H * 0.08, 36, 60)));
       const maxArenaSpace = Math.max(isCompactMobile ? 170 : 220, H - bottomReserve - minTop);
       const minArenaHeight = isCompactMobile ? 170 : (isMobile ? 220 : (isTablet ? 300 : 360));
       const arenaHeight = clamp(
@@ -2194,7 +2486,9 @@
         Math.min(PLAYFIELD_DESIGN_HEIGHT, maxArenaSpace)
       );
 
-      layout.top = Math.max(minTop, Math.min(topReserve, H - bottomReserve - arenaHeight));
+      const maxTop = H - bottomReserve - arenaHeight;
+      const baseTop = Math.max(minTop, Math.min(topReserve, maxTop));
+      layout.top = Math.min(maxTop, baseTop + topShift + 80);
       layout.bottom = layout.top + arenaHeight;
       layout.width = layout.right - layout.left;
       layout.height = layout.bottom - layout.top;
@@ -2215,10 +2509,10 @@
       const logoWidth = isMobile ? Math.min(containerWidth * 0.92, W - pagePad * 2) : Math.min(containerWidth * 0.9, 416);
       const progressWidth = Math.min(containerWidth + ((isMobile && !isCompactMobile) ? 0 : 72), W - pagePad * 2);
       const bottomDockWidth = landscapeTight
-        ? Math.min(containerWidth + 16, W - pagePad * 2)
-        : ((isMobile && !isCompactMobile)
-          ? W - pagePad * 2
-          : Math.min(containerWidth + sideWidth * 1.65, W - pagePad * 2));
+        ? Math.min(112, W - pagePad * 2)
+        : (isMobile && !isCompactMobile)
+          ? Math.min(132, W - pagePad * 2)
+          : Math.min(132, W - pagePad * 2);
 
       root.style.setProperty("--page-pad", `${pagePad}px`);
       root.style.setProperty("--playfield-left", `${layout.left}px`);
@@ -2234,6 +2528,32 @@
       root.style.setProperty("--hud-progress-width", `${progressWidth}px`);
       root.style.setProperty("--bottom-dock-width", `${bottomDockWidth}px`);
       document.body.classList.toggle("landscape-tight", landscapeTight);
+      // #region debug-point D:resize-canvas
+      reportGameDebug("D", "game:resizeCanvas", "resizeCanvas completed", {
+        isMobile,
+        isTablet,
+        isCompactMobile,
+        landscapeTight,
+        pagePad,
+        safeTop: viewportMetrics.safeTop,
+        safeBottom: viewportMetrics.safeBottom,
+        topShift,
+        bottomReserve,
+        topReserve,
+        containerWidth,
+        arenaHeight,
+        bottomDockWidth,
+        layout: {
+          left: Math.round(layout.left),
+          right: Math.round(layout.right),
+          top: Math.round(layout.top),
+          bottom: Math.round(layout.bottom),
+          width: Math.round(layout.width),
+          height: Math.round(layout.height)
+        }
+      });
+      // #endregion
+      scheduleLayoutDebug("resizeCanvas");
       rebuildScaledTypes();
       rebuildBackgroundCache();
     }
@@ -2245,6 +2565,16 @@
     }, { passive: false });
 
     window.addEventListener("orientationchange", applyLandscapeGuard);
+    if (window.visualViewport) {
+      const handleVisualViewportChange = (reason) => {
+        applyLandscapeGuard();
+        resizeCanvas();
+        if (engine) rebuildWalls();
+        scheduleLayoutDebug(reason);
+      };
+      window.visualViewport.addEventListener("resize", () => handleVisualViewportChange("visualViewport-resize"));
+      window.visualViewport.addEventListener("scroll", () => handleVisualViewportChange("visualViewport-scroll"));
+    }
 
     function getViewportSize() {
       const viewport = window.visualViewport;
@@ -2267,6 +2597,15 @@
       if (orientationGuard) {
         orientationGuard.setAttribute("aria-hidden", required ? "false" : "true");
       }
+      // #region debug-point E:landscape-guard
+      reportGameDebug("E", "game:applyLandscapeGuard", "landscape guard applied", {
+        required,
+        viewport: getViewportSize(),
+        innerWidth: window.innerWidth,
+        innerHeight: window.innerHeight
+      });
+      // #endregion
+      scheduleLayoutDebug("applyLandscapeGuard");
     }
 
     function restartGame(withAd = true) {
@@ -2308,6 +2647,21 @@
 
       rebuildWalls();
       bindCollision();
+      // #region debug-point E:restart-game
+      reportGameDebug("E", "game:restartGame", "game state restarted", {
+        withAd,
+        bestScore,
+        dropInterval,
+        currentLevel,
+        nextLevel,
+        layout: {
+          width: Math.round(layout.width),
+          height: Math.round(layout.height),
+          top: Math.round(layout.top),
+          bottom: Math.round(layout.bottom)
+        }
+      });
+      // #endregion
       SFX.restart();
     }
 
@@ -2512,31 +2866,68 @@
 
           mergeLock.add(a.id);
           mergeLock.add(b.id);
+          // #region debug-point B:collision-merge-candidate
+          reportGameDebug("B", "game:collisionStart", "merge candidate detected", {
+            aId: a.id,
+            bId: b.id,
+            level: a.plugin.level,
+            aPos: { x: Math.round(a.position.x), y: Math.round(a.position.y) },
+            bPos: { x: Math.round(b.position.x), y: Math.round(b.position.y) },
+            cores: cores.length,
+            particles: particles.length
+          });
+          // #endregion
           mergeCores(a, b);
         }
       });
     }
 
     function mergeCores(a, b) {
-      const level = a.plugin.level;
-      const x = (a.position.x + b.position.x) / 2;
-      const y = (a.position.y + b.position.y) / 2;
-      const vx = (a.velocity.x + b.velocity.x) / 2;
-      const vy = (a.velocity.y + b.velocity.y) / 2;
+      try {
+        const level = a.plugin.level;
+        const x = (a.position.x + b.position.x) / 2;
+        const y = (a.position.y + b.position.y) / 2;
+        const vx = (a.velocity.x + b.velocity.x) / 2;
+        const vy = (a.velocity.y + b.velocity.y) / 2;
 
-      removeCore(a);
-      removeCore(b);
-      spawnParticles(x, y, scaledType(level).glow, 26 + level * 4);
+        removeCore(a);
+        removeCore(b);
+        spawnParticles(x, y, scaledType(level).glow, 26 + level * 4);
 
-      const next = createCore(level + 1, x, y, true);
-      Body.setVelocity(next, { x: vx * 0.55, y: vy * 0.55 - 1.4 });
+        const next = createCore(level + 1, x, y, true);
+        Body.setVelocity(next, { x: vx * 0.55, y: vy * 0.55 - 1.4 });
 
-      const baseMergeScore = scaledType(level + 1).score * 10;
-      score += profile.upgrades.mergeBonus
-        ? Math.round(baseMergeScore * MERGE_BONUS_MULTIPLIER)
-        : baseMergeScore;
-      SFX.merge(level);
-      updateScoreUI();
+        const baseMergeScore = scaledType(level + 1).score * 10;
+        score += profile.upgrades.mergeBonus
+          ? Math.round(baseMergeScore * MERGE_BONUS_MULTIPLIER)
+          : baseMergeScore;
+        // #region debug-point B:merge-success
+        reportGameDebug("B", "game:mergeCores", "merge completed", {
+          mergedLevel: level,
+          nextLevel: level + 1,
+          nextId: next.id,
+          score,
+          cores: cores.length,
+          particles: particles.length
+        });
+        // #endregion
+        SFX.merge(level);
+        updateScoreUI();
+      } catch (error) {
+        // #region debug-point B:merge-failed
+        reportGameDebug("B", "game:mergeCores", "merge failed", {
+          aId: a && a.id,
+          bId: b && b.id,
+          aLevel: a && a.plugin ? a.plugin.level : null,
+          bLevel: b && b.plugin ? b.plugin.level : null,
+          score,
+          cores: cores.length,
+          particles: particles.length,
+          error: serializeDebugError(error)
+        });
+        // #endregion
+        throw error;
+      }
     }
 
     function removeCore(body) {
@@ -2606,10 +2997,15 @@
       const earnedCredits = calculateRunCredits(score);
       const unlockedTaskHints = getUnlockedTaskHints(score);
       const taskHintText = unlockedTaskHints.length
-        ? ` 已解锁 ${unlockedTaskHints.join("、")} 的领取条件。`
+        ? gameText("unlockedHints", { hints: unlockedTaskHints })
         : "";
       localStorage.setItem("neonCoreBest", String(bestScore));
-      finalText.textContent = `最终得分：${score}，结束本局可结算 ${earnedCredits} 积分${profile.upgrades.creditBoost ? "（已含 +15% 结算增幅）" : ""}。返回主页或重新开始后会同步更新任务与商店。${taskHintText}`;
+      finalText.textContent = gameText("finalSummary", {
+        score,
+        earnedCredits,
+        boosted: profile.upgrades.creditBoost,
+        taskHintText
+      });
       updateReviveButton();
       modal.classList.add("show");
     }
@@ -2679,22 +3075,74 @@
 
     // ------------------------- 渲染循环 -------------------------
     function loop(now) {
-      const frameTime = Math.min(now - lastTime || FIXED_STEP, 50);
-      lastTime = now;
-      physicsAccumulator += frameTime;
+      try {
+        const frameTime = Math.min(now - lastTime || FIXED_STEP, 50);
+        lastTime = now;
+        physicsAccumulator += frameTime;
 
-      let steps = 0;
-      while (!gameOver && physicsAccumulator >= FIXED_STEP && steps < MAX_PHYSICS_STEPS) {
-        Engine.update(engine, FIXED_STEP);
-        physicsAccumulator -= FIXED_STEP;
-        steps++;
+        let steps = 0;
+        while (!gameOver && physicsAccumulator >= FIXED_STEP && steps < MAX_PHYSICS_STEPS) {
+          Engine.update(engine, FIXED_STEP);
+          physicsAccumulator -= FIXED_STEP;
+          steps++;
+        }
+        if (steps === MAX_PHYSICS_STEPS) {
+          // #region debug-point E:loop-saturated
+          reportGameDebug("E", "game:loop", "physics step cap reached", {
+            frameTime,
+            physicsAccumulator,
+            score,
+            cores: cores.length,
+            particles: particles.length
+          });
+          // #endregion
+          physicsAccumulator = 0;
+        }
+
+        if (!gameOver) checkGameOver(now);
+        updateCooldownUI(now);
+        updateParticles();
+        draw(now);
+
+        if (now - lastLoopHealthReport >= 2000) {
+          lastLoopHealthReport = now;
+          // #region debug-point E:loop-health
+          reportGameDebug("E", "game:loop", "loop heartbeat", {
+            frameTime,
+            score,
+            cores: cores.length,
+            particles: particles.length,
+            dropInterval,
+            gameOver,
+            dangerStart,
+            layout: {
+              width: Math.round(layout.width),
+              height: Math.round(layout.height),
+              warningY: Math.round(layout.warningY)
+            }
+          });
+          // #endregion
+        }
+      } catch (error) {
+        // #region debug-point A:loop-crash
+        reportGameDebug("A", "game:loop", "loop crashed", {
+          score,
+          cores: cores.length,
+          particles: particles.length,
+          gameOver,
+          lastTime,
+          physicsAccumulator,
+          layout: {
+            width: Math.round(layout.width),
+            height: Math.round(layout.height),
+            top: Math.round(layout.top),
+            bottom: Math.round(layout.bottom)
+          },
+          error: serializeDebugError(error)
+        });
+        // #endregion
+        throw error;
       }
-      if (steps === MAX_PHYSICS_STEPS) physicsAccumulator = 0;
-
-      if (!gameOver) checkGameOver(now);
-      updateCooldownUI(now);
-      updateParticles();
-      draw(now);
       requestAnimationFrame(loop);
     }
 
@@ -3094,12 +3542,12 @@
       rankUIScheduled = true;
       setTimeout(() => {
         rankUIScheduled = false;
-        const rows = [...rankBase, { name: "NOW", score }]
+        const rows = [...rankBase.map((row, index) => ({ name: getRankName(index), score: row.score })), { name: gameText("rankNow"), score }]
           .sort((a, b) => b.score - a.score)
           .slice(0, 5);
 
         rankListEl.innerHTML = rows.map((row, index) => `
-          <div class="rank-row ${row.name === "NOW" ? "rank-now" : ""}">
+          <div class="rank-row ${row.name === gameText("rankNow") ? "rank-now" : ""}">
             <span class="rank-medal">${index + 1}</span>
             <span class="rank-name">${row.name}</span>
             <span class="rank-score">${row.score}</span>
@@ -3144,7 +3592,7 @@
         const item = document.createElement("button");
         item.className = `core-item ${level === selectedCoreLevel ? "active" : ""}`;
         item.type = "button";
-        item.setAttribute("aria-label", coreNames[level]);
+        item.setAttribute("aria-label", getCoreName(level));
 
         const mini = document.createElement("canvas");
         mini.width = 72;
@@ -3163,14 +3611,14 @@
           e.preventDefault();
           SFX.uiClick();
           selectedCoreLevel = level;
-          coreNameEl.textContent = `L${level + 1} ${coreNames[level]}`;
+          coreNameEl.textContent = `L${level + 1} ${getCoreName(level)}`;
           coreValueEl.textContent = `${coreTypes[level].score * 10} pts`;
           renderGallery();
         });
         coreGalleryEl.appendChild(item);
       });
 
-      coreNameEl.textContent = `L${selectedCoreLevel + 1} ${coreNames[selectedCoreLevel]}`;
+      coreNameEl.textContent = `L${selectedCoreLevel + 1} ${getCoreName(selectedCoreLevel)}`;
       coreValueEl.textContent = `${coreTypes[selectedCoreLevel].score * 10} pts`;
     }
 

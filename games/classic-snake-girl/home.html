@@ -47,8 +47,14 @@
       --primary-button-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 3px 3px 0 rgba(67, 15, 72, 0.3), 0 0 28px rgba(255, 43, 214, 0.2);
       --space-2: clamp(0.85rem, 1.4vw, 1.15rem);
       --space-3: clamp(1rem, 2vw, 1.5rem);
-      --shell-width: min(1280px, calc(100vw - 1.5rem));
-      --shell-height: min(860px, calc(100dvh - 1.5rem));
+      --space-4: clamp(1.25rem, 2.6vw, 2rem);
+      --shell-width: min(1440px, calc(100vw - 1rem));
+      --shell-height: calc(100dvh - 1rem);
+      --content-max: 82rem;
+      --home-splitter-size: 0.7rem;
+      --home-header-height: 10.4rem;
+      --home-side-width: 19rem;
+      --home-footer-height: 8rem;
       --panel-radius: 8px;
       --pixel-radius-sm: 4px;
       --pixel-radius-md: 8px;
@@ -94,6 +100,7 @@
     body {
       display: grid;
       place-items: center;
+      min-height: 100dvh;
       padding: max(0.75rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) max(0.75rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
       overflow: hidden;
       color: var(--text);
@@ -270,6 +277,8 @@
       z-index: 1;
       width: var(--shell-width);
       height: var(--shell-height);
+      min-height: 0;
+      margin: 0 auto;
     }
 
     .view-card,
@@ -380,12 +389,29 @@
       font-size: 0.85rem;
     }
 
+    .stat-label,
+    .action-title,
+    .view-title,
+    .view-caption,
+    .view-summary,
+    .hero-title,
+    .task-title,
+    .item-title,
+    .shop-title,
+    .settings-panel-title,
+    .settings-panel-copy,
+    .language-option {
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
     .view-card {
       height: 100%;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      padding: var(--space-3);
       min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      padding: clamp(0.9rem, 1.5vw, 1.3rem);
+      gap: clamp(0.7rem, 1.2vw, 1rem);
     }
 
     .view-status,
@@ -403,24 +429,25 @@
 
     .view-topbar {
       display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: 1rem;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: clamp(0.55rem, 1vw, 0.95rem);
       align-items: center;
-      min-height: 3.5rem;
-      margin-bottom: 0.35rem;
+      min-height: 0;
     }
 
     .view-summary {
       grid-column: 1 / -1;
       margin: 0;
       text-align: center;
-      line-height: 1.6;
+      line-height: 1.45;
+      min-height: 0;
     }
 
     .back-btn {
       justify-self: start;
       min-width: 6.25rem;
-      padding: 0.8rem 1rem;
+      min-height: 3rem;
+      padding: 0.68rem 0.95rem;
       opacity: 0;
       pointer-events: none;
     }
@@ -435,11 +462,12 @@
       display: inline-flex;
       align-items: center;
       gap: 0.65rem;
-      padding: 0.5rem 0.9rem;
+      padding: 0.42rem 0.8rem;
       border-radius: var(--pixel-radius-sm);
       background: var(--pixel-surface-soft);
       border: var(--pixel-border-soft) solid rgba(255, 255, 255, 0.12);
       font-weight: 800;
+      font-size: 1.6rem;
       text-shadow: 2px 2px 0 rgba(4, 7, 20, 0.46);
     }
 
@@ -454,63 +482,161 @@
     .progress-copy {
       text-align: right;
       font-weight: 800;
+      max-width: min(100%, 26rem);
+      justify-self: end;
+      line-height: 1.22;
+      overflow-wrap: anywhere;
+      font-size: clamp(1.25rem, 1.45vw, 1.5rem);
+    }
+
+    .topbar-actions {
+      position: relative;
+      justify-self: end;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-width: clamp(10.35rem, 11.7vw, 12.6rem);
+      justify-content: center;
+    }
+
+    .settings-trigger {
+      width: clamp(9.6rem, 10.8vw, 11.25rem);
+      min-width: clamp(9.6rem, 10.8vw, 11.25rem);
+      min-height: clamp(9.6rem, 10.8vw, 11.25rem);
+      padding: 0.25rem;
+      display: grid;
+      place-items: center;
+      justify-self: center;
+      align-self: center;
+      font-size: clamp(4.5rem, 5.625vw, 6.075rem);
+      line-height: 1;
+    }
+
+    .settings-panel {
+      position: absolute;
+      top: calc(100% + 0.55rem);
+      right: 0;
+      z-index: 15;
+      width: min(23rem, calc(100vw - 2rem));
+      padding: 0.9rem;
+      display: none;
+      gap: 0.7rem;
+      background: var(--pixel-surface-main);
+      border: var(--pixel-border-strong) solid var(--panel-border);
+      border-radius: var(--pixel-radius-md);
+      box-shadow: var(--pixel-shadow-hard);
+    }
+
+    .settings-panel.show {
+      display: grid;
+    }
+
+    .settings-panel-title {
+      margin: 0;
+      font-size: 1.65rem;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .settings-panel-copy {
+      margin: 0;
+      color: var(--text-soft);
+      font-size: 1.36rem;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .language-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.55rem;
+    }
+
+    .language-option {
+      min-height: 4rem;
+      padding: 0.7rem 0.85rem;
+      font-size: 1.36rem;
+      line-height: 1.35;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+
+    .language-option.active {
+      border-color: var(--active-card-border);
+      background: var(--active-card-bg);
+      box-shadow: var(--active-card-shadow);
     }
 
     .view-stage {
       position: relative;
       min-height: 0;
-      display: grid;
-      place-items: center;
+      display: block;
       overflow: hidden;
-      padding-block: 0.35rem;
+      padding-block: 0;
     }
 
     .module-view {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      opacity: 0;
-      transform: translateY(28px) scale(0.98);
+      position: relative;
+      inset: auto;
+      display: none;
+      opacity: 1;
+      transform: none;
       pointer-events: none;
-      transition: opacity var(--slow), transform var(--slow);
+      transition: none;
     }
 
     .module-view.active {
-      opacity: 1;
-      transform: translateY(0) scale(1);
+      display: block;
       pointer-events: auto;
+      height: 100%;
     }
 
     .module-main {
-      width: min(100%, 60rem);
+      width: min(100%, var(--content-max));
+      height: 100%;
       max-height: 100%;
       display: grid;
-      gap: var(--space-3);
-      justify-items: center;
-      align-content: center;
-      text-align: center;
+      gap: clamp(0.7rem, 1.2vw, 1rem);
+      justify-items: stretch;
+      align-content: start;
+      text-align: left;
+      overflow: hidden;
+      margin-inline: auto;
+    }
+
+    .module-view:not([data-view="home"]) .module-main {
       overflow: auto;
-      padding-right: 0.2rem;
+      padding-right: 0.15rem;
+      scrollbar-width: thin;
     }
 
-    .module-main::-webkit-scrollbar {
-      width: 6px;
+    .module-view:not([data-view="home"]) .module-main::-webkit-scrollbar {
+      width: 5px;
     }
 
-    .module-main::-webkit-scrollbar-thumb {
+    .module-view:not([data-view="home"]) .module-main::-webkit-scrollbar-thumb {
       border-radius: var(--pixel-radius-sm);
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.12);
     }
 
     .module-header {
       display: grid;
-      gap: 0.7rem;
-      justify-items: center;
+      gap: 0.45rem;
+      justify-items: start;
+      text-align: left;
+      align-content: start;
+    }
+
+    .view-summary {
+      margin: 0;
+      max-width: 62rem;
+      color: rgba(225, 236, 255, 0.84);
+      font-size: 1.48rem;
+      line-height: 1.42;
     }
 
     .section-kicker {
-      font-size: 0.76rem;
+      font-size: 1.52rem;
       font-weight: 900;
       color: var(--section-kicker-color);
       opacity: 0.82;
@@ -518,19 +644,21 @@
 
     .view-title {
       margin: 0;
-      font-size: clamp(2rem, 3.2vw, 3.6rem);
-      line-height: 1;
+      font-size: clamp(3rem, 4.8vw, 5rem);
+      line-height: 0.98;
       text-shadow: var(--view-title-shadow);
     }
 
     .view-caption {
-      max-width: 42rem;
-      font-size: clamp(0.95rem, 1.2vw, 1.05rem);
+      max-width: 52rem;
+      font-size: clamp(1.02rem, 1.12vw, 1.22rem);
+      line-height: 1.2;
     }
 
     .hero-panel {
-      width: min(100%, 58rem);
-      padding: clamp(1.2rem, 2vw, 1.5rem);
+      width: 100%;
+      min-height: clamp(22rem, 42vh, 28rem);
+      padding: clamp(1.3rem, 2vw, 2rem);
       border-radius: var(--pixel-radius-md);
       background: var(--pixel-surface-accent);
       border: var(--pixel-border-strong) solid var(--hero-panel-border);
@@ -542,20 +670,22 @@
 
     .hero-row {
       display: grid;
-      grid-template-columns: 1.3fr 0.9fr;
-      gap: 1rem;
+      grid-template-columns: 1.35fr 0.88fr;
+      gap: 0.9rem;
       align-items: stretch;
+      min-height: 0;
     }
 
     .hero-copy {
       display: grid;
-      gap: 0.65rem;
+      gap: 0.7rem;
+      align-content: center;
     }
 
     .hero-title {
       margin: 0;
-      font-size: clamp(1.6rem, 2.6vw, 2.5rem);
-      line-height: 1.15;
+      font-size: clamp(2.8rem, 4vw, 4.4rem);
+      line-height: 1.02;
     }
 
     .hero-highlight {
@@ -564,43 +694,48 @@
     }
 
     .hero-subtitle {
-      font-size: 0.95rem;
-      line-height: 1.7;
+      font-size: clamp(1.68rem, 1.6vw, 1.9rem);
+      line-height: 1.45;
     }
 
     .hero-side {
       display: grid;
-      gap: 0.85rem;
-      align-content: center;
+      gap: 0.7rem;
+      align-content: stretch;
     }
 
     .hero-card {
-      padding: 1rem;
+      padding: 1rem 1.1rem;
       border-radius: var(--pixel-radius-md);
       background: var(--pixel-surface-soft);
       border: var(--pixel-border-soft) solid rgba(255, 255, 255, 0.12);
+      display: grid;
+      align-items: center;
     }
 
     .hero-card strong {
       display: block;
-      font-size: 1.1rem;
-      margin-bottom: 0.35rem;
+      font-size: clamp(1.75rem, 1.95vw, 2.2rem);
+      margin-bottom: 0;
+      line-height: 1.06;
     }
 
     .action-grid {
-      width: min(100%, 58rem);
+      width: 100%;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: var(--space-2);
     }
 
     .action-btn {
-      padding: 1.05rem 0.95rem;
+      padding: 1rem 0.9rem;
       display: grid;
+      grid-template-rows: auto auto;
       gap: 0.45rem;
       justify-items: center;
+      align-content: center;
       text-align: center;
-      min-height: 7rem;
+      min-height: clamp(7rem, 10vh, 8.4rem);
     }
 
     .action-btn.active {
@@ -610,29 +745,32 @@
     }
 
     .action-symbol {
-      font-size: 1.5rem;
+      font-size: 2rem;
     }
 
     .action-title {
-      font-size: 1rem;
+      display: block;
+      width: 100%;
+      font-size: 1.72rem;
       font-weight: 900;
+      line-height: 1.12;
     }
 
     .action-text {
-      font-size: 0.82rem;
-      line-height: 1.5;
+      font-size: 0.76rem;
+      line-height: 1.32;
       color: rgba(217, 228, 255, 0.74);
     }
 
     .quick-grid {
-      width: min(100%, 58rem);
+      width: 100%;
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: var(--space-2);
     }
 
     .stat-card {
-      padding: 1rem;
+      padding: 1rem 1rem;
       border-radius: var(--pixel-radius-md);
       background: var(--pixel-surface-soft);
       border: var(--pixel-border-soft) solid rgba(255, 255, 255, 0.12);
@@ -640,23 +778,26 @@
     }
 
     .stat-value {
-      font-size: clamp(1.45rem, 2.2vw, 2rem);
-      margin-bottom: 0.25rem;
+      font-size: clamp(2.1rem, 2.5vw, 3rem);
+      margin-bottom: 0.22rem;
+      line-height: 1.05;
     }
 
     .stat-label {
       font-weight: 800;
+      font-size: 1.45rem;
+      line-height: 1.2;
     }
 
     .metric-row {
-      width: min(100%, 58rem);
+      width: 100%;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: var(--space-2);
     }
 
     .metric-card {
-      padding: 1rem;
+      padding: 0.82rem 0.9rem;
       border-radius: var(--pixel-radius-md);
       background: var(--pixel-surface-soft);
       border: var(--pixel-border-soft) solid rgba(255, 255, 255, 0.12);
@@ -665,22 +806,24 @@
 
     .metric-label {
       display: block;
-      margin-bottom: 0.4rem;
-      font-size: 0.72rem;
+      margin-bottom: 0.28rem;
+      font-size: 1.36rem;
       font-weight: 900;
       color: rgba(208, 220, 255, 0.74);
     }
 
     .metric-text {
-      font-size: 0.92rem;
+      font-size: 1.64rem;
+      line-height: 1.38;
     }
 
     .primary-btn,
     .secondary-btn,
     .ghost-btn {
-      min-height: 3.5rem;
-      padding: 0.95rem 1.2rem;
+      min-height: 6rem;
+      padding: 1.56rem 2rem;
       font-weight: 900;
+      font-size: 1.8rem;
     }
 
     .primary-btn {
@@ -698,17 +841,76 @@
     .footer-bar {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      padding-top: 0.75rem;
+      justify-content: flex-start;
+      gap: 0.75rem;
+      padding-top: 0.1rem;
     }
 
     .footer-note {
-      font-size: 0.9rem;
+      font-size: 1.64rem;
+      line-height: 1.4;
+    }
+
+    .resize-handle {
+      position: relative;
+      z-index: 2;
+      min-width: 0;
+      min-height: 0;
+      border-radius: var(--pixel-radius-sm);
+      background:
+        linear-gradient(180deg, rgba(55, 242, 255, 0.1), rgba(255, 43, 214, 0.08)),
+        rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+      touch-action: none;
+      user-select: none;
+    }
+
+    .resize-handle::before {
+      content: "";
+      position: absolute;
+      inset: 50% auto auto 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.55), rgba(55, 242, 255, 0.95), rgba(255, 43, 214, 0.82));
+      box-shadow: 0 0 12px rgba(55, 242, 255, 0.28);
+      opacity: 0.92;
+    }
+
+    .resize-handle:hover,
+    .resize-handle:focus-visible {
+      border-color: rgba(255, 255, 255, 0.18);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 0 18px rgba(55, 242, 255, 0.18);
+      outline: none;
+    }
+
+    .resize-handle.dragging {
+      border-color: rgba(255, 255, 255, 0.22);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 20px rgba(255, 43, 214, 0.2);
+    }
+
+    .resize-handle-inline {
+      width: var(--home-splitter-size);
+      cursor: col-resize;
+    }
+
+    .resize-handle-inline::before {
+      width: 0.22rem;
+      height: 3.1rem;
+    }
+
+    .resize-handle-block {
+      height: var(--home-splitter-size);
+      cursor: row-resize;
+    }
+
+    .resize-handle-block::before {
+      width: 3.8rem;
+      height: 0.22rem;
     }
 
     .module-grid {
-      width: min(100%, 58rem);
+      width: 100%;
       display: grid;
       gap: var(--space-2);
       text-align: left;
@@ -721,7 +923,7 @@
     .reward-item,
     .task-item,
     .shop-item {
-      padding: 1rem;
+      padding: 0.72rem 0.8rem;
       border-radius: var(--pixel-radius-md);
       background: var(--pixel-surface-soft);
       border: var(--pixel-border-strong) solid color-mix(in srgb, var(--panel-border) 28%, rgba(255, 255, 255, 0.1));
@@ -762,7 +964,7 @@
       padding: 0.25rem 0.6rem;
       border-radius: var(--pixel-radius-sm);
       border: 1px solid color-mix(in srgb, var(--panel-border) 22%, rgba(255, 255, 255, 0.08));
-      font-size: 0.7rem;
+      font-size: 1.4rem;
       font-weight: 900;
       background: var(--tag-bg);
       color: var(--tag-text);
@@ -771,32 +973,36 @@
     .item-title,
     .task-title,
     .shop-title {
-      margin: 0.8rem 0 0.45rem;
-      font-size: 1.05rem;
+      margin: 0.45rem 0 0.28rem;
+      font-size: 1.84rem;
+      line-height: 1.28;
     }
 
     .reward-desc,
     .task-desc,
     .shop-desc {
-      font-size: 0.9rem;
-      min-height: 2.8rem;
+      font-size: 1.52rem;
+      min-height: 0;
+      line-height: 1.32;
     }
 
     .reward-foot,
     .shop-foot,
     .task-foot {
-      margin-top: 0.95rem;
+      margin-top: 0.55rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 0.75rem;
+      gap: 0.55rem;
     }
 
     .reward-btn,
     .shop-btn,
     .inline-btn {
-      padding: 0.75rem 0.95rem;
+      padding: 1.16rem 1.6rem;
+      min-height: 5rem;
       font-weight: 900;
+      font-size: 1.5rem;
     }
 
     .reward-btn[disabled],
@@ -812,33 +1018,36 @@
     .task-progress {
       font-weight: 900;
       color: var(--yellow);
+      font-size: 1.6rem;
     }
 
     .task-list {
-      width: min(100%, 58rem);
+      width: 100%;
       display: grid;
       gap: var(--space-2);
     }
 
     .task-item {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 1rem;
-      align-items: center;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.8rem;
+      min-height: 100%;
     }
 
     .task-meta {
       display: grid;
       gap: 0.45rem;
+      min-width: 0;
     }
 
     .task-status {
-      min-width: 6.25rem;
-      padding: 0.55rem 0.9rem;
+      min-width: 4.8rem;
+      padding: 0.45rem 0.7rem;
       border-radius: var(--pixel-radius-sm);
       border: 1px solid color-mix(in srgb, var(--panel-border) 22%, rgba(255, 255, 255, 0.08));
       text-align: center;
-      font-size: 0.82rem;
+      font-size: 1.48rem;
       font-weight: 900;
       background: rgba(255, 255, 255, 0.05);
     }
@@ -849,38 +1058,232 @@
     }
 
     .shop-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .shop-status-banner {
+      margin: 0;
+      max-width: 58rem;
+      color: rgba(225, 236, 255, 0.84);
+    }
+
+    .reward-status-banner,
+    .task-status-banner {
+      max-width: 62rem;
+    }
+
+    .task-foot {
+      margin-top: auto;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .task-progress {
+      display: block;
+      flex: 1 1 16rem;
+      min-width: 0;
+      line-height: 1.35;
+    }
+
+    .task-foot .inline-btn {
+      flex: 0 1 auto;
+      max-width: 100%;
+      white-space: normal;
+      text-align: center;
     }
 
     .shop-preview {
       display: grid;
       place-items: center;
-      min-height: 5.5rem;
-      margin: 0.85rem 0;
+      min-height: 3.5rem;
+      margin: 0.45rem 0;
       border-radius: var(--pixel-radius-md);
       border: 1px solid color-mix(in srgb, var(--panel-border) 18%, rgba(255, 255, 255, 0.08));
       background: radial-gradient(circle at center, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02));
-      font-size: 2rem;
+      font-size: 2.9rem;
     }
 
     .shop-effect,
     .shop-stock {
       display: block;
-      margin-top: 0.55rem;
+      margin-top: 0.35rem;
       color: rgba(217, 228, 255, 0.76);
-      font-size: 0.82rem;
-      line-height: 1.5;
+      font-size: 1.44rem;
+      line-height: 1.28;
     }
 
     .detail-list {
-      width: min(100%, 58rem);
+      width: 100%;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: var(--space-2);
     }
 
+    .module-view[data-view="home"] .module-main {
+      grid-template-columns: minmax(0, calc(100% - var(--home-side-width) - var(--home-splitter-size))) var(--home-splitter-size) minmax(15rem, var(--home-side-width));
+      grid-template-rows: var(--home-header-height) minmax(0, 1fr) var(--home-splitter-size) var(--home-footer-height);
+      align-items: stretch;
+      gap: clamp(0.7rem, 0.95vw, 1rem);
+    }
+
+    .module-view[data-view="home"] .module-header {
+      grid-column: 1 / -1;
+      grid-row: 1 / 2;
+      justify-items: start;
+      align-self: start;
+      justify-self: start;
+      text-align: left;
+      max-width: min(100%, 51rem);
+      margin-left: 0;
+      margin-right: auto;
+      padding-left: clamp(0rem, 0.4vw, 0.35rem);
+      padding-right: 0;
+      overflow: hidden;
+    }
+
+    .module-view[data-view="home"] .hero-panel {
+      grid-column: 1 / 2;
+      grid-row: 2 / 3;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .module-view[data-view="home"] .resize-handle[data-resize-axis="side"] {
+      grid-column: 2 / 3;
+      grid-row: 2 / 3;
+    }
+
+    .module-view[data-view="home"] .quick-grid {
+      grid-column: 3 / 4;
+      grid-row: 2 / 3;
+      grid-template-columns: 1fr;
+      align-self: stretch;
+      align-content: stretch;
+      min-height: 0;
+    }
+
+    .module-view[data-view="home"] .resize-handle[data-resize-axis="footer"] {
+      grid-column: 1 / -1;
+      grid-row: 3 / 4;
+    }
+
+    .module-view[data-view="home"] .action-grid {
+      grid-column: 1 / -1;
+      grid-row: 4 / 5;
+      align-self: end;
+      align-content: stretch;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(0.55rem, 0.8vw, 0.8rem);
+      min-height: 0;
+    }
+
+    .module-view[data-view="home"] .stat-card {
+      min-height: 0;
+      display: grid;
+      align-content: center;
+    }
+
+    .module-view[data-view="home"] .module-main[data-resizable="false"] .resize-handle {
+      display: none;
+    }
+
+    .module-view[data-view="home"] .module-main[data-resizable="false"] {
+      grid-template-columns: minmax(0, 1.24fr) minmax(15rem, 0.82fr);
+      grid-template-rows: auto minmax(0, 1fr) auto;
+    }
+
+    .module-view[data-view="home"] .module-main[data-resizable="false"] .hero-panel {
+      grid-column: 1 / 2;
+      grid-row: 2 / 3;
+    }
+
+    .module-view[data-view="home"] .module-main[data-resizable="false"] .quick-grid {
+      grid-column: 2 / 3;
+      grid-row: 2 / 3;
+    }
+
+    .module-view[data-view="home"] .module-main[data-resizable="false"] .action-grid {
+      grid-column: 1 / -1;
+      grid-row: 3 / 4;
+    }
+
+    #heroStartBtn {
+      width: min(100%, 31rem);
+      min-height: 8rem;
+      padding: 1.9rem 2.6rem;
+      font-size: clamp(2.7rem, 3.2vw, 3.6rem);
+      line-height: 1;
+      letter-spacing: 0.05em;
+      border-width: 4px;
+      box-shadow: 0 0 0 2px rgba(255, 238, 163, 0.26), 0 22px 40px rgba(255, 187, 64, 0.4);
+    }
+
+    .module-view[data-view="reward"] .module-main,
+    .module-view[data-view="task"] .module-main,
+    .module-view[data-view="shop"] .module-main {
+      grid-template-columns: minmax(0, 1.55fr) minmax(16rem, 0.9fr);
+      grid-template-rows: auto minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .module-view[data-view="shop"] .module-main {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .module-view[data-view="reward"] .module-main {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .module-view[data-view="task"] .module-main {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .module-view[data-view="reward"] .module-header,
+    .module-view[data-view="task"] .module-header,
+    .module-view[data-view="shop"] .module-header {
+      grid-column: 1 / -1;
+    }
+
+    .module-view[data-view="reward"] #rewardGrid,
+    .module-view[data-view="task"] #taskList,
+    .module-view[data-view="shop"] #shopGrid {
+      grid-column: 1 / 2;
+    }
+
+    .module-view[data-view="shop"] #shopGrid {
+      grid-column: 1 / -1;
+    }
+
+    .module-view[data-view="reward"] #rewardGrid {
+      grid-column: 1 / -1;
+    }
+
+    .module-view[data-view="task"] #taskList {
+      grid-column: 1 / -1;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-content: start;
+    }
+
+    .module-view[data-view="reward"] .detail-list,
+    .module-view[data-view="task"] .detail-list,
+    .module-view[data-view="shop"] .detail-list {
+      grid-column: 2 / 3;
+      grid-template-columns: 1fr;
+      align-self: start;
+    }
+
+    .module-view[data-view="reward"] #rewardGrid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-content: start;
+    }
+
+    .module-view[data-view="shop"] #shopGrid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-content: start;
+    }
+
     .detail-card {
-      padding: 1rem;
+      padding: 0.8rem 0.9rem;
       border-radius: var(--pixel-radius-md);
       background: var(--pixel-surface-soft);
       border: var(--pixel-border-soft) solid var(--soft-border);
@@ -889,8 +1292,8 @@
 
     .detail-card strong {
       display: block;
-      margin-bottom: 0.4rem;
-      font-size: 1rem;
+      margin-bottom: 0.25rem;
+      font-size: 1.8rem;
     }
 
     .toast {
@@ -1034,7 +1437,52 @@
     @media (max-width: 960px) {
       :root {
         --shell-width: min(960px, calc(100vw - 1rem));
-        --shell-height: min(920px, calc(100dvh - 1rem));
+        --shell-height: calc(100dvh - 1rem);
+      }
+
+      .app-shell {
+        height: var(--shell-height);
+      }
+
+      .view-card {
+        height: 100%;
+        min-height: 0;
+        grid-template-rows: auto minmax(0, 1fr) auto;
+      }
+
+      .module-view[data-view="reward"] .module-main,
+      .module-view[data-view="task"] .module-main,
+      .module-view[data-view="shop"] .module-main {
+        grid-template-columns: 1fr;
+      }
+
+      .module-view[data-view="reward"] .detail-list,
+      .module-view[data-view="task"] .detail-list,
+      .module-view[data-view="shop"] .detail-list {
+        grid-column: auto;
+      }
+
+      .module-view[data-view="reward"] .detail-list,
+      .module-view[data-view="task"] .detail-list,
+      .module-view[data-view="shop"] .detail-list {
+        position: relative;
+        top: auto;
+      }
+
+      .module-view[data-view="home"] .action-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .module-view[data-view="reward"] #rewardGrid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .module-view[data-view="task"] #taskList {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .module-view[data-view="shop"] #shopGrid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
     }
 
@@ -1050,24 +1498,35 @@
       }
 
       .view-card {
-        padding: 1rem;
+        height: 100%;
+        padding: 0.78rem;
+        gap: 0.65rem;
+      }
+
+      .progress-copy {
+        font-size: 0.92rem;
+      }
+
+      .view-stage {
+        padding-block: 0;
       }
 
       .view-topbar {
-        grid-template-columns: 1fr;
-        justify-items: center;
-        gap: 0.75rem;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 0.55rem;
       }
 
-      .back-btn,
+      .back-btn {
+        justify-self: start;
+      }
+
       .progress-copy {
-        justify-self: center;
-        text-align: center;
+        justify-self: end;
+        text-align: right;
+        max-width: 100%;
       }
 
       .action-grid,
-      .quick-grid,
-      .metric-row,
       .reward-grid,
       .shop-grid,
       .detail-list {
@@ -1089,6 +1548,7 @@
 
       .module-main {
         width: 100%;
+        gap: 0.65rem;
       }
 
       .hero-panel,
@@ -1110,6 +1570,168 @@
       .detail-card {
         text-align: center;
       }
+
+      .view-title {
+        line-height: 1.08;
+        font-size: clamp(1.8rem, 6vw, 2.45rem);
+      }
+
+      .view-caption,
+      .hero-subtitle,
+      .metric-text,
+      .task-desc,
+      .reward-desc,
+      .shop-desc,
+      .footer-note,
+      .action-text {
+        line-height: 1.4;
+      }
+
+      .module-view[data-view="home"] .module-main {
+        grid-template-columns: minmax(0, calc(100% - var(--home-side-width) - var(--home-splitter-size))) var(--home-splitter-size) minmax(12.8rem, var(--home-side-width));
+        grid-template-rows: var(--home-header-height) minmax(0, 1fr) var(--home-splitter-size) var(--home-footer-height);
+        align-items: stretch;
+      }
+
+      .module-view[data-view="home"] .module-header {
+        grid-column: 1 / -1;
+        grid-row: 1 / 2;
+        justify-items: start;
+        justify-self: start;
+        text-align: left;
+        max-width: min(100%, 39rem);
+        margin-left: 0;
+        margin-right: auto;
+      }
+
+      .module-view[data-view="home"] .hero-panel {
+        grid-column: 1 / 2;
+        grid-row: 2 / 3;
+      }
+
+      .module-view[data-view="home"] .quick-grid {
+        grid-column: 3 / 4;
+        grid-row: 2 / 3;
+        grid-template-columns: 1fr;
+        gap: 0.4rem;
+      }
+
+      .module-view[data-view="home"] .action-grid {
+        grid-column: 1 / -1;
+        grid-row: 4 / 5;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.4rem;
+      }
+
+      .module-view[data-view="home"] .hero-row {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+      }
+
+      .module-view[data-view="home"] .hero-side {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .hero-panel {
+        min-height: 18rem;
+        padding: 0.9rem;
+        gap: 0.75rem;
+      }
+
+      .hero-title {
+        font-size: clamp(2rem, 7vw, 2.9rem);
+      }
+
+      .quick-grid {
+        grid-template-columns: 1fr;
+        gap: 0.4rem;
+      }
+
+      .metric-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.45rem;
+      }
+
+      .action-btn,
+      .stat-card,
+      .metric-card,
+      .hero-card,
+      .detail-card,
+      .reward-item,
+      .task-item,
+      .shop-item {
+        padding: 0.58rem;
+      }
+
+      .action-btn {
+        min-height: 5.2rem;
+      }
+
+      .action-symbol {
+        font-size: 1.35rem;
+      }
+
+      .action-title {
+        font-size: 1rem;
+      }
+
+      .action-text,
+      .reward-desc,
+      .task-desc,
+      .shop-desc,
+      .metric-text,
+      .hero-subtitle,
+      .footer-note {
+        font-size: 0.98rem;
+      }
+
+      .stat-value {
+        font-size: 1.4rem;
+      }
+
+      .stat-label,
+      .metric-label {
+        font-size: 0.9rem;
+      }
+
+      .hero-title,
+      .view-title {
+        font-size: clamp(1.9rem, 6.5vw, 2.55rem);
+      }
+
+      .view-caption {
+        font-size: 0.74rem;
+      }
+
+      .primary-btn,
+      .secondary-btn,
+      .ghost-btn,
+      .reward-btn,
+      .shop-btn,
+      .inline-btn {
+        min-height: 3.6rem;
+        padding: 0.82rem 1rem;
+        font-size: 1rem;
+      }
+
+      #heroStartBtn {
+        width: 100%;
+        min-height: 4.9rem;
+        padding: 0.95rem 1.2rem;
+        font-size: 1.7rem;
+      }
+
+      .module-view[data-view="reward"] #rewardGrid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .module-view[data-view="task"] #taskList {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .module-view[data-view="shop"] #shopGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
 
     @media (max-width: 900px) and (orientation: landscape) {
@@ -1123,11 +1745,16 @@
       }
 
       .view-card {
-        padding: 0.95rem;
+        height: 100%;
+        padding: 0.7rem 0.82rem;
+      }
+
+      .progress-copy {
+        font-size: 0.88rem;
       }
 
       .view-topbar {
-        gap: 0.75rem;
+        gap: 0.55rem;
       }
 
       .view-summary,
@@ -1153,6 +1780,107 @@
 
       .module-main {
         width: 100%;
+        gap: 0.55rem;
+      }
+
+      .hero-panel {
+        min-height: 15.5rem;
+        padding: 0.82rem 0.9rem;
+      }
+
+      .view-title {
+        font-size: clamp(1.9rem, 4.6vw, 2.7rem);
+      }
+
+      .view-caption {
+        font-size: 0.72rem;
+      }
+
+      .hero-title {
+        font-size: clamp(1.65rem, 4.2vw, 2.4rem);
+      }
+
+      .hero-card strong {
+        font-size: 1.08rem;
+      }
+
+      .module-view[data-view="home"] .module-main {
+        grid-template-columns: minmax(0, calc(100% - var(--home-side-width) - var(--home-splitter-size))) var(--home-splitter-size) minmax(13rem, var(--home-side-width));
+        grid-template-rows: var(--home-header-height) minmax(0, 1fr) var(--home-splitter-size) var(--home-footer-height);
+      }
+
+      .module-view[data-view="home"] .module-header {
+        grid-column: 1 / -1;
+        grid-row: 1 / 2;
+        justify-items: start;
+        justify-self: start;
+        text-align: left;
+        max-width: min(100%, 39rem);
+        margin-left: 0;
+        margin-right: auto;
+      }
+
+      .module-view[data-view="home"] .hero-panel {
+        grid-column: 1 / 2;
+        grid-row: 2 / 3;
+      }
+
+      .module-view[data-view="home"] .quick-grid {
+        grid-column: 3 / 4;
+        grid-row: 2 / 3;
+        grid-template-columns: 1fr;
+      }
+
+      .module-view[data-view="home"] .action-grid {
+        grid-column: 1 / -1;
+        grid-row: 4 / 5;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .action-btn {
+        min-height: 4.7rem;
+      }
+
+      .quick-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .metric-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .module-view[data-view="reward"] #rewardGrid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .module-view[data-view="task"] #taskList {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .module-view[data-view="shop"] #shopGrid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .action-symbol {
+        font-size: 1.15rem;
+      }
+
+      .action-title {
+        font-size: 0.92rem;
+      }
+
+      .stat-value {
+        font-size: 1.26rem;
+      }
+
+      .stat-label {
+        font-size: 0.82rem;
+      }
+
+      #heroStartBtn {
+        width: 100%;
+        min-height: 4.2rem;
+        font-size: 1.42rem;
       }
     }
 
@@ -1171,109 +1899,93 @@
   <div class="orientation-guard" id="orientationGuard" aria-live="polite">
     <div class="orientation-panel">
       <div class="orientation-icon">↻</div>
-      <h2 class="orientation-title">请横屏游玩</h2>
-      <p class="orientation-copy">为保证主页与游戏界面都保持统一横屏布局，手机竖屏状态下将暂时隐藏内容。请将设备旋转为横屏后继续。</p>
-      <p class="orientation-hint">Landscape Mode Required</p>
+      <h2 class="orientation-title" id="orientationTitle">请横屏游玩</h2>
+      <p class="orientation-copy" id="orientationCopy">为保证主页与游戏界面都保持统一横屏布局，手机竖屏状态下将暂时隐藏内容。请将设备旋转为横屏后继续。</p>
+      <p class="orientation-hint" id="orientationHint">Landscape Mode Required</p>
     </div>
   </div>
   <main class="app-shell" aria-label="游戏主页">
     <div class="ui-panel view-card">
         <div class="view-topbar">
           <button class="secondary-btn back-btn" id="backBtn" type="button">返回主页</button>
-          <div class="view-status" aria-live="polite">
-            <span class="view-indicator"></span>
-            <span id="viewStatusLabel">主页</span>
-          </div>
           <div class="progress-copy" id="topProgress">积分 0 | 奖励 0/3 | 任务 0/4 | 芯片 0</div>
-          <p class="view-summary" id="viewStatusDesc">在主页中央查看完整入口、快速状态和推荐操作。</p>
+          <div class="topbar-actions">
+            <button class="secondary-btn settings-trigger" id="homeSettingsBtn" type="button" aria-label="语言设置" title="语言设置">
+              <span aria-hidden="true">⚙</span>
+            </button>
+            <div class="settings-panel" id="homeSettingsPanel" aria-label="系统语言设置">
+              <h3 class="settings-panel-title" id="settingsPanelTitle">系统语言</h3>
+              <p class="settings-panel-copy" id="settingsPanelCopy">切换后主页与游戏页会同步使用同一语言显示。</p>
+              <div class="language-options">
+                <button class="secondary-btn language-option" id="langZhBtn" type="button">中文（Chinese）</button>
+                <button class="secondary-btn language-option" id="langEnBtn" type="button">英文（English）</button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="view-stage">
           <section class="module-view active" data-view="home" aria-label="主页界面">
-            <div class="module-main">
+            <div class="module-main" id="homeLayout">
               <header class="module-header">
-                <div class="section-kicker">Central Hub</div>
-                <h2 class="view-title">统一游戏主页</h2>
-                <p class="view-caption">主页提供开始游戏、每日奖励、任务和商店的统一访问入口；不同屏幕尺寸下始终保持整体在页面中央，并通过单页切换避免重复加载。</p>
+                <h2 class="view-title" id="homeViewTitle">霓虹机械水果店</h2>
+                <p class="view-caption" id="homeViewCaption">午夜商街的机械果柜持续掉落失控果核，你要在霓虹雨幕里把它们接成更高阶果实，赚取积分，扩建店面，并为下一轮进货装上更强模块。</p>
               </header>
 
               <section class="hero-panel">
                 <div class="hero-row">
                   <div class="hero-copy">
-                    <h3 class="hero-title">将所有关键 UI 集中到 <span class="hero-highlight">一个主页视图</span></h3>
-                    <p class="hero-subtitle">点击下方模块卡片即可进入对应功能，切换过程使用统一动画和状态同步机制；返回时直接回到主页界面，避免错位、闪烁和状态丢失。</p>
+                    <h3 class="hero-title" id="heroTitleLine">接住果核，<span class="hero-highlight">合成果实</span></h3>
                   </div>
                   <div class="hero-side">
                     <div class="hero-card">
                       <strong id="heroRewardState">每日奖励待领取</strong>
-                      <p class="metric-text" id="heroRewardNote">奖励领取情况会自动保存在本地。</p>
                     </div>
                     <div class="hero-card">
                       <strong id="heroTaskState">任务完成 0/3</strong>
-                      <p class="metric-text" id="heroTaskNote">任务进度与商店选择都会跨切换保留。</p>
                     </div>
                     <div class="hero-card">
                       <strong id="heroCreditState">当前积分 0</strong>
-                      <p class="metric-text" id="heroCreditNote">单局得分、每日奖励和任务奖励都会汇入这里。</p>
                     </div>
                   </div>
                 </div>
                 <div class="footer-bar">
-                  <p class="footer-note" id="footerEconomyNote">推荐先领取每日奖励，再完成一局对战，用结算积分在商店购买强化模块。</p>
                   <button class="primary-btn" type="button" id="heroStartBtn">开始游戏</button>
                 </div>
               </section>
 
-              <section class="action-grid" aria-label="功能入口">
-                <button class="action-btn" type="button" data-nav-target="reward">
-                  <span class="action-symbol">🎁</span>
-                  <span class="action-title">每日奖励</span>
-                  <span class="action-text">查看签到奖励、领取状态和今日记录。</span>
-                </button>
-                <button class="action-btn" type="button" data-nav-target="task">
-                  <span class="action-symbol">📝</span>
-                  <span class="action-title">任务</span>
-                  <span class="action-text">查看每日任务、完成情况和当前进度。</span>
-                </button>
-                <button class="action-btn" type="button" data-nav-target="shop">
-                  <span class="action-symbol">🛒</span>
-                  <span class="action-title">商店</span>
-                  <span class="action-text">切换主题、道具方案与主页高亮内容。</span>
-                </button>
-              </section>
+              <div class="resize-handle resize-handle-inline" id="homeSideResizeHandle" data-resize-axis="side" role="separator" tabindex="0" aria-label="拖动调节右侧信息区宽度" title="拖动调节右侧信息区宽度"></div>
 
               <section class="quick-grid">
                 <div class="stat-card">
                   <span class="stat-value" id="summaryCreditValue">0</span>
-                  <span class="stat-label">当前积分余额</span>
+                  <span class="stat-label" id="summaryCreditLabel">当前积分余额</span>
                 </div>
                 <div class="stat-card">
                   <span class="stat-value" id="summaryRewardValue">0 / 3</span>
-                  <span class="stat-label">今日奖励领取</span>
+                  <span class="stat-label" id="summaryRewardLabel">今日奖励领取</span>
                 </div>
                 <div class="stat-card">
                   <span class="stat-value" id="summaryTaskValue">0 / 4</span>
-                  <span class="stat-label">任务完成度</span>
-                </div>
-                <div class="stat-card">
-                  <span class="stat-value" id="summaryShopValue">未装备</span>
-                  <span class="stat-label">当前激活方案</span>
+                  <span class="stat-label" id="summaryTaskLabel">任务完成度</span>
                 </div>
               </section>
 
-              <section class="metric-row">
-                <div class="metric-card">
-                  <span class="metric-label">积分闭环</span>
-                  <p class="metric-text">单局得分会直接结算为可消费积分，每日奖励和任务奖励作为额外加成补充商店成长线。</p>
-                </div>
-                <div class="metric-card">
-                  <span class="metric-label">成长方向</span>
-                  <p class="metric-text">商店提供主题、冷却优化、结算增幅和复活芯片，既保留风格展示也能反哺对局体验。</p>
-                </div>
-                <div class="metric-card">
-                  <span class="metric-label">状态留存</span>
-                  <p class="metric-text">奖励、任务、积分、库存和已购强化都会持久化，刷新后仍能继续当前成长进度。</p>
-                </div>
+              <div class="resize-handle resize-handle-block" id="homeFooterResizeHandle" data-resize-axis="footer" role="separator" tabindex="0" aria-label="拖动调节底部功能区高度" title="拖动调节底部功能区高度"></div>
+
+              <section class="action-grid" aria-label="功能入口">
+                <button class="action-btn" type="button" data-nav-target="reward">
+                  <span class="action-symbol">🎁</span>
+                  <span class="action-title" id="actionRewardTitle">每日奖励</span>
+                </button>
+                <button class="action-btn" type="button" data-nav-target="task">
+                  <span class="action-symbol">📝</span>
+                  <span class="action-title" id="actionTaskTitle">任务</span>
+                </button>
+                <button class="action-btn" type="button" data-nav-target="shop">
+                  <span class="action-symbol">🛒</span>
+                  <span class="action-title" id="actionShopTitle">商店</span>
+                </button>
               </section>
             </div>
           </section>
@@ -1282,22 +1994,12 @@
             <div class="module-main">
               <header class="module-header">
                 <div class="section-kicker">Daily Reward</div>
-                <h2 class="view-title">每日奖励</h2>
-                <p class="view-caption">每日奖励会为今天的对战提供启动积分，先领取再进入游戏，可以更快凑齐第一批核心强化和复活芯片。</p>
+                <h2 class="view-title" id="rewardViewTitle">每日奖励</h2>
+                <p class="view-summary reward-status-banner" id="rewardSummaryText">今天尚未领取奖励，建议先完成签到。</p>
+                <p class="view-summary reward-status-banner" id="rewardBonusText">奖励会直接汇入积分余额，可用于购买商店中的强化与补给。</p>
               </header>
 
               <section class="module-grid reward-grid" id="rewardGrid"></section>
-
-              <section class="detail-list">
-                <div class="detail-card">
-                  <strong>今日状态</strong>
-                  <p class="metric-text" id="rewardSummaryText">今天尚未领取奖励，建议先完成签到。</p>
-                </div>
-                <div class="detail-card">
-                  <strong>奖励策略</strong>
-                  <p class="metric-text" id="rewardBonusText">奖励会直接汇入积分余额，可用于购买商店中的功能强化与主题方案。</p>
-                </div>
-              </section>
             </div>
           </section>
 
@@ -1305,22 +2007,12 @@
             <div class="module-main">
               <header class="module-header">
                 <div class="section-kicker">Mission Board</div>
-                <h2 class="view-title">任务中心</h2>
-                <p class="view-caption">任务围绕真实玩法展开：完成对局、冲击高分、消费积分，都会反向驱动奖励与商店成长。</p>
+                <h2 class="view-title" id="taskViewTitle">任务中心</h2>
+                <p class="view-summary task-status-banner" id="taskSummaryText">当前尚未完成任务，可逐项领取主页演示奖励。</p>
+                <p class="view-summary task-status-banner" id="taskBonusText">任务会读取今日对局成绩与购买行为，达到目标后可再领取额外积分奖励。</p>
               </header>
 
               <section class="task-list" id="taskList"></section>
-
-              <section class="detail-list">
-                <div class="detail-card">
-                  <strong>任务进度</strong>
-                  <p class="metric-text" id="taskSummaryText">当前尚未完成任务，可逐项领取主页演示奖励。</p>
-                </div>
-                <div class="detail-card">
-                  <strong>对战联动</strong>
-                  <p class="metric-text" id="taskBonusText">任务会读取今日对局成绩与购买行为，达到目标后可再领取额外积分奖励。</p>
-                </div>
-              </section>
             </div>
           </section>
 
@@ -1328,26 +2020,11 @@
             <div class="module-main">
               <header class="module-header">
                 <div class="section-kicker">Store Center</div>
-                <h2 class="view-title">商店</h2>
-                <p class="view-caption">商店整合了主题、成长强化和复活芯片。对局得分会结算成积分，再通过这里转化为下局更稳定的成长优势。</p>
+                <h2 class="view-title" id="shopViewTitle">商店</h2>
+                <p class="view-summary shop-status-banner" id="shopAccessText">每次进店只能购买 1 件商品，购买后商店会暂时关门，完成 1 局游戏后重新开放。</p>
               </header>
 
               <section class="module-grid shop-grid" id="shopGrid"></section>
-
-              <section class="detail-list">
-                <div class="detail-card">
-                  <strong>积分汇总</strong>
-                  <p class="metric-text" id="shopSummaryText">尚未选择主题方案，当前使用默认主页样式。</p>
-                </div>
-                <div class="detail-card">
-                  <strong>库存与加成</strong>
-                  <p class="metric-text" id="shopInventoryText">已购商品、复活芯片库存和永久加成会在这里汇总显示。</p>
-                </div>
-                <div class="detail-card">
-                  <strong>当前装配</strong>
-                  <p class="metric-text" id="shopLoadoutText">当前尚未激活额外主题或对局强化。</p>
-                </div>
-              </section>
             </div>
           </section>
         </div>
@@ -1362,37 +2039,208 @@
     const STORAGE_KEY = "classic-snake-girl-home-state-v3";
     const PROFILE_KEY = "classic-snake-girl-profile-v1";
     const VIEW_KEY = "classic-snake-girl-home-current-view";
+    const HOME_LAYOUT_KEY = "classic-snake-girl-home-layout-v1";
+    const LANGUAGE_KEY = "classic-snake-girl-language-v1";
+    const SHOP_PRICE_MULTIPLIER = 10;
     const DEFAULT_VIEW = "home";
+    const SUPPORTED_LANGUAGES = ["zh", "en"];
+
+    const HOME_I18N = {
+      zh: {
+        docTitle: "霓虹机械核心合成 - 游戏主页",
+        orientationTitle: "请横屏游玩",
+        orientationCopy: "为保证主页与游戏界面都保持统一横屏布局，手机竖屏状态下将暂时隐藏内容。请将设备旋转为横屏后继续。",
+        orientationHint: "Landscape Mode Required",
+        backHome: "返回主页",
+        settingsTrigger: "语言设置",
+        settingsTitle: "系统语言",
+        settingsCopy: "切换后主页与游戏页会同步使用同一语言显示。",
+        langZh: "中文（Chinese）",
+        langEn: "英文（English）",
+        homeViewTitle: "霓虹机械水果店",
+        homeViewCaption: "午夜商街的机械果柜持续掉落失控果核，你要在霓虹雨幕里把它们接成更高阶果实，赚取积分，扩建店面，并为下一轮进货装上更强模块。",
+        heroTitleHtml: '接住果核，<span class="hero-highlight">合成果实</span>',
+        heroStart: "开始游戏",
+        summaryCreditLabel: "当前积分余额",
+        summaryRewardLabel: "今日奖励领取",
+        summaryTaskLabel: "任务完成度",
+        actionReward: "每日奖励",
+        actionTask: "任务",
+        actionShop: "商店",
+        rewardViewTitle: "每日奖励",
+        taskViewTitle: "任务中心",
+        shopViewTitle: "商店",
+        viewHome: "主页",
+        viewReward: "每日奖励",
+        viewTask: "任务中心",
+        viewShop: "商店",
+        viewDescHome: "在主页中央查看积分余额、每日奖励、任务进度和成长入口。",
+        viewDescReward: "领取今日积分补给，为本轮对战和商店消费准备启动资金。",
+        viewDescTask: "通过真实对局、冲分和购物行为领取额外积分奖励。",
+        viewDescShop: "把对局得分转化为可持续成长，购买强化与复活芯片。",
+        topProgress: ({ credits, rewardClaimed, rewardTotal, taskClaimed, taskTotal, chips }) => `积分 ${formatNumber(credits)} | 奖励 ${rewardClaimed}/${rewardTotal} | 任务 ${taskClaimed}/${taskTotal} | 芯片 ${chips}`,
+        currentViewToast: ({ label }) => `当前已在${label}`,
+        switchedViewToast: ({ label }) => `已切换到${label}`,
+        rewardValue: ({ credits }) => `+${formatNumber(credits)} 积分`,
+        rewardClaimed: "已领取",
+        rewardClaim: "领取奖励",
+        taskReached: "已达成",
+        taskBest: ({ current, target }) => `今日最高 ${formatNumber(current)} / ${formatNumber(target)}`,
+        taskTotal: ({ current, target }) => `今日累计 ${formatNumber(current)} / ${formatNumber(target)}`,
+        taskClaimedProgress: ({ reward }) => `+${formatNumber(reward)} 已领取`,
+        taskClaimButton: ({ reward }) => `领取 +${formatNumber(reward)}`,
+        taskNotReady: "未达成",
+        currentStock: ({ count }) => `当前库存：${count}`,
+        freePrice: "免费",
+        creditsPrice: ({ price }) => `${formatNumber(price)} 积分`,
+        storeClosed: "商店已关门",
+        buyItem: "购买商品",
+        insufficientCredits: "积分不足",
+        equipped: "已装备",
+        equipTheme: "装备主题",
+        owned: "已拥有",
+        shopLastPurchaseFallback: "本轮商品",
+        shopClosedMessage: ({ title, remainingRuns }) => `你已购买 ${title}，商店已关门。请先完成 ${remainingRuns} 局游戏后再来。`,
+        shopOpenMessage: "本次进店只能购买 1 件商品，购买后商店会暂时关门，完成 1 局游戏后重新开放。",
+        rewardArrived: ({ title, credits }) => `${title} 已到账 ${formatNumber(credits)} 积分`,
+        taskArrived: ({ title, reward }) => `${title} 奖励已到账 ${formatNumber(reward)} 积分`,
+        shopClosedToast: "商店已关门，先完成 1 局游戏后再来。",
+        boughtAndClosed: ({ title }) => `已购买 ${title}，商店关门了，下次完成 1 局游戏后再来。`,
+        purchaseDenied: ({ title }) => `积分不足，无法购买 ${title}`,
+        activeThemeFallback: "霓虹核心外观",
+        storeRestingHint: "商店正在休整中，先完成 1 局游戏后再回来选购下一件商品。",
+        recommendedHint: ({ title }) => `推荐路线：优先购买 ${title}，它最契合你当前的对局节奏。`,
+        affordableHint: ({ title }) => `当前积分足够购买 ${title}，建议优先构建下一局成长优势。`,
+        allUnlockedHint: "核心强化已基本解锁完毕，可以继续冲击更高分数。",
+        lackingHint: ({ title, diff }) => `距离 ${title} 还差 ${formatNumber(diff)} 积分。`,
+        heroRewardAll: "今日奖励已全部领取",
+        heroRewardPending: ({ count }) => `今日奖励待领取 ${count} 项`,
+        heroRewardNote: ({ total }) => `今日奖励共可领取 ${formatNumber(total)} 积分，每日 00:00 自动重置。`,
+        heroTaskState: ({ claimed, total }) => `任务完成 ${claimed}/${total}`,
+        heroTaskNote: ({ runs, bestScore, purchases }) => `今日已完成 ${runs} 局，最高 ${formatNumber(bestScore)} 分，已购物 ${purchases} 件。`,
+        heroCreditState: ({ credits }) => `当前积分 ${formatNumber(credits)}`,
+        heroCreditNote: ({ lastRunScore, bestScore }) => `上局结算 ${formatNumber(lastRunScore)} 分 | 生涯最高 ${formatNumber(bestScore)} 分`,
+        rewardSummaryEmpty: "今日尚未领取任何奖励，建议先补足启动积分再开始对局。",
+        rewardSummaryAll: "今日奖励已经全部领取完毕，可以把重心转向冲分和购物。",
+        rewardSummaryPartial: ({ claimed, remaining }) => `今日已领取 ${claimed} 项奖励，还剩 ${remaining} 项可继续补充积分。`,
+        rewardBonusText: "奖励会直接汇入积分余额，不占用额外背包位，可立即用于商店购买强化与补给。",
+        taskSummaryAll: "今日任务已全部完成，当前经济循环已经打通。",
+        taskSummaryPartial: ({ claimed }) => `当前已领取 ${claimed} 项任务奖励，未领取部分会随你的今日对局和消费进度继续解锁。`,
+        taskBonusText: ({ runs, totalScore, bestScore }) => `今日对局 ${runs} 局，今日累计得分 ${formatNumber(totalScore)}，今日最高分 ${formatNumber(bestScore)}。`,
+        startGameToast: "正在进入游戏页..."
+      },
+      en: {
+        docTitle: "Neon Core Merge - Home",
+        orientationTitle: "Play in Landscape",
+        orientationCopy: "The home and gameplay pages use a shared landscape layout. Content stays hidden in portrait mode on phones. Rotate your device to continue.",
+        orientationHint: "Landscape Mode Required",
+        backHome: "Back Home",
+        settingsTrigger: "Language Settings",
+        settingsTitle: "System Language",
+        settingsCopy: "The selected language is shared by both the home page and the game page.",
+        langZh: "Chinese",
+        langEn: "English",
+        homeViewTitle: "Neon Mechanic Fruit Shop",
+        homeViewCaption: "Run the neon fruit stand at midnight, catch unstable kernels, merge them into higher fruit grades, earn credits, expand the store, and prep stronger modules for the next shipment.",
+        heroTitleHtml: 'Catch the kernels, <span class="hero-highlight">merge the fruit</span>',
+        heroStart: "Start Game",
+        summaryCreditLabel: "Credit Balance",
+        summaryRewardLabel: "Rewards Claimed",
+        summaryTaskLabel: "Task Progress",
+        actionReward: "Daily Rewards",
+        actionTask: "Tasks",
+        actionShop: "Store",
+        rewardViewTitle: "Daily Rewards",
+        taskViewTitle: "Mission Center",
+        shopViewTitle: "Store",
+        viewHome: "Home",
+        viewReward: "Daily Rewards",
+        viewTask: "Mission Center",
+        viewShop: "Store",
+        viewDescHome: "Check your credits, daily rewards, mission progress, and growth entry points from the main home screen.",
+        viewDescReward: "Claim today's credits to prepare your budget for the next run and store purchases.",
+        viewDescTask: "Earn extra credits through real matches, score pushes, and shopping progress.",
+        viewDescShop: "Turn match scores into long-term growth by buying upgrades and revive chips.",
+        topProgress: ({ credits, rewardClaimed, rewardTotal, taskClaimed, taskTotal, chips }) => `Credits ${formatNumber(credits)} | Rewards ${rewardClaimed}/${rewardTotal} | Tasks ${taskClaimed}/${taskTotal} | Chips ${chips}`,
+        currentViewToast: ({ label }) => `Already in ${label}`,
+        switchedViewToast: ({ label }) => `Switched to ${label}`,
+        rewardValue: ({ credits }) => `+${formatNumber(credits)} Credits`,
+        rewardClaimed: "Claimed",
+        rewardClaim: "Claim Reward",
+        taskReached: "Completed",
+        taskBest: ({ current, target }) => `Best Today ${formatNumber(current)} / ${formatNumber(target)}`,
+        taskTotal: ({ current, target }) => `Total Today ${formatNumber(current)} / ${formatNumber(target)}`,
+        taskClaimedProgress: ({ reward }) => `+${formatNumber(reward)} Claimed`,
+        taskClaimButton: ({ reward }) => `Claim +${formatNumber(reward)}`,
+        taskNotReady: "Locked",
+        currentStock: ({ count }) => `Stock: ${count}`,
+        freePrice: "Free",
+        creditsPrice: ({ price }) => `${formatNumber(price)} Credits`,
+        storeClosed: "Store Closed",
+        buyItem: "Buy",
+        insufficientCredits: "Need Credits",
+        equipped: "Equipped",
+        equipTheme: "Equip",
+        owned: "Owned",
+        shopLastPurchaseFallback: "this item",
+        shopClosedMessage: ({ title, remainingRuns }) => `You bought ${title}. The store is closed now. Finish ${remainingRuns} more run(s) to reopen it.`,
+        shopOpenMessage: "You can buy only 1 item per visit. After a purchase, the store closes until you finish 1 more game.",
+        rewardArrived: ({ title, credits }) => `${title} added ${formatNumber(credits)} credits`,
+        taskArrived: ({ title, reward }) => `${title} added ${formatNumber(reward)} credits`,
+        shopClosedToast: "Store closed. Finish 1 more game before coming back.",
+        boughtAndClosed: ({ title }) => `${title} purchased. The store will reopen after 1 more game.`,
+        purchaseDenied: ({ title }) => `Not enough credits for ${title}`,
+        activeThemeFallback: "Neon Core Skin",
+        storeRestingHint: "The store is resting. Finish 1 more game before buying the next item.",
+        recommendedHint: ({ title }) => `Recommended route: buy ${title} first, it fits your current play rhythm best.`,
+        affordableHint: ({ title }) => `You can already afford ${title}. Build your next-run advantage first.`,
+        allUnlockedHint: "Core upgrades are mostly unlocked. Keep pushing for a higher score.",
+        lackingHint: ({ title, diff }) => `${formatNumber(diff)} more credits needed for ${title}.`,
+        heroRewardAll: "All daily rewards claimed",
+        heroRewardPending: ({ count }) => `${count} daily reward(s) waiting`,
+        heroRewardNote: ({ total }) => `A total of ${formatNumber(total)} credits can be claimed today. Resets automatically at 00:00.`,
+        heroTaskState: ({ claimed, total }) => `Tasks ${claimed}/${total}`,
+        heroTaskNote: ({ runs, bestScore, purchases }) => `Runs today ${runs}, best ${formatNumber(bestScore)}, purchases ${purchases}.`,
+        heroCreditState: ({ credits }) => `Credits ${formatNumber(credits)}`,
+        heroCreditNote: ({ lastRunScore, bestScore }) => `Last run ${formatNumber(lastRunScore)} | Career best ${formatNumber(bestScore)}`,
+        rewardSummaryEmpty: "No reward has been claimed today. Take the starter credits before jumping into the run.",
+        rewardSummaryAll: "All daily rewards are already claimed. Focus on scoring and shopping now.",
+        rewardSummaryPartial: ({ claimed, remaining }) => `${claimed} reward(s) claimed today, ${remaining} still available.`,
+        rewardBonusText: "Rewards go straight into your credit balance and can be used immediately for upgrades and supplies.",
+        taskSummaryAll: "All daily missions are complete. Your economy loop is fully online now.",
+        taskSummaryPartial: ({ claimed }) => `${claimed} mission reward(s) claimed so far. The rest unlock through today's runs and purchases.`,
+        taskBonusText: ({ runs, totalScore, bestScore }) => `Runs today ${runs}, total score ${formatNumber(totalScore)}, best score ${formatNumber(bestScore)}.`,
+        startGameToast: "Opening the game page..."
+      }
+    };
+
+    let currentLanguage = loadLanguagePreference();
 
     const rewardItems = [
-      { id: "reward-login", day: "DAY 01", title: "签到能量包", desc: "领取今天的启动积分，用于解锁第一批强化与主题。", credits: 250 },
-      { id: "reward-core-cache", day: "DAY 02", title: "核心缓存仓", desc: "额外补充一笔中量积分，帮助你更快购买复活芯片。", credits: 400 },
-      { id: "reward-market-boost", day: "DAY 03", title: "市场补贴券", desc: "今日商店返利，建议搭配高分对局一起使用。", credits: 650 }
+      { id: "reward-login", day: "DAY 01", title: { zh: "签到能量包", en: "Sign-in Energy Pack" }, desc: { zh: "领取今天的启动积分，用于解锁第一批强化与补给。", en: "Claim today's starter credits and unlock your first batch of upgrades and supplies." }, credits: 2000 },
+      { id: "reward-core-cache", day: "DAY 02", title: { zh: "核心缓存仓", en: "Core Cache Bay" }, desc: { zh: "额外补充一笔中量积分，帮助你更快购买复活芯片。", en: "Gain a mid-sized credit refill and reach revive-chip purchases faster." }, credits: 3000 },
+      { id: "reward-market-boost", day: "DAY 03", title: { zh: "市场补贴券", en: "Market Subsidy Pass" }, desc: { zh: "今日商店返利，建议搭配高分对局一起使用。", en: "A store subsidy for today, best paired with a high-scoring run." }, credits: 5000 }
     ];
 
     const taskItems = [
-      { id: "task-run-1", tag: "实战", title: "完成 1 局对战", desc: "任意分数结算 1 局，即可领取今日首场奖励。", reward: 320, metric: "runs", target: 1 },
-      { id: "task-run-3", tag: "坚持", title: "完成 3 局对战", desc: "把今天的手感跑起来，累计三局后再收一笔稳定补贴。", reward: 680, metric: "runs", target: 3 },
-      { id: "task-score-3000", tag: "冲分", title: "单局达到 3000 分", desc: "稳定完成合成链，把今天最高分推到 3000。", reward: 480, metric: "bestScore", target: 3000 },
-      { id: "task-score-5000", tag: "进阶", title: "单局达到 5000 分", desc: "进入中高分区间后，可以开始考虑购买永久强化。", reward: 780, metric: "bestScore", target: 5000 },
-      { id: "task-score-8000", tag: "挑战", title: "单局达到 8000 分", desc: "高分局奖励更高，适合冲刺高阶强化与主题全收集。", reward: 1200, metric: "bestScore", target: 8000 },
-      { id: "task-total-12000", tag: "累积", title: "今日累计 12000 分", desc: "即使单局没有爆发，只要稳定多打几局也能拿到成长补给。", reward: 900, metric: "totalScore", target: 12000 },
-      { id: "task-shop-1", tag: "经营", title: "购买任意 1 件商品", desc: "把积分投入商店，建立对局与成长的正向循环。", reward: 380, metric: "purchases", target: 1 },
-      { id: "task-shop-3", tag: "经营", title: "购买任意 3 件商品", desc: "持续投入成长，把外观、强化和容错都逐步配齐。", reward: 820, metric: "purchases", target: 3 }
+      { id: "task-run-1", tag: { zh: "实战", en: "Match" }, title: { zh: "完成 1 局对战", en: "Finish 1 Run" }, desc: { zh: "任意分数结算 1 局，即可领取今日首场奖励。", en: "Finish any run once to collect your first reward of the day." }, reward: 320, metric: "runs", target: 1 },
+      { id: "task-run-3", tag: { zh: "坚持", en: "Endure" }, title: { zh: "完成 3 局对战", en: "Finish 3 Runs" }, desc: { zh: "把今天的手感跑起来，累计三局后再收一笔稳定补贴。", en: "Warm up your rhythm and claim another steady subsidy after three runs." }, reward: 680, metric: "runs", target: 3 },
+      { id: "task-score-30000", tag: { zh: "冲分", en: "Push" }, title: { zh: "单局达到 30000 分", en: "Reach 30000 in One Run" }, desc: { zh: "把合成链稳定拉满，先完成 30000 分的基础冲榜门槛。", en: "Stabilize the merge chain and clear the first 30000-point score gate." }, reward: 480, metric: "bestScore", target: 30000 },
+      { id: "task-score-50000", tag: { zh: "进阶", en: "Advanced" }, title: { zh: "单局达到 50000 分", en: "Reach 50000 in One Run" }, desc: { zh: "进入高阶节奏后继续推进分数，把单局成绩提升到 50000。", en: "Keep climbing once the run is stable and push one score to 50000." }, reward: 780, metric: "bestScore", target: 50000 },
+      { id: "task-score-80000", tag: { zh: "挑战", en: "Challenge" }, title: { zh: "单局达到 80000 分", en: "Reach 80000 in One Run" }, desc: { zh: "冲击超高分对局，完成 80000 分挑战以验证整套成长配置。", en: "Push for an elite run and prove the full build with an 80000 score." }, reward: 1200, metric: "bestScore", target: 80000 },
+      { id: "task-total-120000", tag: { zh: "积累", en: "Grind" }, title: { zh: "今日累计 120000 分", en: "Earn 120000 Today" }, desc: { zh: "即使单局有波动，只要持续稳定对战，累计达到 120000 分也可解锁补给。", en: "Even with uneven runs, steady play can still unlock this supply at 120000 total points." }, reward: 900, metric: "totalScore", target: 120000 },
+      { id: "task-shop-1", tag: { zh: "经营", en: "Trade" }, title: { zh: "购买任意 1 件商品", en: "Buy Any 1 Item" }, desc: { zh: "把积分投入商店，建立对局与成长的正向循环。", en: "Put your credits into the store and start the match-to-growth loop." }, reward: 380, metric: "purchases", target: 1 },
+      { id: "task-shop-3", tag: { zh: "经营", en: "Trade" }, title: { zh: "购买任意 3 件商品", en: "Buy Any 3 Items" }, desc: { zh: "持续投入成长，把强化和容错逐步配齐。", en: "Keep investing and gradually complete both upgrades and safety tools." }, reward: 820, metric: "purchases", target: 3 }
     ];
 
     const shopItems = [
-      { id: "theme-neon", type: "theme", tag: "默认", title: "霓虹核心外观", desc: "保留当前赛博霓虹风格，适合作为默认主页主题。", preview: "N", price: 0, effect: "免费装备，经典主题" },
-      { id: "theme-sunset", type: "theme", tag: "主题", title: "末日脉冲", desc: "暖色主题，强调开始游戏、奖励入口和高风险冲分氛围。", preview: "S", price: 1100, effect: "主页与游戏 HUD 主题切换" },
-      { id: "theme-ice", type: "theme", tag: "主题", title: "冰蓝矩阵", desc: "冷色主页主题，让进度和商店模块更醒目。", preview: "I", price: 1450, effect: "主页主题切换" },
-      { id: "theme-aurora", type: "theme", tag: "主题", title: "极光脉冲", desc: "更偏成长向的荧绿主题，适合突出积分与任务完成状态。", preview: "A", price: 1900, effect: "主页主题切换" },
-      { id: "upgrade-cooling", type: "upgrade", upgradeKey: "cooling", tag: "强化", title: "快速投放模块", desc: "缩短核心投放冷却，更容易打出连续合成。", preview: "C", price: 2400, effect: "投放冷却 460ms -> 420ms" },
-      { id: "upgrade-merge-bonus", type: "upgrade", upgradeKey: "mergeBonus", tag: "强化", title: "聚变放大器", desc: "每次成功合成时额外提高得分，适合稳扎稳打的中期收益路线。", preview: "M", price: 2600, effect: "合成得分 x1.2" },
-      { id: "upgrade-credit-boost", type: "upgrade", upgradeKey: "creditBoost", tag: "强化", title: "结算增幅器", desc: "高分对局收益进一步放大，适合长期冲榜。", preview: "+", price: 3200, effect: "每局结算积分 +15%" },
-      { id: "upgrade-warning-buffer", type: "upgrade", upgradeKey: "warningBuffer", tag: "强化", title: "缓冲护盾", desc: "当核心越过警戒线时，给你多一点整理局面的时间。", preview: "W", price: 3400, effect: "警戒容错 3.0s -> 3.8s" },
-      { id: "upgrade-starter-bag", type: "upgrade", upgradeKey: "starterBag", tag: "强化", title: "起步稳态协议", desc: "开局前几次掉落只会生成低阶核心，显著降低前期炸仓概率。", preview: "S", price: 3900, effect: "前 6 次掉落仅出现 L1-L2" },
-      { id: "revive-chip", type: "consumable", itemKey: "reviveChip", quantity: 1, tag: "消耗", title: "复活芯片", desc: "失败时可直接使用 1 枚芯片复活，不需要观看广告。", preview: "❤", price: 1500, effect: "购买后库存 +1" },
-      { id: "revive-chip-pack", type: "consumable", itemKey: "reviveChip", quantity: 3, tag: "礼包", title: "复活芯片组三", desc: "适合准备连续冲榜时提前囤货，单价低于单枚购买。", preview: "❤+", price: 3900, effect: "购买后库存 +3" }
+      { id: "revive-chip", type: "consumable", itemKey: "reviveChip", quantity: 1, tag: { zh: "消耗", en: "Consumable" }, title: { zh: "复活芯片", en: "Revive Chip" }, desc: { zh: "失败时可直接使用 1 枚芯片复活，不需要观看广告。", en: "Use 1 chip to revive instantly after failure without watching an ad." }, preview: "❤", price: Math.round(1500 * SHOP_PRICE_MULTIPLIER), effect: { zh: "购买后库存 +1", en: "Stock +1 after purchase" } },
+      { id: "upgrade-cooling", type: "upgrade", upgradeKey: "cooling", tag: { zh: "强化", en: "Upgrade" }, title: { zh: "快速投放模块", en: "Rapid Drop Module" }, desc: { zh: "缩短核心投放冷却，更容易打出连续合成。", en: "Shortens drop cooldown and makes chain merges easier to build." }, preview: "C", price: Math.round(2400 * SHOP_PRICE_MULTIPLIER), effect: { zh: "投放冷却 460ms -> 420ms", en: "Drop cooldown 460ms -> 420ms" } },
+      { id: "upgrade-merge-bonus", type: "upgrade", upgradeKey: "mergeBonus", tag: { zh: "强化", en: "Upgrade" }, title: { zh: "聚变放大器", en: "Fusion Amplifier" }, desc: { zh: "每次成功合成时额外提高得分，适合稳扎稳打的中期收益路线。", en: "Adds extra score to every successful merge for a stable mid-game route." }, preview: "M", price: Math.round(2600 * SHOP_PRICE_MULTIPLIER), effect: { zh: "合成得分 x1.2", en: "Merge score x1.2" } },
+      { id: "upgrade-credit-boost", type: "upgrade", upgradeKey: "creditBoost", tag: { zh: "强化", en: "Upgrade" }, title: { zh: "结算增幅器", en: "Credit Booster" }, desc: { zh: "高分对局收益进一步放大，适合长期冲榜。", en: "Scales end-of-run income harder, ideal for long-term score chasing." }, preview: "+", price: Math.round(3200 * SHOP_PRICE_MULTIPLIER), effect: { zh: "每局结算积分 +15%", en: "+15% end-of-run credits" } },
+      { id: "upgrade-warning-buffer", type: "upgrade", upgradeKey: "warningBuffer", tag: { zh: "强化", en: "Upgrade" }, title: { zh: "缓冲护盾", en: "Buffer Shield" }, desc: { zh: "当核心越过警戒线时，给你多一点整理局面的时间。", en: "Gives you more time to recover after cores cross the warning line." }, preview: "W", price: Math.round(3400 * SHOP_PRICE_MULTIPLIER), effect: { zh: "警戒容错 3.0s -> 3.8s", en: "Warning buffer 3.0s -> 3.8s" } },
+      { id: "upgrade-starter-bag", type: "upgrade", upgradeKey: "starterBag", tag: { zh: "强化", en: "Upgrade" }, title: { zh: "起步稳态协议", en: "Starter Stabilizer" }, desc: { zh: "开局前几次掉落只会生成低阶核心，显著降低前期炸仓概率。", en: "The first few drops stay low-level, greatly reducing early chaos." }, preview: "S", price: Math.round(3900 * SHOP_PRICE_MULTIPLIER), effect: { zh: "前 6 次掉落仅出现 L1-L2", en: "Only L1-L2 for first 6 drops" } },
+      { id: "revive-chip-pack", type: "consumable", itemKey: "reviveChip", quantity: 3, tag: { zh: "礼包", en: "Bundle" }, title: { zh: "复活芯片组三", en: "Revive Chip Pack x3" }, desc: { zh: "适合准备连续冲榜时提前囤货，单价低于单枚购买。", en: "Great for score-push sessions, with a lower unit price than single chips." }, preview: "❤+", price: Math.round(3900 * SHOP_PRICE_MULTIPLIER), effect: { zh: "购买后库存 +3", en: "Stock +3 after purchase" } }
     ];
 
     const state = loadState();
@@ -1425,9 +2273,31 @@
     const rewardBonusText = document.getElementById("rewardBonusText");
     const taskSummaryText = document.getElementById("taskSummaryText");
     const taskBonusText = document.getElementById("taskBonusText");
-    const shopSummaryText = document.getElementById("shopSummaryText");
-    const shopInventoryText = document.getElementById("shopInventoryText");
-    const shopLoadoutText = document.getElementById("shopLoadoutText");
+    const shopAccessText = document.getElementById("shopAccessText");
+    const orientationTitle = document.getElementById("orientationTitle");
+    const orientationCopy = document.getElementById("orientationCopy");
+    const orientationHint = document.getElementById("orientationHint");
+    const homeSettingsBtn = document.getElementById("homeSettingsBtn");
+    const homeSettingsPanel = document.getElementById("homeSettingsPanel");
+    const settingsPanelTitle = document.getElementById("settingsPanelTitle");
+    const settingsPanelCopy = document.getElementById("settingsPanelCopy");
+    const langZhBtn = document.getElementById("langZhBtn");
+    const langEnBtn = document.getElementById("langEnBtn");
+    const homeViewTitle = document.getElementById("homeViewTitle");
+    const homeViewCaption = document.getElementById("homeViewCaption");
+    const heroTitleLine = document.getElementById("heroTitleLine");
+    const summaryCreditLabel = document.getElementById("summaryCreditLabel");
+    const summaryRewardLabel = document.getElementById("summaryRewardLabel");
+    const summaryTaskLabel = document.getElementById("summaryTaskLabel");
+    const actionRewardTitle = document.getElementById("actionRewardTitle");
+    const actionTaskTitle = document.getElementById("actionTaskTitle");
+    const actionShopTitle = document.getElementById("actionShopTitle");
+    const rewardViewTitle = document.getElementById("rewardViewTitle");
+    const taskViewTitle = document.getElementById("taskViewTitle");
+    const shopViewTitle = document.getElementById("shopViewTitle");
+    const homeView = document.querySelector('.module-view[data-view="home"]');
+    const homeLayout = document.getElementById("homeLayout");
+    const homeResizeHandles = Array.from(document.querySelectorAll(".resize-handle[data-resize-axis]"));
     const THEME_EVENT = "classic-snake-girl:theme-applied";
     const THEME_CLASS_MAP = Object.freeze({
       "theme-neon": "",
@@ -1439,10 +2309,134 @@
       global: [".app-shell", ".view-card", ".view-topbar", ".toast"],
       reward: ['.module-view[data-view="reward"]', "#rewardGrid", "#rewardSummaryText", "#rewardBonusText"],
       task: ['.module-view[data-view="task"]', "#taskList", "#taskSummaryText", "#taskBonusText"],
-      shop: ['.module-view[data-view="shop"]', "#shopGrid", "#shopSummaryText", "#shopInventoryText", "#shopLoadoutText"]
+      shop: ['.module-view[data-view="shop"]', "#shopGrid", "#shopAccessText"]
     });
 
     let toastTimer = 0;
+    const homeLayoutState = loadHomeLayoutState();
+    let activeHomeResize = null;
+    let homeLayoutFrame = 0;
+
+    function loadLanguagePreference() {
+      const saved = localStorage.getItem(LANGUAGE_KEY);
+      return SUPPORTED_LANGUAGES.includes(saved) ? saved : "en";
+    }
+
+    function saveLanguagePreference() {
+      localStorage.setItem(LANGUAGE_KEY, currentLanguage);
+    }
+
+    function getMessages() {
+      return HOME_I18N[currentLanguage] || HOME_I18N.zh;
+    }
+
+    function t(key, params) {
+      const value = getMessages()[key];
+      return typeof value === "function" ? value(params || {}) : value;
+    }
+
+    function getLocalizedText(value) {
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        return value[currentLanguage] || value.zh || value.en || "";
+      }
+      return value;
+    }
+
+    function getItemText(item, field) {
+      return getLocalizedText(item ? item[field] : "");
+    }
+
+    function setLanguage(nextLanguage) {
+      if (!SUPPORTED_LANGUAGES.includes(nextLanguage) || nextLanguage === currentLanguage) return;
+      currentLanguage = nextLanguage;
+      saveLanguagePreference();
+      applyHomeLanguage();
+      renderRewardGrid();
+      renderTaskList();
+      renderShopGrid();
+      syncDerivedState();
+      closeLanguagePanel();
+    }
+
+    function openLanguagePanel() {
+      if (homeSettingsPanel) homeSettingsPanel.classList.add("show");
+    }
+
+    function closeLanguagePanel() {
+      if (homeSettingsPanel) homeSettingsPanel.classList.remove("show");
+    }
+
+    function toggleLanguagePanel() {
+      if (!homeSettingsPanel) return;
+      homeSettingsPanel.classList.toggle("show");
+    }
+
+    function bindLanguageControls() {
+      if (homeSettingsBtn) {
+        homeSettingsBtn.addEventListener("click", (event) => {
+          event.stopPropagation();
+          toggleLanguagePanel();
+        });
+      }
+      if (langZhBtn) langZhBtn.addEventListener("click", () => setLanguage("zh"));
+      if (langEnBtn) langEnBtn.addEventListener("click", () => setLanguage("en"));
+
+      document.addEventListener("click", (event) => {
+        if (!homeSettingsPanel || !homeSettingsBtn) return;
+        if (homeSettingsPanel.contains(event.target) || homeSettingsBtn.contains(event.target)) return;
+        closeLanguagePanel();
+      });
+
+      window.addEventListener("storage", (event) => {
+        if (event.key !== LANGUAGE_KEY) return;
+        const nextLanguage = SUPPORTED_LANGUAGES.includes(event.newValue) ? event.newValue : "zh";
+        if (nextLanguage === currentLanguage) return;
+        currentLanguage = nextLanguage;
+        applyHomeLanguage();
+        renderRewardGrid();
+        renderTaskList();
+        renderShopGrid();
+        syncDerivedState();
+      });
+    }
+
+    function applyHomeLanguage() {
+      document.documentElement.lang = currentLanguage === "zh" ? "zh-CN" : "en";
+      document.title = t("docTitle");
+
+      if (orientationTitle) orientationTitle.textContent = t("orientationTitle");
+      if (orientationCopy) orientationCopy.textContent = t("orientationCopy");
+      if (orientationHint) orientationHint.textContent = t("orientationHint");
+      if (backBtn) backBtn.textContent = t("backHome");
+      if (homeSettingsBtn) {
+        homeSettingsBtn.setAttribute("aria-label", t("settingsTrigger"));
+        homeSettingsBtn.setAttribute("title", t("settingsTrigger"));
+      }
+      if (homeSettingsPanel) homeSettingsPanel.setAttribute("aria-label", t("settingsTitle"));
+      if (settingsPanelTitle) settingsPanelTitle.textContent = t("settingsTitle");
+      if (settingsPanelCopy) settingsPanelCopy.textContent = t("settingsCopy");
+      if (langZhBtn) {
+        langZhBtn.textContent = t("langZh");
+        langZhBtn.classList.toggle("active", currentLanguage === "zh");
+      }
+      if (langEnBtn) {
+        langEnBtn.textContent = t("langEn");
+        langEnBtn.classList.toggle("active", currentLanguage === "en");
+      }
+      if (homeViewTitle) homeViewTitle.textContent = t("homeViewTitle");
+      if (homeViewCaption) homeViewCaption.textContent = t("homeViewCaption");
+      if (heroTitleLine) heroTitleLine.innerHTML = t("heroTitleHtml");
+      if (heroStartBtn) heroStartBtn.textContent = t("heroStart");
+      if (summaryCreditLabel) summaryCreditLabel.textContent = t("summaryCreditLabel");
+      if (summaryRewardLabel) summaryRewardLabel.textContent = t("summaryRewardLabel");
+      if (summaryTaskLabel) summaryTaskLabel.textContent = t("summaryTaskLabel");
+      if (actionRewardTitle) actionRewardTitle.textContent = t("actionReward");
+      if (actionTaskTitle) actionTaskTitle.textContent = t("actionTask");
+      if (actionShopTitle) actionShopTitle.textContent = t("actionShop");
+      if (rewardViewTitle) rewardViewTitle.textContent = t("rewardViewTitle");
+      if (taskViewTitle) taskViewTitle.textContent = t("taskViewTitle");
+      if (shopViewTitle) shopViewTitle.textContent = t("shopViewTitle");
+    }
 
     init();
 
@@ -1450,10 +2444,13 @@
       bindThemeLifecycle();
       applyThemeSafely("init");
       applyLandscapeGuard();
+      applyHomeLanguage();
       renderRewardGrid();
       renderTaskList();
       renderShopGrid();
       bindEvents();
+      bindLanguageControls();
+      bindHomeLayoutResizers();
       syncDerivedState();
       const initialView = getInitialView();
       replaceHistoryState(initialView);
@@ -1471,6 +2468,9 @@
         totalPurchases: 0,
         activeThemeId: "theme-neon",
         ownedThemes: { "theme-neon": true },
+        shopLockedUntilRun: 0,
+        shopLastPurchaseId: "",
+        shopLastPurchaseTitle: "",
         upgrades: { cooling: false, mergeBonus: false, creditBoost: false, warningBuffer: false, starterBag: false },
         inventory: { reviveChip: 0 },
         daily: {
@@ -1576,6 +2576,34 @@
       localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
     }
 
+    function getDefaultHomeLayoutState() {
+      return {
+        headerRatio: 0.17,
+        sideRatio: 0.3,
+        footerRatio: 0.19
+      };
+    }
+
+    function loadHomeLayoutState() {
+      const fallback = getDefaultHomeLayoutState();
+      try {
+        const raw = localStorage.getItem(HOME_LAYOUT_KEY);
+        if (!raw) return fallback;
+        const parsed = JSON.parse(raw);
+        return {
+          ...fallback,
+          ...parsed
+        };
+      } catch (error) {
+        console.warn("主页布局配置读取失败，将使用默认布局。", error);
+        return fallback;
+      }
+    }
+
+    function saveHomeLayoutState() {
+      localStorage.setItem(HOME_LAYOUT_KEY, JSON.stringify(homeLayoutState));
+    }
+
     function formatNumber(value) {
       return Number(value || 0).toLocaleString("zh-CN");
     }
@@ -1597,8 +2625,8 @@
         applyView(nextView, false);
       });
 
-      window.addEventListener("resize", applyLandscapeGuard, { passive: true });
-      window.addEventListener("orientationchange", applyLandscapeGuard);
+      window.addEventListener("resize", handleViewportChange, { passive: true });
+      window.addEventListener("orientationchange", handleViewportChange);
     }
 
     function getInitialView() {
@@ -1628,10 +2656,7 @@
     }
 
     function shouldRequireLandscape() {
-      const { width, height } = getViewportSize();
-      const coarsePointer = window.matchMedia("(pointer: coarse)").matches || ("ontouchstart" in window);
-      const mobileViewport = Math.min(width, height) <= 1024;
-      return coarsePointer && mobileViewport && height > width;
+      return false;
     }
 
     function applyLandscapeGuard() {
@@ -1640,6 +2665,216 @@
       if (orientationGuard) {
         orientationGuard.setAttribute("aria-hidden", required ? "false" : "true");
       }
+    }
+
+    function handleViewportChange() {
+      applyLandscapeGuard();
+      queueHomeLayoutApply("viewport");
+    }
+
+    function clampValue(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function shouldEnableHomeLayoutResizing() {
+      const viewport = getViewportSize();
+      return viewport.width >= 768 && viewport.height >= 600;
+    }
+
+    function getHomeSplitterSize() {
+      return parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--home-splitter-size")) || 8;
+    }
+
+    function getHomeLayoutRect() {
+      if (!homeLayout) return null;
+      const rect = homeLayout.getBoundingClientRect();
+      if (!rect.width || !rect.height) return null;
+      return rect;
+    }
+
+    function getHomeLayoutMetrics(rect) {
+      const splitter = getHomeSplitterSize();
+      const bodyMin = clampValue(rect.height * 0.38, 220, 360);
+      const headerMin = clampValue(rect.height * 0.16, 104, 144);
+      const footerMin = clampValue(rect.height * 0.14, 84, 122);
+      const mainMin = clampValue(rect.width * 0.46, 360, 560);
+      const sideMin = clampValue(rect.width * 0.22, 210, 290);
+      const sideMax = Math.max(sideMin, rect.width - mainMin - splitter);
+      return {
+        splitter,
+        bodyMin,
+        headerMin,
+        footerMin,
+        sideMin,
+        sideMax
+      };
+    }
+
+    function getHomeLayoutPixels(rect, metrics) {
+      const styles = getComputedStyle(homeLayout);
+      return {
+        headerHeight: clampValue(
+          parseFloat(styles.getPropertyValue("--home-header-height")) || rect.height * homeLayoutState.headerRatio,
+          metrics.headerMin,
+          Math.max(metrics.headerMin, rect.height - metrics.footerMin - metrics.bodyMin - metrics.splitter * 2)
+        ),
+        sideWidth: clampValue(
+          parseFloat(styles.getPropertyValue("--home-side-width")) || rect.width * homeLayoutState.sideRatio,
+          metrics.sideMin,
+          metrics.sideMax
+        ),
+        footerHeight: clampValue(
+          parseFloat(styles.getPropertyValue("--home-footer-height")) || rect.height * homeLayoutState.footerRatio,
+          metrics.footerMin,
+          Math.max(metrics.footerMin, rect.height - metrics.headerMin - metrics.bodyMin - metrics.splitter * 2)
+        )
+      };
+    }
+
+    function applyHomeLayoutPixels(pixels) {
+      if (!homeLayout) return;
+      homeLayout.style.setProperty("--home-header-height", `${pixels.headerHeight}px`);
+      homeLayout.style.setProperty("--home-side-width", `${pixels.sideWidth}px`);
+      homeLayout.style.setProperty("--home-footer-height", `${pixels.footerHeight}px`);
+    }
+
+    function syncHomeLayoutStateFromPixels(pixels, rect) {
+      homeLayoutState.headerRatio = Number((pixels.headerHeight / rect.height).toFixed(4));
+      homeLayoutState.sideRatio = Number((pixels.sideWidth / rect.width).toFixed(4));
+      homeLayoutState.footerRatio = Number((pixels.footerHeight / rect.height).toFixed(4));
+    }
+
+    function queueHomeLayoutApply(reason = "runtime") {
+      if (homeLayoutFrame) window.cancelAnimationFrame(homeLayoutFrame);
+      homeLayoutFrame = window.requestAnimationFrame(() => {
+        homeLayoutFrame = 0;
+        applyHomeLayoutState(reason);
+      });
+    }
+
+    function applyHomeLayoutState(reason = "runtime") {
+      if (!homeLayout || !homeView || !homeView.classList.contains("active")) return;
+      const enabled = shouldEnableHomeLayoutResizing();
+      homeLayout.dataset.resizable = enabled ? "true" : "false";
+      if (!enabled) {
+        homeLayout.style.removeProperty("--home-header-height");
+        homeLayout.style.removeProperty("--home-side-width");
+        homeLayout.style.removeProperty("--home-footer-height");
+        return;
+      }
+
+      const rect = getHomeLayoutRect();
+      if (!rect) return;
+      const metrics = getHomeLayoutMetrics(rect);
+      const pixels = getHomeLayoutPixels(rect, metrics);
+      applyHomeLayoutPixels(pixels);
+      syncHomeLayoutStateFromPixels(pixels, rect);
+
+      if (reason === "init" || reason === "viewport" || reason === "view-change") {
+        saveHomeLayoutState();
+      }
+    }
+
+    function bindHomeLayoutResizers() {
+      homeResizeHandles.forEach((handle) => {
+        handle.addEventListener("pointerdown", beginHomeResize);
+        handle.addEventListener("keydown", handleHomeResizeKeydown);
+      });
+
+      window.addEventListener("pointermove", onHomeResizePointerMove);
+      window.addEventListener("pointerup", endHomeResize);
+      window.addEventListener("pointercancel", endHomeResize);
+    }
+
+    function beginHomeResize(event) {
+      if (!homeLayout || homeLayout.dataset.resizable !== "true") return;
+      const handle = event.currentTarget;
+      const rect = getHomeLayoutRect();
+      if (!rect) return;
+      const metrics = getHomeLayoutMetrics(rect);
+      const pixels = getHomeLayoutPixels(rect, metrics);
+
+      activeHomeResize = {
+        axis: handle.dataset.resizeAxis,
+        handle,
+        pointerId: event.pointerId,
+        rect,
+        metrics,
+        startX: event.clientX,
+        startY: event.clientY,
+        current: pixels
+      };
+
+      handle.classList.add("dragging");
+      if (handle.setPointerCapture) handle.setPointerCapture(event.pointerId);
+      event.preventDefault();
+    }
+
+    function onHomeResizePointerMove(event) {
+      if (!activeHomeResize || event.pointerId !== activeHomeResize.pointerId) return;
+      const { axis, rect, metrics, startX, startY } = activeHomeResize;
+      const next = { ...activeHomeResize.current };
+
+      if (axis === "header") {
+        const headerMax = Math.max(metrics.headerMin, rect.height - next.footerHeight - metrics.bodyMin - metrics.splitter * 2);
+        next.headerHeight = clampValue(activeHomeResize.current.headerHeight + (event.clientY - startY), metrics.headerMin, headerMax);
+      } else if (axis === "footer") {
+        const footerMax = Math.max(metrics.footerMin, rect.height - next.headerHeight - metrics.bodyMin - metrics.splitter * 2);
+        next.footerHeight = clampValue(activeHomeResize.current.footerHeight - (event.clientY - startY), metrics.footerMin, footerMax);
+      } else if (axis === "side") {
+        next.sideWidth = clampValue(activeHomeResize.current.sideWidth - (event.clientX - startX), metrics.sideMin, metrics.sideMax);
+      }
+
+      activeHomeResize.current = next;
+      activeHomeResize.startX = event.clientX;
+      activeHomeResize.startY = event.clientY;
+      applyHomeLayoutPixels(next);
+      syncHomeLayoutStateFromPixels(next, rect);
+    }
+
+    function endHomeResize(event) {
+      if (!activeHomeResize) return;
+      if (event && event.pointerId !== undefined && event.pointerId !== activeHomeResize.pointerId) return;
+      if (activeHomeResize.handle && activeHomeResize.handle.classList) {
+        activeHomeResize.handle.classList.remove("dragging");
+      }
+      saveHomeLayoutState();
+      activeHomeResize = null;
+    }
+
+    function handleHomeResizeKeydown(event) {
+      if (!homeLayout || homeLayout.dataset.resizable !== "true") return;
+      const axis = event.currentTarget.dataset.resizeAxis;
+      const rect = getHomeLayoutRect();
+      if (!rect) return;
+      const metrics = getHomeLayoutMetrics(rect);
+      const pixels = getHomeLayoutPixels(rect, metrics);
+      const step = event.shiftKey ? 24 : 12;
+      let handled = true;
+
+      if (axis === "header") {
+        const headerMax = Math.max(metrics.headerMin, rect.height - pixels.footerHeight - metrics.bodyMin - metrics.splitter * 2);
+        if (event.key === "ArrowUp") pixels.headerHeight = clampValue(pixels.headerHeight - step, metrics.headerMin, headerMax);
+        else if (event.key === "ArrowDown") pixels.headerHeight = clampValue(pixels.headerHeight + step, metrics.headerMin, headerMax);
+        else handled = false;
+      } else if (axis === "footer") {
+        const footerMax = Math.max(metrics.footerMin, rect.height - pixels.headerHeight - metrics.bodyMin - metrics.splitter * 2);
+        if (event.key === "ArrowUp") pixels.footerHeight = clampValue(pixels.footerHeight + step, metrics.footerMin, footerMax);
+        else if (event.key === "ArrowDown") pixels.footerHeight = clampValue(pixels.footerHeight - step, metrics.footerMin, footerMax);
+        else handled = false;
+      } else if (axis === "side") {
+        if (event.key === "ArrowLeft") pixels.sideWidth = clampValue(pixels.sideWidth + step, metrics.sideMin, metrics.sideMax);
+        else if (event.key === "ArrowRight") pixels.sideWidth = clampValue(pixels.sideWidth - step, metrics.sideMin, metrics.sideMax);
+        else handled = false;
+      } else {
+        handled = false;
+      }
+
+      if (!handled) return;
+      event.preventDefault();
+      applyHomeLayoutPixels(pixels);
+      syncHomeLayoutStateFromPixels(pixels, rect);
+      saveHomeLayoutState();
     }
 
     function getThemeLogStore() {
@@ -1739,7 +2974,7 @@
 
     function navigateTo(view) {
       if (!isValidView(view) || view === state.currentView) {
-        if (view === state.currentView) showToast(`当前已在${getViewLabel(view)}`);
+        if (view === state.currentView) showToast(t("currentViewToast", { label: getViewLabel(view) }));
         return;
       }
       history.pushState({ view }, "", view === DEFAULT_VIEW ? "home.html" : `#${view}`);
@@ -1761,28 +2996,29 @@
       });
 
       backBtn.classList.toggle("show", view !== DEFAULT_VIEW);
-      viewStatusLabel.textContent = getViewLabel(view);
-      viewStatusDesc.textContent = getViewDescription(view);
+      if (viewStatusLabel) viewStatusLabel.textContent = getViewLabel(view);
+      if (viewStatusDesc) viewStatusDesc.textContent = getViewDescription(view);
+      queueHomeLayoutApply("view-change");
 
-      if (announce) showToast(`已切换到${getViewLabel(view)}`);
+      if (announce) showToast(t("switchedViewToast", { label: getViewLabel(view) }));
     }
 
     function getViewLabel(view) {
       return {
-        home: "主页",
-        reward: "每日奖励",
-        task: "任务中心",
-        shop: "商店"
-      }[view] || "主页";
+        home: t("viewHome"),
+        reward: t("viewReward"),
+        task: t("viewTask"),
+        shop: t("viewShop")
+      }[view] || t("viewHome");
     }
 
     function getViewDescription(view) {
       return {
-        home: "在主页中央查看积分余额、每日奖励、任务进度和成长入口。",
-        reward: "领取今日积分补给，为本轮对战和商店消费准备启动资金。",
-        task: "通过真实对局、冲分和购物行为领取额外积分奖励。",
-        shop: "把对局得分转化为可持续成长，购买主题、强化与复活芯片。"
-      }[view] || "在主页中央查看积分余额、每日奖励、任务进度和成长入口。";
+        home: t("viewDescHome"),
+        reward: t("viewDescReward"),
+        task: t("viewDescTask"),
+        shop: t("viewDescShop")
+      }[view] || t("viewDescHome");
     }
 
     function getRewardItem(rewardId) {
@@ -1809,9 +3045,9 @@
 
     function getTaskProgressText(task) {
       const current = getTaskMetricValue(task);
-      if (current >= task.target) return "已达成";
-      if (task.metric === "bestScore") return `今日最高 ${formatNumber(current)} / ${formatNumber(task.target)}`;
-      if (task.metric === "totalScore") return `今日累计 ${formatNumber(current)} / ${formatNumber(task.target)}`;
+      if (current >= task.target) return t("taskReached");
+      if (task.metric === "bestScore") return t("taskBest", { current, target: task.target });
+      if (task.metric === "totalScore") return t("taskTotal", { current, target: task.target });
       return `${current} / ${task.target}`;
     }
 
@@ -1825,16 +3061,35 @@
       return item.type === "theme" && profile.activeThemeId === item.id;
     }
 
+    function getStoreRemainingRuns() {
+      return Math.max(0, Number(profile.shopLockedUntilRun || 0) - Number(profile.totalRuns || 0));
+    }
+
+    function isStoreClosed() {
+      return getStoreRemainingRuns() > 0;
+    }
+
+    function getShopAccessMessage() {
+      const remainingRuns = getStoreRemainingRuns();
+      if (remainingRuns > 0) {
+        const purchasedItem = getShopItem(profile.shopLastPurchaseId);
+        const purchasedTitle = purchasedItem ? getItemText(purchasedItem, "title") : t("shopLastPurchaseFallback");
+        return t("shopClosedMessage", { title: purchasedTitle, remainingRuns });
+      }
+      return t("shopOpenMessage");
+    }
+
     function getShopButtonLabel(item) {
-      if (item.type === "consumable") return profile.credits >= item.price ? "购买 +1" : "积分不足";
-      if (item.type === "theme" && isEquippedShopItem(item)) return "已装备";
-      if (item.type === "theme" && isOwnedShopItem(item)) return "装备主题";
-      if (item.type === "upgrade" && isOwnedShopItem(item)) return "已拥有";
-      if (item.price === 0) return "免费装备";
-      return "购买商品";
+      if (isStoreClosed()) return t("storeClosed");
+      if (item.type === "consumable") return profile.credits >= item.price ? t("buyItem") : t("insufficientCredits");
+      if (item.type === "theme" && isEquippedShopItem(item)) return t("equipped");
+      if (item.type === "theme" && isOwnedShopItem(item)) return t("equipTheme");
+      if (item.type === "upgrade" && isOwnedShopItem(item)) return t("owned");
+      return t("buyItem");
     }
 
     function isShopButtonDisabled(item) {
+      if (isStoreClosed()) return true;
       if (item.type === "theme" && isEquippedShopItem(item)) return true;
       if (item.type === "upgrade" && isOwnedShopItem(item)) return true;
       if (item.type !== "theme" && profile.credits < item.price) return true;
@@ -1851,11 +3106,11 @@
         card.dataset.rewardId = item.id;
         card.innerHTML = `
           <span class="item-tag">${item.day}</span>
-          <h3 class="item-title">${item.title}</h3>
-          <p class="reward-desc">${item.desc}</p>
+          <h3 class="item-title">${getItemText(item, "title")}</h3>
+          <p class="reward-desc">${getItemText(item, "desc")}</p>
           <div class="reward-foot">
-            <span class="reward-value">+${formatNumber(item.credits)} 积分</span>
-            <button class="reward-btn" type="button">${claimed ? "已领取" : "领取奖励"}</button>
+            <span class="reward-value">${t("rewardValue", { credits: item.credits })}</span>
+            <button class="reward-btn" type="button">${claimed ? t("rewardClaimed") : t("rewardClaim")}</button>
           </div>
         `;
 
@@ -1876,13 +3131,13 @@
         card.dataset.taskId = item.id;
         card.innerHTML = `
           <div class="task-meta">
-            <span class="task-tag">${item.tag}</span>
-            <h3 class="task-title">${item.title}</h3>
-            <p class="task-desc">${item.desc}</p>
+            <span class="task-tag">${getItemText(item, "tag")}</span>
+            <h3 class="task-title">${getItemText(item, "title")}</h3>
+            <p class="task-desc">${getItemText(item, "desc")}</p>
           </div>
           <div class="task-foot">
-            <span class="task-progress">${claimed ? `+${formatNumber(item.reward)} 已领取` : getTaskProgressText(item)}</span>
-            <button class="inline-btn" type="button">${claimed ? "已领取" : canClaim ? `领取 +${formatNumber(item.reward)}` : "未达成"}</button>
+            <span class="task-progress">${claimed ? t("taskClaimedProgress", { reward: item.reward }) : getTaskProgressText(item)}</span>
+            <button class="inline-btn" type="button">${claimed ? t("rewardClaimed") : canClaim ? t("taskClaimButton", { reward: item.reward }) : t("taskNotReady")}</button>
           </div>
         `;
 
@@ -1895,22 +3150,23 @@
 
     function renderShopGrid() {
       shopGrid.innerHTML = "";
+      const storeClosed = isStoreClosed();
       shopItems.forEach((item) => {
         const owned = isOwnedShopItem(item);
         const equipped = isEquippedShopItem(item);
-        const locked = !owned && item.price > 0 && profile.credits < item.price;
+        const locked = storeClosed || (!owned && item.price > 0 && profile.credits < item.price);
         const card = document.createElement("article");
         card.className = `shop-item ${owned ? "selected" : ""} ${equipped ? "equipped" : ""} ${locked ? "locked" : ""}`;
         card.dataset.shopId = item.id;
         card.innerHTML = `
-          <span class="shop-tag">${item.tag}</span>
-          <h3 class="shop-title">${item.title}</h3>
+          <span class="shop-tag">${getItemText(item, "tag")}</span>
+          <h3 class="shop-title">${getItemText(item, "title")}</h3>
           <div class="shop-preview">${item.preview}</div>
-          <p class="shop-desc">${item.desc}</p>
-          <span class="shop-effect">${item.effect}</span>
-          ${item.type === "consumable" ? `<span class="shop-stock">当前库存：${profile.inventory[item.itemKey] || 0}</span>` : ""}
+          <p class="shop-desc">${getItemText(item, "desc")}</p>
+          <span class="shop-effect">${getItemText(item, "effect")}</span>
+          ${item.type === "consumable" ? `<span class="shop-stock">${t("currentStock", { count: profile.inventory[item.itemKey] || 0 })}</span>` : ""}
           <div class="shop-foot">
-            <span class="shop-price">${item.price === 0 ? "免费" : `${formatNumber(item.price)} 积分`}</span>
+            <span class="shop-price">${item.price === 0 ? t("freePrice") : t("creditsPrice", { price: item.price })}</span>
             <button class="shop-btn" type="button">${getShopButtonLabel(item)}</button>
           </div>
         `;
@@ -1928,13 +3184,13 @@
       profile.daily.rewards[rewardId] = true;
       profile.daily.rewardClaims += 1;
       profile.credits += item.credits;
-      state.lastAction = `已领取 ${item.title}`;
+      state.lastAction = `reward:${item.id}`;
       saveProfile();
       saveState();
       syncDerivedState();
       renderRewardGrid();
       renderTaskList();
-      showToast(`${item.title} 已到账 ${formatNumber(item.credits)} 积分`);
+      showToast(t("rewardArrived", { title: getItemText(item, "title"), credits: item.credits }));
     }
 
     function completeTask(taskId) {
@@ -1943,89 +3199,98 @@
       profile.daily.tasks[taskId] = true;
       profile.daily.taskClaims += 1;
       profile.credits += item.reward;
-      state.lastAction = `已完成任务 ${item.title}`;
+      state.lastAction = `task:${item.id}`;
       saveProfile();
       saveState();
       syncDerivedState();
       renderTaskList();
       renderShopGrid();
-      showToast(`${item.title} 奖励已到账 ${formatNumber(item.reward)} 积分`);
+      showToast(t("taskArrived", { title: getItemText(item, "title"), reward: item.reward }));
     }
 
     function handleShopAction(shopId) {
       const item = getShopItem(shopId);
       if (!item) return;
+      const itemTitle = getItemText(item, "title");
+
+      if (isStoreClosed()) {
+        showToast(t("shopClosedToast"));
+        return;
+      }
 
       if (item.type === "theme") {
         if (isOwnedShopItem(item)) {
           profile.activeThemeId = item.id;
-          state.lastAction = `已切换主题 ${item.title}`;
+          state.lastAction = `theme:${item.id}`;
           applyThemeSafely("equip-theme");
           saveProfile();
           saveState();
           syncDerivedState();
           renderShopGrid();
-          showToast(`已装备 ${item.title}`);
+          showToast(`${t("equipped")} ${itemTitle}`);
           return;
         }
 
-        if (!spendCredits(item.price, item.title)) return;
+        if (!spendCredits(item.price, itemTitle)) return;
         profile.ownedThemes[item.id] = true;
         profile.activeThemeId = item.id;
-        applyPurchaseRecord();
-        state.lastAction = `已购买并装备 ${item.title}`;
+        applyPurchaseRecord(item);
+        state.lastAction = `theme:${item.id}`;
         applyThemeSafely("purchase-theme");
         saveProfile();
         saveState();
         syncDerivedState();
         renderShopGrid();
         renderTaskList();
-        showToast(`已购买并装备 ${item.title}`);
+        showToast(`${t("buyItem")} ${itemTitle}`);
         return;
       }
 
       if (item.type === "upgrade") {
         if (isOwnedShopItem(item)) return;
-        if (!spendCredits(item.price, item.title)) return;
+        if (!spendCredits(item.price, itemTitle)) return;
         profile.upgrades[item.upgradeKey] = true;
-        applyPurchaseRecord();
-        state.lastAction = `已解锁 ${item.title}`;
+        applyPurchaseRecord(item);
+        state.lastAction = `upgrade:${item.id}`;
         saveProfile();
         saveState();
         syncDerivedState();
         renderShopGrid();
         renderTaskList();
-        showToast(`${item.title} 已解锁`);
+        showToast(t("boughtAndClosed", { title: itemTitle }));
         return;
       }
 
       if (item.type === "consumable") {
-        if (!spendCredits(item.price, item.title)) return;
+        if (!spendCredits(item.price, itemTitle)) return;
         const quantity = Number(item.quantity || 1);
         profile.inventory[item.itemKey] = Number(profile.inventory[item.itemKey] || 0) + quantity;
-        applyPurchaseRecord();
-        state.lastAction = `已购买 ${item.title}`;
+        applyPurchaseRecord(item);
+        state.lastAction = `consumable:${item.id}`;
         saveProfile();
         saveState();
         syncDerivedState();
         renderShopGrid();
         renderTaskList();
-        showToast(`${item.title} 已加入库存 +${quantity}`);
+        showToast(t("boughtAndClosed", { title: itemTitle }));
       }
     }
 
     function spendCredits(amount, itemTitle) {
       if (profile.credits < amount) {
-        showToast(`积分不足，无法购买 ${itemTitle}`);
+        showToast(t("purchaseDenied", { title: itemTitle }));
         return false;
       }
       profile.credits -= amount;
       return true;
     }
 
-    function applyPurchaseRecord() {
+    function applyPurchaseRecord(item) {
       profile.totalPurchases += 1;
       profile.daily.purchases += 1;
+      profile.shopLockedUntilRun = Number(profile.totalRuns || 0) + 1;
+      profile.shopLastPurchaseId = item ? item.id : "";
+      profile.shopLastPurchaseTitle = item ? item.title : "";
     }
 
     function countClaimedRewards() {
@@ -2046,10 +3311,14 @@
 
     function getActiveThemeTitle() {
       const activeTheme = getShopItem(profile.activeThemeId);
-      return activeTheme ? activeTheme.title : "霓虹核心外观";
+      return activeTheme ? getItemText(activeTheme, "title") : t("activeThemeFallback");
     }
 
     function getNextAffordableHint() {
+      if (isStoreClosed()) {
+        return t("storeRestingHint");
+      }
+
       const preferredRoute = [];
       if (!profile.upgrades.cooling) preferredRoute.push("upgrade-cooling");
       if (profile.upgrades.cooling && !profile.upgrades.mergeBonus) preferredRoute.push("upgrade-merge-bonus");
@@ -2061,7 +3330,7 @@
         const item = getShopItem(itemId);
         if (!item || isOwnedShopItem(item)) continue;
         if (profile.credits >= item.price) {
-          return `推荐路线：优先购买 ${item.title}，它最契合你当前的对局节奏。`;
+          return t("recommendedHint", { title: getItemText(item, "title") });
         }
       }
 
@@ -2071,12 +3340,12 @@
 
       const affordable = lockedItems.find((item) => profile.credits >= item.price);
       if (affordable) {
-        return `当前积分足够购买 ${affordable.title}，建议优先构建下一局成长优势。`;
+        return t("affordableHint", { title: getItemText(affordable, "title") });
       }
 
       const target = lockedItems[0];
-      if (!target) return "核心强化已基本解锁完毕，可以继续冲击更高分数。";
-      return `距离 ${target.title} 还差 ${formatNumber(Math.max(0, target.price - profile.credits))} 积分。`;
+      if (!target) return t("allUnlockedHint");
+      return t("lackingHint", { title: getItemText(target, "title"), diff: Math.max(0, target.price - profile.credits) });
     }
 
     function syncDerivedState() {
@@ -2089,32 +3358,41 @@
       summaryCreditValue.textContent = formatNumber(profile.credits);
       summaryRewardValue.textContent = `${rewardClaimed} / ${rewardItems.length}`;
       summaryTaskValue.textContent = `${taskClaimed} / ${taskItems.length}`;
-      summaryShopValue.textContent = activeTheme;
-      topProgress.textContent = `积分 ${formatNumber(profile.credits)} | 奖励 ${rewardClaimed}/${rewardItems.length} | 任务 ${taskClaimed}/${taskItems.length} | 芯片 ${profile.inventory.reviveChip}`;
+      if (summaryShopValue) summaryShopValue.textContent = activeTheme;
+      topProgress.textContent = t("topProgress", {
+        credits: profile.credits,
+        rewardClaimed,
+        rewardTotal: rewardItems.length,
+        taskClaimed,
+        taskTotal: taskItems.length,
+        chips: profile.inventory.reviveChip
+      });
 
-      heroRewardState.textContent = rewardClaimed === rewardItems.length ? "今日奖励已全部领取" : `今日奖励待领取 ${rewardRemaining} 项`;
-      heroRewardNote.textContent = `今日奖励共可领取 ${formatNumber(totalDailyRewardCredits)} 积分，每日 00:00 自动重置。`;
-      heroTaskState.textContent = `任务完成 ${taskClaimed}/${taskItems.length}`;
-      heroTaskNote.textContent = `今日已完成 ${profile.daily.runs} 局，最高 ${formatNumber(profile.daily.bestScore)} 分，已购物 ${profile.daily.purchases} 件。`;
-      heroCreditState.textContent = `当前积分 ${formatNumber(profile.credits)}`;
-      heroCreditNote.textContent = `上局结算 ${formatNumber(profile.lastRunScore)} 分 | 生涯最高 ${formatNumber(Math.max(profile.bestScore, profile.daily.bestScore))} 分`;
-      footerEconomyNote.textContent = getNextAffordableHint();
+      heroRewardState.textContent = rewardClaimed === rewardItems.length ? t("heroRewardAll") : t("heroRewardPending", { count: rewardRemaining });
+      if (heroRewardNote) heroRewardNote.textContent = t("heroRewardNote", { total: totalDailyRewardCredits });
+      heroTaskState.textContent = t("heroTaskState", { claimed: taskClaimed, total: taskItems.length });
+      if (heroTaskNote) heroTaskNote.textContent = t("heroTaskNote", { runs: profile.daily.runs, bestScore: profile.daily.bestScore, purchases: profile.daily.purchases });
+      heroCreditState.textContent = t("heroCreditState", { credits: profile.credits });
+      if (heroCreditNote) heroCreditNote.textContent = t("heroCreditNote", { lastRunScore: profile.lastRunScore, bestScore: Math.max(profile.bestScore, profile.daily.bestScore) });
+      if (footerEconomyNote) footerEconomyNote.textContent = getNextAffordableHint();
 
       rewardSummaryText.textContent = rewardClaimed === 0
-        ? "今日尚未领取任何奖励，建议先补足启动积分再开始对局。"
+        ? t("rewardSummaryEmpty")
         : rewardClaimed === rewardItems.length
-          ? "今日奖励已经全部领取完毕，可以把重心转向冲分和购物。"
-          : `今日已领取 ${rewardClaimed} 项奖励，还剩 ${rewardRemaining} 项可继续补充积分。`;
-      rewardBonusText.textContent = `奖励会直接汇入积分余额，不占用额外背包位，可立即用于商店消费。`;
+          ? t("rewardSummaryAll")
+          : t("rewardSummaryPartial", { claimed: rewardClaimed, remaining: rewardRemaining });
+      rewardBonusText.textContent = t("rewardBonusText");
 
       taskSummaryText.textContent = taskClaimed === taskItems.length
-        ? "今日任务已全部完成，当前经济循环已经打通。"
-        : `当前已领取 ${taskClaimed} 项任务奖励，未领取部分会随你的今日对局和消费进度继续解锁。`;
-      taskBonusText.textContent = `今日对局 ${profile.daily.runs} 局，今日累计得分 ${formatNumber(profile.daily.totalScore)}，今日最高分 ${formatNumber(profile.daily.bestScore)}。`;
+        ? t("taskSummaryAll")
+        : t("taskSummaryPartial", { claimed: taskClaimed });
+      taskBonusText.textContent = t("taskBonusText", {
+        runs: profile.daily.runs,
+        totalScore: profile.daily.totalScore,
+        bestScore: profile.daily.bestScore
+      });
 
-      shopSummaryText.textContent = `当前可用积分 ${formatNumber(profile.credits)}，生涯累计得分 ${formatNumber(profile.lifetimeScore)}，累计完成对局 ${profile.totalRuns} 局。`;
-      shopInventoryText.textContent = `复活芯片 ${profile.inventory.reviveChip} 枚；永久强化 ${countUnlockedUpgrades()} 项；已购主题 ${countOwnedThemes()} 套。`;
-      shopLoadoutText.textContent = `当前主题 ${activeTheme}；投放冷却 ${profile.upgrades.cooling ? "420ms" : "460ms"}；合成得分 ${profile.upgrades.mergeBonus ? "x1.2" : "基础"}；结算增幅 ${profile.upgrades.creditBoost ? "+15%" : "未激活"}；警戒缓冲 ${profile.upgrades.warningBuffer ? "3.8s" : "3.0s"}；稳态协议 ${profile.upgrades.starterBag ? "已激活" : "未激活"}。`;
+      if (shopAccessText) shopAccessText.textContent = getShopAccessMessage();
     }
 
     function showToast(message) {
@@ -2129,7 +3407,7 @@
     function startGame() {
       saveState();
       saveProfile();
-      showToast("正在进入游戏页...");
+      showToast(t("startGameToast"));
       window.setTimeout(() => {
         window.location.href = "game.html";
       }, 160);
