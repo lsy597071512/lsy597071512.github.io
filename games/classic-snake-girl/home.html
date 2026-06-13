@@ -2656,7 +2656,10 @@
     }
 
     function shouldRequireLandscape() {
-      return false;
+      const { width, height } = getViewportSize();
+      const coarsePointer = window.matchMedia("(pointer: coarse)").matches || ("ontouchstart" in window);
+      const mobileViewport = Math.min(width, height) <= 1024;
+      return coarsePointer && mobileViewport && height > width;
     }
 
     function applyLandscapeGuard() {
