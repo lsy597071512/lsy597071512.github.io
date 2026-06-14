@@ -596,6 +596,7 @@
     .module-main {
       width: min(100%, var(--content-max));
       height: 100%;
+      min-height: 0;
       max-height: 100%;
       display: grid;
       gap: clamp(0.7rem, 1.2vw, 1rem);
@@ -604,21 +605,27 @@
       text-align: left;
       overflow: hidden;
       margin-inline: auto;
+      scrollbar-gutter: stable;
+      scrollbar-width: thin;
+    }
+
+    .module-main::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .module-main::-webkit-scrollbar-thumb {
+      border-radius: var(--pixel-radius-sm);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .module-view[data-view="home"] .module-main {
+      overflow: auto;
+      padding-right: 0.15rem;
     }
 
     .module-view:not([data-view="home"]) .module-main {
       overflow: auto;
       padding-right: 0.15rem;
-      scrollbar-width: thin;
-    }
-
-    .module-view:not([data-view="home"]) .module-main::-webkit-scrollbar {
-      width: 5px;
-    }
-
-    .module-view:not([data-view="home"]) .module-main::-webkit-scrollbar-thumb {
-      border-radius: var(--pixel-radius-sm);
-      background: rgba(255, 255, 255, 0.12);
     }
 
     .module-header {
@@ -1218,6 +1225,8 @@
       letter-spacing: 0.05em;
       border-width: 4px;
       box-shadow: 0 0 0 2px rgba(255, 238, 163, 0.26), 0 22px 40px rgba(255, 187, 64, 0.4);
+      position: relative;
+      top: -40px;
     }
 
     .module-view[data-view="reward"] .module-main,
@@ -2071,33 +2080,25 @@
       }
 
       .view-stage {
-        overflow: auto;
-        padding-right: 0.12rem;
-        scrollbar-width: thin;
-      }
-
-      .view-stage::-webkit-scrollbar {
-        width: 5px;
-      }
-
-      .view-stage::-webkit-scrollbar-thumb {
-        border-radius: var(--pixel-radius-sm);
-        background: rgba(255, 255, 255, 0.12);
+        overflow: hidden;
+        padding-right: 0;
       }
 
       .module-view.active {
-        height: auto;
-        min-height: 100%;
+        height: 100%;
+        min-height: 0;
       }
 
       .module-view[data-view="home"] .module-main,
       .module-view[data-view="home"] .module-main[data-resizable="false"] {
         grid-template-columns: 1fr;
         grid-template-rows: auto auto auto auto;
-        height: auto;
-        max-height: none;
+        height: 100%;
+        min-height: 0;
+        max-height: 100%;
         gap: 0.55rem;
-        overflow: visible;
+        overflow: auto;
+        padding-right: 0.15rem;
       }
 
       .module-view[data-view="home"] .module-header,
@@ -2168,6 +2169,129 @@
       }
     }
 
+    body.home-fixed-layout-active:not(.landscape-required) {
+      display: block;
+      overflow: auto;
+      min-height: 100dvh;
+      padding:
+        max(0.75rem, env(safe-area-inset-top))
+        max(0.75rem, env(safe-area-inset-right))
+        max(0.75rem, env(safe-area-inset-bottom))
+        max(0.75rem, env(safe-area-inset-left));
+    }
+
+    body.home-fixed-layout-active {
+      --shell-width: 82rem;
+      --shell-height: 58rem;
+      --content-max: 79.8rem;
+      --home-header-height: 10.4rem;
+      --home-side-width: 19rem;
+      --home-footer-height: 8rem;
+    }
+
+    body.home-fixed-layout-active:not(.landscape-required) .app-shell {
+      width: var(--shell-width);
+      min-width: var(--shell-width);
+      height: var(--shell-height);
+      min-height: var(--shell-height);
+      max-width: none;
+      margin: 0 auto;
+    }
+
+    body.home-fixed-layout-active .view-topbar {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-areas: none;
+      gap: 0.55rem;
+      align-items: center;
+    }
+
+    body.home-fixed-layout-active .back-btn {
+      grid-area: auto;
+    }
+
+    body.home-fixed-layout-active .progress-copy {
+      justify-self: end;
+      text-align: right;
+      max-width: min(100%, 26rem);
+    }
+
+    body.home-fixed-layout-active .topbar-actions {
+      grid-area: auto;
+      min-width: clamp(10.35rem, 11.7vw, 12.6rem);
+      justify-self: end;
+      align-self: center;
+    }
+
+    body.home-fixed-layout-active .settings-trigger {
+      width: clamp(9.6rem, 10.8vw, 11.25rem);
+      min-width: clamp(9.6rem, 10.8vw, 11.25rem);
+      min-height: clamp(9.6rem, 10.8vw, 11.25rem);
+      font-size: clamp(4.5rem, 5.625vw, 6.075rem);
+    }
+
+    body.home-fixed-layout-active .view-stage {
+      overflow: hidden;
+      padding-right: 0;
+    }
+
+    body.home-fixed-layout-active .module-view.active {
+      height: 100%;
+      min-height: 0;
+    }
+
+    body.home-fixed-layout-active .module-view[data-view="home"] .module-main,
+    body.home-fixed-layout-active .module-view[data-view="home"] .module-main[data-resizable="false"] {
+      grid-template-columns: minmax(0, calc(100% - var(--home-side-width) - var(--home-splitter-size))) var(--home-splitter-size) minmax(15rem, var(--home-side-width));
+      grid-template-rows: var(--home-header-height) minmax(0, 1fr) var(--home-splitter-size) var(--home-footer-height);
+      height: 100%;
+      min-height: 0;
+      max-height: 100%;
+      overflow: auto;
+      padding-right: 0.15rem;
+    }
+
+    body.home-fixed-layout-active .module-view[data-view="home"] .resize-handle,
+    body.home-fixed-layout-active .module-view[data-view="home"] .module-main[data-resizable="false"] .resize-handle {
+      display: none;
+    }
+
+    body.home-fixed-layout-active .module-view[data-view="home"] .module-header,
+    body.home-fixed-layout-active .module-view[data-view="home"] .module-main[data-resizable="false"] .module-header {
+      grid-column: 1 / -1;
+      grid-row: 1 / 2;
+      max-width: min(100%, 51rem);
+      justify-items: start;
+      justify-self: start;
+      text-align: left;
+      margin-left: 0;
+      margin-right: auto;
+    }
+
+    body.home-fixed-layout-active .module-view[data-view="home"] .hero-panel,
+    body.home-fixed-layout-active .module-view[data-view="home"] .module-main[data-resizable="false"] .hero-panel {
+      grid-column: 1 / 2;
+      grid-row: 2 / 3;
+      height: 100%;
+      min-height: 0;
+    }
+
+    body.home-fixed-layout-active .module-view[data-view="home"] .quick-grid,
+    body.home-fixed-layout-active .module-view[data-view="home"] .module-main[data-resizable="false"] .quick-grid {
+      grid-column: 3 / 4;
+      grid-row: 2 / 3;
+      grid-template-columns: 1fr;
+      align-self: stretch;
+      align-content: stretch;
+    }
+
+    body.home-fixed-layout-active .module-view[data-view="home"] .action-grid,
+    body.home-fixed-layout-active .module-view[data-view="home"] .module-main[data-resizable="false"] .action-grid {
+      grid-column: 1 / -1;
+      grid-row: 4 / 5;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-self: end;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *,
       *::before,
@@ -2218,9 +2342,7 @@
 
               <section class="hero-panel">
                 <div class="hero-row">
-                  <div class="hero-copy">
-                    <h3 class="hero-title" id="heroTitleLine">接住果核，<span class="hero-highlight">合成果实</span></h3>
-                  </div>
+                  <div class="hero-copy"></div>
                   <div class="hero-side">
                     <div class="hero-card">
                       <strong id="heroRewardState">每日奖励待领取</strong>
@@ -2343,7 +2465,6 @@
         langEn: "英文（English）",
         homeViewTitle: "霓虹机械水果店",
         homeViewCaption: "午夜商街的机械果柜持续掉落失控果核，你要在霓虹雨幕里把它们接成更高阶果实，赚取积分，扩建店面，并为下一轮进货装上更强模块。",
-        heroTitleHtml: '接住果核，<span class="hero-highlight">合成果实</span>',
         heroStart: "开始游戏",
         summaryCreditLabel: "当前积分余额",
         summaryRewardLabel: "今日奖励领取",
@@ -2426,7 +2547,6 @@
         langEn: "English",
         homeViewTitle: "Neon Mechanic Fruit Shop",
         homeViewCaption: "Run the neon fruit stand at midnight, catch unstable kernels, merge them into higher fruit grades, earn credits, expand the store, and prep stronger modules for the next shipment.",
-        heroTitleHtml: 'Catch the kernels, <span class="hero-highlight">merge the fruit</span>',
         heroStart: "Start Game",
         summaryCreditLabel: "Credit Balance",
         summaryRewardLabel: "Rewards Claimed",
@@ -2569,7 +2689,6 @@
     const langEnBtn = document.getElementById("langEnBtn");
     const homeViewTitle = document.getElementById("homeViewTitle");
     const homeViewCaption = document.getElementById("homeViewCaption");
-    const heroTitleLine = document.getElementById("heroTitleLine");
     const summaryCreditLabel = document.getElementById("summaryCreditLabel");
     const summaryRewardLabel = document.getElementById("summaryRewardLabel");
     const summaryTaskLabel = document.getElementById("summaryTaskLabel");
@@ -2709,7 +2828,6 @@
       }
       if (homeViewTitle) homeViewTitle.textContent = t("homeViewTitle");
       if (homeViewCaption) homeViewCaption.textContent = t("homeViewCaption");
-      if (heroTitleLine) heroTitleLine.innerHTML = t("heroTitleHtml");
       if (heroStartBtn) heroStartBtn.textContent = t("heroStart");
       if (summaryCreditLabel) summaryCreditLabel.textContent = t("summaryCreditLabel");
       if (summaryRewardLabel) summaryRewardLabel.textContent = t("summaryRewardLabel");
@@ -2964,6 +3082,7 @@
     }
 
     function shouldEnableHomeLayoutResizing() {
+      if (document.body.classList.contains("home-fixed-layout-active")) return false;
       const viewport = getViewportSize();
       return viewport.width >= 768 && viewport.height >= 600;
     }
@@ -3041,6 +3160,13 @@
 
     function applyHomeLayoutState(reason = "runtime") {
       if (!homeLayout || !homeView || !homeView.classList.contains("active")) return;
+      if (document.body.classList.contains("home-fixed-layout-active")) {
+        homeLayout.dataset.resizable = "false";
+        homeLayout.style.removeProperty("--home-header-height");
+        homeLayout.style.removeProperty("--home-side-width");
+        homeLayout.style.removeProperty("--home-footer-height");
+        return;
+      }
       const enabled = shouldEnableHomeLayoutResizing();
       homeLayout.dataset.resizable = enabled ? "true" : "false";
       if (!enabled) {
@@ -3273,6 +3399,7 @@
       state.visited[view] = true;
       saveState();
       syncDerivedState();
+      document.body.classList.toggle("home-fixed-layout-active", view === DEFAULT_VIEW);
 
       views.forEach((section) => {
         section.classList.toggle("active", section.dataset.view === view);
