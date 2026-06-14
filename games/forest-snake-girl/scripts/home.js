@@ -1,12 +1,24 @@
-import { loadMeta, saveMeta, SHOP_ITEMS, generateMysteryItem, renderAchievementPanel } from "./shared/meta.js";
+import {
+  loadMeta,
+  saveMeta,
+  SHOP_ITEMS,
+  generateMysteryItem,
+  renderAchievementPanel,
+  getLocalizedShopItem
+} from "./shared/meta.js";
+import { applyI18n, getLang, setLang, t } from "./shared/i18n.js";
 
 const BGM_MENU_URL = "music/jiemian01.mp3";
+const BGM_SESSION_KEY = "starCrystalBgmUnlocked";
+const BGM_GESTURE_EVENTS = ["pointerdown", "keydown", "touchstart", "click"];
 
 let meta = loadMeta();
 let currentMysteryItem = null;
 let shopPendingItem = null;
 let menuBgm = null;
-let audioUnlocked = false;
+let menuBgmReady = false;
+let lifecycleListenersBound = false;
+let gestureListenersBound = false;
 
 const startScreen = document.getElementById("startScreen");
 const shopScreen = document.getElementById("shopScreen");
@@ -16,6 +28,9 @@ const shopPointsDisplay = document.getElementById("shopPointsDisplay");
 const shopConfirmText = document.getElementById("shopConfirmText");
 const shopClosedToast = document.getElementById("shopClosedToast");
 const bgmSlider = document.getElementById("bgmVolSlider");
+const settingsModal = document.getElementById("settingsModal");
+const settingsBtn = document.getElementById("settingsBtn");
+const settingsCloseBtn = document.getElementById("settingsCloseBtn");
 
 function escapeHtml(value) {
   return String(value)
@@ -26,13 +41,37 @@ function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
+function markBgmSessionUnlocked() {
+  try {
+    sessionStorage.setItem(BGM_SESSION_KEY, "1");
+  } catch {}
+}
+
+function isMenuBgmActive() {
+  return !!(menuBgm && !menuBgm.paused && !menuBgm.ended);
+}
+
 function ensureMenuBgm() {
   if (menuBgm) return menuBgm;
   menuBgm = new Audio(BGM_MENU_URL);
   menuBgm.loop = true;
   menuBgm.preload = "auto";
-  menuBgm.volume = meta.bgmVolume;
+  menuBgm.volume = meta.bgmVolume ?? 0.5;
+  menuBgm.addEventListener("canplaythrough", onMenuBgmReady, { once: false });
+  menuBgm.addEventListener("playing", markBgmSessionUnlocked);
+  menuBgm.addEventListener("error", () => {
+    menuBgmReady = false;
+    window.setTimeout(() => {
+      if (menuBgm) menuBgm.load();
+    }, 600);
+  });
+  menuBgm.load();
   return menuBgm;
+}
+
+function onMenuBgmReady() {
+  menuBgmReady = true;
+  tryStartMenuBgm();
 }
 
 function syncVolume(nextValue) {
@@ -41,18 +80,95 @@ function syncVolume(nextValue) {
   meta.bgmVolume = volume;
   meta = saveMeta(meta);
   if (menuBgm) menuBgm.volume = volume;
+  if (volume > 0) tryStartMenuBgm();
 }
 
-function unlockAudio() {
-  if (audioUnlocked) return;
-  audioUnlocked = true;
-  const audio = ensureMenuBgm();
-  audio.play().catch(() => {
-    audioUnlocked = false;
+function bindLifecycleBgmListeners() {
+  if (lifecycleListenersBound) return;
+  lifecycleListenersBound = true;
+  window.addEventListener("pageshow", onPageShowForBgm);
+  document.addEventListener("visibilitychange", onVisibilityChangeForBgm);
+  window.addEventListener("focus", onFocusForBgm);
+}
+
+function bindGestureBgmListeners() {
+  if (gestureListenersBound) return;
+  gestureListenersBound = true;
+  BGM_GESTURE_EVENTS.forEach(eventName => {
+    window.addEventListener(eventName, onUserGestureForBgm, { capture: true, passive: true });
   });
 }
 
+function onUserGestureForBgm() {
+  tryStartMenuBgm();
+}
+
+function onVisibilityChangeForBgm() {
+  if (document.visibilityState === "visible") tryStartMenuBgm();
+}
+
+function onFocusForBgm() {
+  tryStartMenuBgm();
+}
+
+function onPageShowForBgm() {
+  menuBgmReady = !!(menuBgm && menuBgm.readyState >= 3);
+  tryStartMenuBgm();
+}
+
+function tryStartMenuBgm() {
+  const volume = meta.bgmVolume ?? 0.5;
+  if (volume <= 0) return;
+
+  const audio = ensureMenuBgm();
+  audio.volume = volume;
+
+  if (isMenuBgmActive()) return;
+
+  if (audio.readyState < 3) {
+    audio.load();
+    return;
+  }
+
+  const playPromise = audio.play();
+  if (!playPromise || typeof playPromise.then !== "function") return;
+
+  playPromise
+    .then(() => {
+      markBgmSessionUnlocked();
+    })
+    .catch(() => {
+      bindGestureBgmListeners();
+    });
+}
+
+function refreshLanguageUI() {
+  applyI18n(document, "home");
+  updateLangButtons();
+  renderAchievementPanel("startAchievementPanel", meta, { isGameover: false, newList: [] });
+  if (shopScreen.style.display !== "none") renderShop();
+}
+
+function updateLangButtons() {
+  const lang = getLang();
+  document.querySelectorAll(".settings-lang-btn").forEach(btn => {
+    btn.classList.toggle("is-active", btn.getAttribute("data-lang") === lang);
+  });
+}
+
+function openSettings() {
+  updateLangButtons();
+  settingsModal.style.display = "flex";
+  settingsModal.setAttribute("aria-hidden", "false");
+}
+
+function closeSettings() {
+  settingsModal.style.display = "none";
+  settingsModal.setAttribute("aria-hidden", "true");
+}
+
 function openShop() {
+  tryStartMenuBgm();
   if (!currentMysteryItem) currentMysteryItem = generateMysteryItem();
   renderShop();
   startScreen.style.display = "none";
@@ -64,6 +180,7 @@ function closeShop() {
   shopConfirm.style.display = "none";
   startScreen.style.display = "flex";
   renderAchievementPanel("startAchievementPanel", meta, { isGameover: false, newList: [] });
+  tryStartMenuBgm();
 }
 
 function updateShopPointsDisplay() {
@@ -73,21 +190,23 @@ function updateShopPointsDisplay() {
 function renderShop() {
   updateShopPointsDisplay();
   const shopClosed = meta.purchasedItemId !== null;
-  const items = [...SHOP_ITEMS];
-  if (currentMysteryItem) items.push(currentMysteryItem);
+  const items = [...SHOP_ITEMS.map(getLocalizedShopItem)];
+  if (currentMysteryItem) items.push(getLocalizedShopItem(currentMysteryItem));
 
   shopGrid.innerHTML = items.map(item => {
     const canAfford = (meta.totalPoints || 0) >= item.price;
     let desc = item.desc;
     if (item.id === "mystery") {
-      desc = shopClosed ? (meta.purchasedItemLabel || "惊喜") : "???";
+      desc = shopClosed ? (meta.purchasedItemLabel || t("shop.mysteryReveal")) : t("shop.mysteryHidden");
     }
 
     let btnClass = "cant-buy";
-    let btnText = shopClosed ? "已下架" : `差${item.price - (meta.totalPoints || 0)}分`;
+    let btnText = shopClosed
+      ? t("shop.soldOut")
+      : t("shop.needPoints", { n: item.price - (meta.totalPoints || 0) });
     if (!shopClosed && canAfford) {
       btnClass = "can-buy";
-      btnText = "购买";
+      btnText = t("shop.buy");
     }
 
     return `<div class="shop-item${shopClosed ? " purchased" : ""}">
@@ -102,16 +221,18 @@ function renderShop() {
   shopGrid.querySelectorAll(".shop-buy-btn.can-buy").forEach(button => {
     button.addEventListener("click", () => {
       const itemId = button.getAttribute("data-item-id");
-      const item = itemId === "mystery" ? currentMysteryItem : SHOP_ITEMS.find(entry => entry.id === itemId);
+      const raw = itemId === "mystery" ? currentMysteryItem : SHOP_ITEMS.find(entry => entry.id === itemId);
+      const item = getLocalizedShopItem(raw);
       if (!item || meta.purchasedItemId !== null || meta.totalPoints < item.price) return;
       shopPendingItem = item;
-      shopConfirmText.textContent = `是否花费 ${item.price} 积分购买「${item.name}」？\n购买后商店将关闭，效果在下局游戏生效`;
+      shopConfirmText.textContent = t("shop.confirmMsg", { price: item.price, name: item.name });
       shopConfirm.style.display = "flex";
     });
   });
 }
 
 function showShopClosedToast() {
+  shopClosedToast.textContent = t("shop.closedToast");
   shopClosedToast.style.animation = "none";
   void shopClosedToast.offsetWidth;
   shopClosedToast.style.display = "block";
@@ -130,7 +251,7 @@ function confirmPurchase() {
   meta.totalPoints -= item.price;
   if (item.id === "mystery") {
     meta.purchasedItemId = `mystery_${item.type}_${item.duration}${item.type === "healPack" ? "_heal" : ""}`;
-    meta.purchasedItemLabel = item.label || "惊喜";
+    meta.purchasedItemLabel = item.label || t("shop.mysteryReveal");
   } else {
     meta.purchasedItemId = item.id;
     meta.purchasedItemLabel = null;
@@ -142,9 +263,30 @@ function confirmPurchase() {
 }
 
 function init() {
+  refreshLanguageUI();
   bgmSlider.value = String(Math.round((meta.bgmVolume || 0.5) * 100));
-  renderAchievementPanel("startAchievementPanel", meta, { isGameover: false, newList: [] });
+
+  bindLifecycleBgmListeners();
+  bindGestureBgmListeners();
   ensureMenuBgm();
+  tryStartMenuBgm();
+
+  settingsBtn.addEventListener("click", openSettings);
+  settingsCloseBtn.addEventListener("click", closeSettings);
+  settingsModal.addEventListener("click", event => {
+    if (event.target === settingsModal) closeSettings();
+  });
+  document.querySelectorAll(".settings-lang-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const lang = btn.getAttribute("data-lang");
+      if (lang !== getLang()) {
+        setLang(lang);
+        currentMysteryItem = generateMysteryItem();
+        refreshLanguageUI();
+      }
+      closeSettings();
+    });
+  });
 
   document.getElementById("startBtn").addEventListener("click", () => {
     if (menuBgm) {
@@ -161,12 +303,15 @@ function init() {
     shopConfirm.style.display = "none";
   });
 
+  const guideEntryBtn = document.getElementById("guideEntryBtn");
+  if (guideEntryBtn) {
+    guideEntryBtn.addEventListener("click", () => {
+      tryStartMenuBgm();
+      location.href = "guide.html";
+    });
+  }
+
   bgmSlider.addEventListener("input", event => syncVolume(event.target.value));
-  window.addEventListener("pointerdown", unlockAudio, { once: true });
-  window.addEventListener("keydown", unlockAudio, { once: true });
-  window.addEventListener("beforeunload", () => {
-    if (menuBgm) menuBgm.pause();
-  });
 }
 
 init();

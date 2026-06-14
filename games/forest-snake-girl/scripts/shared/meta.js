@@ -1,4 +1,28 @@
+import {
+  getLang,
+  t,
+  getRankName,
+  getAchievementText,
+  getShopItemText,
+  localizeMystery
+} from "./i18n.js";
+
 export const META_KEY = "starCrystalSurvivalMeta";
+export const SITE_AUDIO_UNLOCK_KEY = "starCrystalSiteAudioUnlocked";
+
+export function markSiteAudioUnlocked() {
+  try {
+    sessionStorage.setItem(SITE_AUDIO_UNLOCK_KEY, "1");
+  } catch {}
+}
+
+export function isSiteAudioUnlocked() {
+  try {
+    return sessionStorage.getItem(SITE_AUDIO_UNLOCK_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
 
 export const RANKS = [
   { name: "星尘新手", score: 0, icon: "✨" },
@@ -96,37 +120,35 @@ export function saveMeta(meta) {
 
 export function generateMysteryItem() {
   const rand = Math.floor(Math.random() * 3001) + 1000;
-  let label;
-  let desc;
   let type;
   let duration;
   if (rand <= 1500) {
-    label = "小加速";
-    desc = "开局6秒加速";
     type = "speed";
     duration = 6;
   } else if (rand <= 2000) {
-    label = "小无敌";
-    desc = "开局6秒无敌";
     type = "invincible";
     duration = 6;
   } else if (rand <= 2500) {
-    label = "蓄力加速";
-    desc = "先减速5秒，再加速10秒";
     type = "chargeSpeed";
     duration = 10;
   } else if (rand <= 3000) {
-    label = "速度急救包";
-    desc = "5秒加速+低血满血恢复";
     type = "healPack";
     duration = 5;
   } else {
-    label = "啥都没有";
-    desc = "无任何效果，白白花了积分";
     type = "nothing";
     duration = 0;
   }
-  return { id: "mystery", icon: "❓", name: "惊喜箱", desc, price: rand, type, duration, label };
+  const localized = localizeMystery(type);
+  return {
+    id: "mystery",
+    icon: "❓",
+    name: t("shop.mystery.name"),
+    desc: localized.desc,
+    price: rand,
+    type,
+    duration,
+    label: localized.label
+  };
 }
 
 export function renderAchievementPanel(target, meta, options = {}) {
@@ -151,34 +173,38 @@ export function renderAchievementPanel(target, meta, options = {}) {
   const unlockedCount = ACHIEVEMENTS.filter(item => safeMeta.achievements[item.id]).length;
   const achievementsHtml = ACHIEVEMENTS.map(item => {
     const unlocked = !!safeMeta.achievements[item.id];
+    const name = getAchievementText(item.id, "name");
+    const desc = getAchievementText(item.id, "desc");
     return `<div class="achievement ${unlocked ? "unlocked" : "locked"}">
-      <span class="achievement-state">${unlocked ? "已解锁" : "待解锁"}</span>
+      <span class="achievement-state">${unlocked ? t("ach.unlocked") : t("ach.locked")}</span>
       <span class="icon">${unlocked ? item.icon : "🔒"}</span>
-      <b>${escapeHtml(item.name)}</b><span>${escapeHtml(item.desc)}</span>
+      <b>${escapeHtml(name)}</b><span>${escapeHtml(desc)}</span>
     </div>`;
   }).join("");
 
   const newHtml = newList.length
-    ? `<div class="new-achievement">🎉 新成就解锁：${newList.map(item => `${item.icon} ${escapeHtml(item.name)}`).join("、")}</div>`
+    ? `<div class="new-achievement">🎉 ${t("ach.newUnlock")}${newList.map(item => `${item.icon} ${escapeHtml(getAchievementText(item.id, "name"))}`).join(getLang() === "en" ? ", " : "、")}</div>`
     : "";
   const progressText = next
-    ? `距离下一段位「${next.icon} ${escapeHtml(next.name)}」还差 ${Math.max(0, next.score - safeMeta.bestScore)} 分`
-    : "已达到最高段位，挑战更高纪录！";
-  const noteText = isGameover
-    ? "本局结束后已同步刷新历史最佳记录与成就进度。"
-    : "成就会跨局累计保存，每次挑战都有机会解锁新的徽章。";
+    ? t("ach.progressNext", {
+        icon: next.icon,
+        name: getRankName(next.score),
+        n: Math.max(0, next.score - safeMeta.bestScore)
+      })
+    : t("ach.progressMax");
+  const noteText = isGameover ? t("ach.noteGameover") : t("ach.noteHome");
 
   element.innerHTML = `
     <div class="rank-row">
-      <span class="rank-badge">${current.icon} ${escapeHtml(current.name)}</span>
-      <span class="rank-stat">最高分 ${safeMeta.bestScore}</span>
-      <span class="rank-stat">最长存活 ${safeMeta.bestTime.toFixed(1)}s</span>
-      <span class="rank-stat">游玩 ${safeMeta.gamesPlayed} 局</span>
+      <span class="rank-badge">${current.icon} ${escapeHtml(getRankName(current.score))}</span>
+      <span class="rank-stat">${t("ach.bestScore", { n: safeMeta.bestScore })}</span>
+      <span class="rank-stat">${t("ach.bestTime", { n: safeMeta.bestTime.toFixed(1) })}</span>
+      <span class="rank-stat">${t("ach.gamesPlayed", { n: safeMeta.gamesPlayed })}</span>
     </div>
     <div class="progress-shell">
       <div class="progress-meta">
-        <span class="progress-pill">段位进度 ${Math.round(progress * 100)}%</span>
-        <span class="progress-pill">已解锁 ${unlockedCount}/${ACHIEVEMENTS.length}</span>
+        <span class="progress-pill">${t("ach.rankProgress", { n: Math.round(progress * 100) })}</span>
+        <span class="progress-pill">${t("ach.unlockedCount", { n: unlockedCount, total: ACHIEVEMENTS.length })}</span>
       </div>
       <div class="progress-wrap"><div class="progress-bar" style="width:${progress * 100}%"></div></div>
       <p class="progress-caption">${progressText}</p>
@@ -187,4 +213,16 @@ export function renderAchievementPanel(target, meta, options = {}) {
     ${newHtml}
     <div class="achievements">${achievementsHtml}</div>
   `;
+}
+
+export function getLocalizedShopItem(item) {
+  if (!item) return item;
+  if (item.id === "mystery") {
+    return { ...item, name: t("shop.mystery.name") };
+  }
+  return {
+    ...item,
+    name: getShopItemText(item.id, "name"),
+    desc: getShopItemText(item.id, "desc")
+  };
 }

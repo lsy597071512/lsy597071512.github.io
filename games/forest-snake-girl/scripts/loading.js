@@ -1,10 +1,16 @@
+import { applyI18n, t } from "./shared/i18n.js";
+
 const ASSETS = [
+  "preview.html",
   "home.html",
+  "guide.html",
   "game.html",
   "styles/app.css",
   "scripts/home.js",
+  "scripts/guide.js",
   "scripts/game.js",
   "scripts/shared/meta.js",
+  "scripts/shared/i18n.js",
   "TEX/01_d.png",
   "TEX/loading_d.png",
   "model/tex/skybox_basecolor_01.png",
@@ -20,6 +26,8 @@ const ASSETS = [
   "music/jiemian01.mp3",
   "music/zhandou01.mp3"
 ];
+
+applyI18n(document, "loading");
 
 const lBar = document.getElementById("lBar");
 const lPct = document.getElementById("lPct");
@@ -47,7 +55,7 @@ function preload(url) {
 
 async function boot() {
   updateProgress();
-  subtitle.textContent = "正在预载菜单与战斗资源";
+  subtitle.textContent = t("loading.preload");
 
   await Promise.allSettled(ASSETS.map(url => preload(url).finally(() => {
     completed += 1;
@@ -59,7 +67,7 @@ async function boot() {
     await new Promise(resolve => window.setTimeout(resolve, 900 - elapsed));
   }
 
-  subtitle.textContent = "任务环境就绪，正在进入主页菜单";
+  subtitle.textContent = t("loading.ready");
   window.setTimeout(() => {
     location.replace("home.html");
   }, 220);

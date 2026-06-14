@@ -42,11 +42,17 @@ function Write-Response {
     [string]$ContentType = "text/plain; charset=utf-8"
   )
 
-  $Context.Response.StatusCode = $StatusCode
-  $Context.Response.ContentType = $ContentType
-  $Context.Response.ContentLength64 = $Body.Length
-  if ($Body.Length -gt 0) {
-    $Context.Response.OutputStream.Write($Body, 0, $Body.Length)
+  try {
+    if ($Context.Response.OutputStream.CanWrite) {
+      $Context.Response.StatusCode = $StatusCode
+      $Context.Response.ContentType = $ContentType
+      $Context.Response.ContentLength64 = $Body.Length
+      if ($Body.Length -gt 0) {
+        $Context.Response.OutputStream.Write($Body, 0, $Body.Length)
+      }
+    }
+  } catch {
+    Write-Warning $_
   }
 }
 
@@ -100,8 +106,16 @@ Write-Host "Serving root: $root"
 
 try {
   while ($listener.IsListening) {
-    $context = $listener.GetContext()
-    Serve-Request -Context $context
+    $context = $null
+    try {
+      $context = $listener.GetContext()
+      Serve-Request -Context $context
+    } catch {
+      Write-Warning $_
+      if ($context) {
+        try { $context.Response.Close() } catch {}
+      }
+    }
   }
 } finally {
   if ($listener.IsListening) {

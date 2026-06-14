@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
-import { normalizeMeta } from "./shared/meta.js";
+import { normalizeMeta, ACHIEVEMENTS, RANKS, SHOP_ITEMS, renderAchievementPanel } from "./shared/meta.js";
+import { applyI18n, t, getRankName, getAchievementText, getCrystalTierKey } from "./shared/i18n.js";
 
 let scene,camera,renderer,skyboxMesh=null;
 let platformModel=null,platformMeshes=[],platformRaycaster=new THREE.Raycaster();
@@ -12,7 +13,7 @@ let player,playerFallbackBody=null,playerModel=null,playerMixer=null;
 let playerActions={},currentPlayerAnim="",playerHitAnimTimer=0,playerIsDead=false;
 let playerTintTargets=[],playerLocatorGroup=null;
 let playerHeadUISprite=null,playerHeadUICanvas=null,playerHeadUIContext=null,playerHeadUITexture=null;
-let playerHeadScoreSprite=null,playerHeadScoreCanvas=null,playerHeadScoreContext=null,playerHeadScoreTexture=null,lastHeadUIScore=-1,lastHeadUIHp=-1;
+let lastHeadUIHp=-1;
 let playerSideEffects=[],crystalScorePopups=[],playerBaseColorTexture=null,playerRoughnessTexture=null,playerMetalnessTexture=null,playerNormalTexture=null,playerSpeedColorTexture=null,playerInvincibleColorTexture=null;
 let speedTextureActive=false,speedEndTransitionTimer=0;
 
@@ -51,6 +52,12 @@ let meta=null;
 let newlyUnlockedAchievements=[];
 const _debugParams=new URLSearchParams(location.search);
 const DEBUG_ENABLED=["localhost","127.0.0.1","::1"].includes(location.hostname)&&_debugParams.get("debug")==="1";
+let _joystickRelease=null;
+let _navigatingHome=false;
+
+function releaseJoystickInput(){
+  if(typeof _joystickRelease==="function")_joystickRelease();
+}
 let runUsesDebugCheats=false;
 
 let performanceLevel=1;
@@ -60,7 +67,7 @@ let accumulator=0;
 const PERFORMANCE_CHECK_INTERVAL=60;
 let performanceCheckCounter=0;
 
-let fps=0,fpsFrameCount=0,fpsAccumTime=0;
+let fps=0,fpsFrameCount=0,fpsLastTime=performance.now();
 
 let playerStatusSprite=null,playerStatusCanvas=null,playerStatusCtx=null,playerStatusTexture=null,playerStatusTimer=0,playerStatusType="";
 
@@ -77,23 +84,71 @@ let _frustum=new THREE.Frustum(),_frustumProj=new THREE.Matrix4();
 let _playerLastY=0,_camLookTarget=new THREE.Vector3();
 let bossLoadPromise=null,bossAssetsReady=false;
 
-let _totalLoads=0,_loadedCount=0,_loadPromises=[],_loadStarted=0;
+let _totalLoads=0,_loadedCount=0,_loadPromises=[],_loadStarted=0,_bootWatchdogTimer=null;
 function _trackLoad(promise){_totalLoads++;const p=promise.then(()=>{_loadedCount++;_updateLoadingUI();if(_loadedCount>=_totalLoads)_checkAllLoaded()}).catch(()=>{_loadedCount++;_updateLoadingUI();if(_loadedCount>=_totalLoads)_checkAllLoaded()});_loadPromises.push(p);return p}
-function _updateLoadingUI(){const pct=_totalLoads?Math.min(98,Math.floor(_loadedCount/_totalLoads*100)):0;lBar.style.width=pct+"%";lPct.textContent=pct+"％"}
-let _allLoaded=false;
+function _updateLoadingUI(){
+  if(!lBar||!lPct)return;
+  const pct=_totalLoads?Math.min(98,Math.floor(_loadedCount/_totalLoads*100)):0;
+  lBar.style.width=pct+"%";
+  lPct.textContent=pct+"％";
+}
+let _allLoaded=false,_startGameAttempted=false;
 function _checkAllLoaded(){
   if(_allLoaded)return;
   if(_loadedCount>=_totalLoads&&_loadStarted&&Date.now()-_loadStarted>200){
-    _allLoaded=true;onAllLoaded()
+    _allLoaded=true;
+    onAllLoaded();
   }else if(_loadedCount>=_totalLoads&&_loadStarted){
-    setTimeout(_checkAllLoaded,50)
+    setTimeout(_checkAllLoaded,50);
   }
 }
 function _autoTrackFBX(url,cb){_trackLoad(new Promise(resolve=>{new FBXLoader().load(url,fbx=>{cb(fbx);resolve()},undefined,()=>resolve())}))}
+function _hideLoadingScreen(){
+  const loading=document.getElementById("loadingScreen");
+  if(loading)loading.style.display="none";
+}
+function _showBootError(message){
+  const loading=document.getElementById("loadingScreen");
+  const subtitle=document.querySelector("#loadingScreen .l-subtitle");
+  if(subtitle)subtitle.textContent=message;
+  if(loading)loading.style.display="flex";
+}
+function safeStartGame(reason="boot"){
+  if(gameRunning||gameOverPending)return true;
+  window.__bootState={reason,hasPlayer:!!player,hasScene:!!scene,gameRunning,gameOverPending};
+  try{
+    startGame();
+    _startGameAttempted=true;
+    window.__bootState.started=true;
+    if(_bootWatchdogTimer){clearTimeout(_bootWatchdogTimer);_bootWatchdogTimer=null}
+    return true;
+  }catch(err){
+    window.__lastStartGameError=String(err&&(err.stack||err.message)||err);
+    window.__bootState.error=window.__lastStartGameError;
+    console.error(`startGame error (${reason}):`,err);
+    _showBootError(t("game.bootError"));
+    return false;
+  }
+}
 function onAllLoaded(){
-  document.getElementById("loadingScreen").style.display="none";
-  startGame();
+  _hideLoadingScreen();
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{safeStartGame("assets-ready")});
+  });
   _totalLoads=0;_loadedCount=0;
+}
+function _scheduleBootWatchdog(){
+  if(_bootWatchdogTimer)clearTimeout(_bootWatchdogTimer);
+  _bootWatchdogTimer=setTimeout(()=>{
+    if(gameRunning||gameOverPending)return;
+    window.__bootState={reason:"watchdog",hasPlayer:!!player,hasScene:!!scene,gameRunning,gameOverPending,allLoaded:_allLoaded};
+    if(!player||!scene){
+      _showBootError(t("game.bootError"));
+      return;
+    }
+    _hideLoadingScreen();
+    safeStartGame("watchdog");
+  },12000);
 }
 
 const lBar=document.getElementById("lBar");
@@ -177,8 +232,7 @@ const PLAYER_MODEL_SCALE=.018,PLAYER_MODEL_X_ROTATION=-Math.PI/2,PLAYER_MODEL_Y_
 
 const playerNormalColor=0x1689ff,playerDamageColor=0xff3333;
 
-const hudDesktop=document.getElementById("hudDesktop");
-const hudMobile=document.getElementById("hudMobile");
+const hudGame=document.getElementById("hudGame");
 const warning=document.getElementById("warning");
 const damageOverlay=document.getElementById("damageOverlay");
 const gameOverScreen=document.getElementById("gameOverScreen");
@@ -187,43 +241,54 @@ const startToast=document.getElementById("startToast");
 const finalScore=document.getElementById("finalScore");
 const finalTime=document.getElementById("finalTime");
 
-const RANKS=[
-  {name:"星尘新手",score:0,icon:"✨"},
-  {name:"翠晶探索者",score:60,icon:"💚"},
-  {name:"紫星旅人",score:140,icon:"💜"},
-  {name:"赤焰先锋",score:280,icon:"🔥"},
-  {name:"深蓝骑士",score:480,icon:"💎"},
-  {name:"橙金游侠",score:750,icon:"🟠"},
-  {name:"金色传说",score:1200,icon:"👑"},
-  {name:"永恒星王",score:2000,icon:"🏆"}
-];
-
-const ACHIEVEMENTS=[
-  {id:"firstCrystal",icon:"💎",name:"第一颗晶石",desc:"获得任意积分",check:s=>s.bestScore>=5},
-  {id:"score100",icon:"🌟",name:"翠晶突破",desc:"最高分达到60",check:s=>s.bestScore>=60},
-  {id:"score300",icon:"🚀",name:"星环冲刺",desc:"最高分达到750",check:s=>s.bestScore>=750},
-  {id:"score650",icon:"👑",name:"金色传说",desc:"最高分达到1200",check:s=>s.bestScore>=1200},
-  {id:"survive60",icon:"⏱️",name:"坚持一分钟",desc:"存活60秒",check:s=>s.bestTime>=60},
-  {id:"survive120",icon:"🛡️",name:"两分钟试炼",desc:"存活120秒",check:s=>s.bestTime>=120},
-  {id:"play5",icon:"🔥",name:"再来一局",desc:"累计游玩5局",check:s=>s.gamesPlayed>=5},
-  {id:"play15",icon:"⚡",name:"停不下来",desc:"累计游玩15局",check:s=>s.gamesPlayed>=15},
-  {id:"rankKing",icon:"🏆",name:"永恒星王",desc:"达到2000分",check:s=>s.bestScore>=2000}
-];
+function applyGameI18n(){
+  applyI18n(document,"game");
+  const gameOverLead=document.getElementById("gameOverLead");
+  if(gameOverLead&&!gameOverPending)gameOverLead.textContent=t("game.overLead");
+  const shopEntryBtn2=document.getElementById("shopEntryBtn2");
+  if(shopEntryBtn2)shopEntryBtn2.title=t("game.home");
+}
 
 init();
 
+function getRendererBufferSize(){
+  if(isMobileLayout())return {w:854,h:480};
+  return {w:1280,h:720};
+}
+function applyRendererSize(){
+  if(!renderer||!camera)return;
+  const {w,h}=getRendererBufferSize();
+  camera.aspect=window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w,h,false);
+  applyPerformanceLevel();
+  updatePlayerHeadUIScale();
+}
+function detectHandheldDevice(){
+  const ua=navigator.userAgent||"";
+  const platform=navigator.platform||"";
+  const maxTouchPoints=navigator.maxTouchPoints||0;
+  const hasCoarsePointer=window.matchMedia?window.matchMedia("(pointer: coarse)").matches:false;
+  const isMobileUA=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);
+  const isIPadOS=platform==="MacIntel"&&maxTouchPoints>1;
+  return isMobileUA||isIPadOS||(hasCoarsePointer&&maxTouchPoints>0&&Math.min(screen.width,screen.height)<=1024);
+}
+function updateLayoutCache(){
+  _isMobile=detectHandheldDevice();
+  document.body.classList.toggle("touch-device",_isMobile);
+}
 function isMobileLayout(){return _isMobile}
-function updateLayoutCache(){_isMobile=window.innerWidth<=768}
 
 function setHUDVisible(visible){
-  if(!visible){hudDesktop.style.display="none";hudMobile.style.display="none";return}
-  if(isMobileLayout()){hudDesktop.style.display="none";hudMobile.style.display="block"}else{hudDesktop.style.display="flex";hudMobile.style.display="none"}
+  if(!hudGame)return;
+  hudGame.style.display=visible?"flex":"none";
 }
 let _hudBinds={},_hudValues={};
 function setBind(name,value){if(!_hudBinds[name])_hudBinds[name]=document.querySelectorAll(`[data-bind="${name}"]`);if(_hudValues[name]===value)return;_hudValues[name]=value;_hudBinds[name].forEach(el=>el.textContent=value)}
 
 function init(){
   updateLayoutCache();
+  applyGameI18n();
   _loadStarted=Date.now();
   meta=loadMeta();
   bgmVolume=meta.bgmVolume||.5;
@@ -246,7 +311,7 @@ function init(){
   camera.lookAt(0,0,0);
 
   renderer=new THREE.WebGLRenderer({canvas:document.getElementById("game"),antialias:!_isMobile,powerPreference:_isMobile?"default":"high-performance"});
-  renderer.setSize(_isMobile?854:1280,_isMobile?480:720,false);
+  applyRendererSize();
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure=_isMobile?1.08:1.02;
@@ -266,18 +331,16 @@ function init(){
   window.addEventListener("orientationchange",()=>setTimeout(forceLandscape,300));
 
   const restartBtn=document.getElementById("restartBtn");
-  const restartGameBtn=document.getElementById("restartGameBtn");
   const shopEntryBtn2=document.getElementById("shopEntryBtn2");
   if(restartBtn)restartBtn.onclick=startGame;
-  if(restartGameBtn)restartGameBtn.onclick=startGame;
-
   if(shopEntryBtn2){
-    shopEntryBtn2.onclick=()=>{location.href="home.html"};
-    shopEntryBtn2.title="返回主页";
+    shopEntryBtn2.onclick=returnToHome;
+    shopEntryBtn2.title=t("game.home");
   }
 
   forceLandscape();
   animate();
+  _scheduleBootWatchdog();
 }
 
 function _loadAllAssets(){
@@ -391,16 +454,6 @@ function loadMeta(){
 }
 function saveMeta(){meta=normalizeMeta(meta);localStorage.setItem("starCrystalSurvivalMeta",JSON.stringify(meta))}
 
-const SHOP_ITEMS=[
-  {id:"speed5",icon:"⚡",name:"加速果实(5秒)",desc:"开局5秒加速",price:500,type:"speed",duration:5},
-  {id:"invincible5",icon:"🛡️",name:"无敌果实(5秒)",desc:"开局5秒无敌",price:1000,type:"invincible",duration:5},
-  {id:"speed8",icon:"⚡⚡",name:"加速果实(8秒)",desc:"开局8秒加速",price:2000,type:"speed",duration:8},
-  {id:"invincible8",icon:"🛡️🛡️",name:"无敌果实(8秒)",desc:"开局8秒无敌",price:2000,type:"invincible",duration:8},
-  {id:"both5",icon:"💥",name:"无敌加速(5秒)",desc:"开局5秒无敌+加速",price:4500,type:"both",duration:5},
-  {id:"both8",icon:"💥💥",name:"无敌加速(8秒)",desc:"开局8秒无敌+加速",price:7500,type:"both",duration:8},
-  {id:"both12",icon:"🔥",name:"无敌加速(12秒)",desc:"开局12秒无敌+加速",price:12000,type:"both",duration:12},
-];
-
 function applyPurchasedBuffs(){
   if(meta.purchasedItemId===null)return;
   const pid=meta.purchasedItemId;
@@ -479,51 +532,6 @@ function evaluateAchievements(){
   }
 }
 
-function renderAchievementPanel(id,isGameover=false,newList=[]){
-  const el=document.getElementById(id);
-  if(!el)return;
-  el.classList.toggle("is-gameover",!!isGameover);
-
-  const rank=getRankInfo(meta.bestScore);
-  const next=rank.next;
-  const progress=next?THREE.MathUtils.clamp((meta.bestScore-rank.current.score)/(next.score-rank.current.score),0,1):1;
-  const unlockedCount=ACHIEVEMENTS.filter(a=>meta.achievements[a.id]).length;
-
-  const achHtml=ACHIEVEMENTS.map(a=>{
-    const on=!!meta.achievements[a.id];
-    return `<div class="achievement ${on?"unlocked":"locked"}">
-      <span class="achievement-state">${on?"已解锁":"待解锁"}</span>
-      <span class="icon">${on?a.icon:"🔒"}</span>
-      <b>${a.name}</b><span>${a.desc}</span>
-    </div>`;
-  }).join("");
-
-  const newHtml=newList.length?`<div class="new-achievement">🎉 新成就解锁：${newList.map(a=>a.icon+" "+a.name).join("、")}</div>`:"";
-  const progressText=next?`距离下一段位「${next.icon} ${next.name}」还差 ${Math.max(0,next.score-meta.bestScore)} 分`:"已达到最高段位，挑战更高纪录！";
-  const noteText=isGameover?"本局结束后已同步刷新历史最佳记录与成就进度。":"成就会跨局累计保存，每次挑战都有机会解锁新的徽章。";
-  const progressLabel=`段位进度 ${Math.round(progress*100)}%`;
-
-  el.innerHTML=`
-    <div class="rank-row">
-      <span class="rank-badge">${rank.current.icon} ${rank.current.name}</span>
-      <span class="rank-stat">最高分 ${meta.bestScore}</span>
-      <span class="rank-stat">最长存活 ${meta.bestTime.toFixed(1)}s</span>
-      <span class="rank-stat">游玩 ${meta.gamesPlayed} 局</span>
-    </div>
-    <div class="progress-shell">
-      <div class="progress-meta">
-        <span class="progress-pill">${progressLabel}</span>
-        <span class="progress-pill">已解锁 ${unlockedCount}/${ACHIEVEMENTS.length}</span>
-      </div>
-      <div class="progress-wrap"><div class="progress-bar" style="width:${progress*100}%"></div></div>
-      <p class="progress-caption">${progressText}</p>
-      <p class="progress-note">${noteText}</p>
-    </div>
-    ${newHtml}
-    <div class="achievements">${achHtml}</div>
-  `;
-}
-
 function forceLandscape(){
   if(!isMobileLayout())return;
   try{
@@ -548,9 +556,9 @@ function setPlayerStatusText(type,duration){
   ctx.textAlign="center";ctx.textBaseline="middle";
   ctx.font="900 460px Orbitron, Exo 2, Microsoft YaHei, Arial";
   let text="";
-  if(type==="speed")text="正在加速";
-  else if(type==="invincible")text="正处于无敌中";
-  else if(type==="heal")text=`已经加血${HEAL_AMOUNT}值`;
+  if(type==="speed")text=t("status.speed");
+  else if(type==="invincible")text=t("status.invincible");
+  else if(type==="heal")text=t("status.heal",{n:HEAL_AMOUNT});
   ctx.fillStyle="#ffffff";
   ctx.fillText(text,playerStatusCanvas.width/2,playerStatusCanvas.height/2);
   ctx.restore();
@@ -564,9 +572,9 @@ function refreshPlayerStatusText(){
   const hasInvincible=invincibleTimer>0;
   const hasSpeed=speedBuffTimer>0;
   let type="",text="",duration=0;
-  if(hasInvincible&&hasSpeed){type="invincibleSpeed";text="正在无敌加速中";duration=Math.max(invincibleTimer,speedBuffTimer)}
-  else if(hasInvincible){type="invincible";text="正处于无敌中";duration=invincibleTimer}
-  else if(hasSpeed){type="speed";text="正在加速";duration=speedBuffTimer}
+  if(hasInvincible&&hasSpeed){type="invincibleSpeed";text=t("status.invSpeed");duration=Math.max(invincibleTimer,speedBuffTimer)}
+  else if(hasInvincible){type="invincible";text=t("status.invincible");duration=invincibleTimer}
+  else if(hasSpeed){type="speed";text=t("status.speed");duration=speedBuffTimer}
   else{
     if(!playerStatusType||playerStatusType==="heal")return;
     playerStatusType="";playerStatusTimer=.3;return;
@@ -966,25 +974,12 @@ function createPlayerHeadUI(){
   playerHeadUISprite.position.set(0,4.8,0);
   playerHeadUISprite.scale.set(isMobileLayout()?3.8:3.4,isMobileLayout()?3.6:3.2,1);
   player.add(playerHeadUISprite);
-  playerHeadScoreCanvas=document.createElement("canvas");
-  playerHeadScoreCanvas.width=1536;playerHeadScoreCanvas.height=512;
-  playerHeadScoreContext=playerHeadScoreCanvas.getContext("2d");
-  playerHeadScoreTexture=new THREE.CanvasTexture(playerHeadScoreCanvas);
-  playerHeadScoreTexture.colorSpace=THREE.SRGBColorSpace;
-  playerHeadScoreTexture.minFilter=THREE.LinearMipmapLinearFilter;
-  playerHeadScoreTexture.magFilter=THREE.LinearFilter;
-  playerHeadScoreTexture.needsUpdate=true;
-  const scoreMaterial=new THREE.SpriteMaterial({map:playerHeadScoreTexture,transparent:true,opacity:1,depthWrite:false,depthTest:false});
-  playerHeadScoreSprite=new THREE.Sprite(scoreMaterial);
-  playerHeadScoreSprite.position.set(0,5.0,0);
   updatePlayerHeadUIScale();
-  player.add(playerHeadScoreSprite);
   updatePlayerHeadUI(true);
 }
 
 function updatePlayerHeadUIScale(){
   if(playerHeadUISprite)playerHeadUISprite.scale.set(isMobileLayout()?3.8:3.4,isMobileLayout()?3.6:3.2,1);
-  if(playerHeadScoreSprite)playerHeadScoreSprite.scale.set(isMobileLayout()?151.2:133.2,isMobileLayout()?56.7:51.3,1);
   if(playerStatusSprite){playerStatusSprite.scale.set(isMobileLayout()?246:216,isMobileLayout()?123:108,1);playerStatusSprite.position.set(0,isMobileLayout()?6.0:5.0,0)}
 }
 
@@ -993,45 +988,26 @@ function drawRoundRect(ctx,x,y,w,h,r){
 }
 
 function updatePlayerHeadUI(force=false){
-  if(!playerHeadUISprite||!playerHeadUIContext||!playerHeadUITexture||!playerHeadScoreSprite||!playerHeadScoreContext||!playerHeadScoreTexture)return;
+  if(!playerHeadUISprite||!playerHeadUIContext||!playerHeadUITexture)return;
   const safeHp=Math.max(0,hp);
-  if(!force&&lastHeadUIScore===score&&lastHeadUIHp===safeHp)return;
-  if(force||lastHeadUIHp!==safeHp){
-    const ctx=playerHeadUIContext;
-    ctx.clearRect(0,0,playerHeadUICanvas.width,playerHeadUICanvas.height);
-    ctx.save();
-    const barX=76,barY=180,barW=360,barH=44,hpRatio=THREE.MathUtils.clamp(safeHp/maxHp,0,1);
-    drawRoundRect(ctx,barX,barY,barW,barH,22);
-    ctx.fillStyle="rgba(0,0,0,.5)";ctx.fill();
-    ctx.lineWidth=2;ctx.strokeStyle="rgba(0,240,255,.2)";
-    drawRoundRect(ctx,barX,barY,barW,barH,22);ctx.stroke();
-    const grad=ctx.createLinearGradient(barX,barY,barX+barW,barY);
-    if(hpRatio>.55){grad.addColorStop(0,"#39ff14");grad.addColorStop(1,"#00c853")}
-    else if(hpRatio>.25){grad.addColorStop(0,"#ffd700");grad.addColorStop(1,"#ff8c00")}
-    else{grad.addColorStop(0,"#ff1744");grad.addColorStop(1,"#b71c1c")}
-    drawRoundRect(ctx,barX,barY,barW*hpRatio,barH,22);
-    ctx.fillStyle=grad;ctx.fill();
-    ctx.restore();
-    playerHeadUITexture.needsUpdate=true;
-    lastHeadUIHp=safeHp;
-  }
-  if(force||lastHeadUIScore!==score){
-    const ctx=playerHeadScoreContext,w=playerHeadScoreCanvas.width,text=String(score);
-    ctx.clearRect(0,0,playerHeadScoreCanvas.width,playerHeadScoreCanvas.height);
-    ctx.save();
-    ctx.textAlign="center";ctx.textBaseline="middle";
-    let fontSize=440;
-    do{
-      ctx.font=`900 ${fontSize}px Orbitron, Exo 2, Microsoft YaHei, Arial`;
-      fontSize-=12;
-    }while(ctx.measureText(text).width>w-64&&fontSize>224);
-    const scoreGrad=ctx.createLinearGradient(w/2-380,0,w/2+380,0);
-    scoreGrad.addColorStop(0,"#00f0ff");scoreGrad.addColorStop(.48,"#ffffff");scoreGrad.addColorStop(1,"#b44dff");
-    ctx.fillStyle=scoreGrad;ctx.fillText(text,w/2,350);
-    ctx.restore();
-    playerHeadScoreTexture.needsUpdate=true;
-    lastHeadUIScore=score;
-  }
+  if(!force&&lastHeadUIHp===safeHp)return;
+  const ctx=playerHeadUIContext;
+  ctx.clearRect(0,0,playerHeadUICanvas.width,playerHeadUICanvas.height);
+  ctx.save();
+  const barX=76,barY=180,barW=360,barH=44,hpRatio=THREE.MathUtils.clamp(safeHp/maxHp,0,1);
+  drawRoundRect(ctx,barX,barY,barW,barH,22);
+  ctx.fillStyle="rgba(0,0,0,.5)";ctx.fill();
+  ctx.lineWidth=2;ctx.strokeStyle="rgba(0,240,255,.2)";
+  drawRoundRect(ctx,barX,barY,barW,barH,22);ctx.stroke();
+  const grad=ctx.createLinearGradient(barX,barY,barX+barW,barY);
+  if(hpRatio>.55){grad.addColorStop(0,"#39ff14");grad.addColorStop(1,"#00c853")}
+  else if(hpRatio>.25){grad.addColorStop(0,"#ffd700");grad.addColorStop(1,"#ff8c00")}
+  else{grad.addColorStop(0,"#ff1744");grad.addColorStop(1,"#b71c1c")}
+  drawRoundRect(ctx,barX,barY,barW*hpRatio,barH,22);
+  ctx.fillStyle=grad;ctx.fill();
+  ctx.restore();
+  playerHeadUITexture.needsUpdate=true;
+  lastHeadUIHp=safeHp;
 }
 
 function createTextSprite(text,color){
@@ -1496,10 +1472,10 @@ function spawnPlayerSideEffect(type){
   if(!player)return;
   const group=new THREE.Group();
   const isHeal=type==="heal",isInvincible=type==="invincible",isShield=type==="shield",isSpeed=type==="speed";
-  let mainColor=0x6ffcff,secondColor=0xE59F3E,text="加速!",textColor="#6ffcff";
+  let mainColor=0x6ffcff,secondColor=0xE59F3E,text=t("popup.speed"),textColor="#6ffcff";
   if(isHeal){mainColor=0x66ff8a;secondColor=0xffffff;text=`+${HEAL_AMOUNT} HP`;textColor="#74ff9b"}
-  if(isInvincible){mainColor=0xfff36a;secondColor=0x8effff;text="无敌!";textColor="#fff36a"}
-  if(isShield){mainColor=0xff66ff;secondColor=0x66ffff;text="免伤!";textColor="#ff9cff"}
+  if(isInvincible){mainColor=0xfff36a;secondColor=0x8effff;text=t("popup.inv");textColor="#fff36a"}
+  if(isShield){mainColor=0xff66ff;secondColor=0x66ffff;text=t("popup.shield");textColor="#ff9cff"}
 
   let ring=null;
   if(!isSpeed){
@@ -1813,31 +1789,47 @@ function clearPlayerActions(){
 
 function startGame(){
   forceLandscape();
+  resetPauseUI();
+  releaseJoystickInput();
+  _navigatingHome=false;
+  document.body.classList.remove("is-game-over");
+  const gameCanvas=document.getElementById("game");
+  if(gameCanvas)gameCanvas.style.pointerEvents="";
+
+  gameRunning=true;
+  gameOverPending=false;
+  playerIsDead=false;
+
+  if(gameOverScreen){
+    gameOverScreen.style.display="none";
+    gameOverScreen.style.pointerEvents="";
+  }
+  setHUDVisible(true);
 
   unlockAudio();
   playSfx("start");
   startBGM();
   runUsesDebugCheats=false;
 
-  gameRunning=true;
-  gameOverPending=false;
-  playerIsDead=false;
   loadPlayerAnimationsLazy();
   loadBossModel();
-  document.getElementById("scanlines").style.display=isMobileLayout()?"none":"block";
-  document.getElementById("pauseBtn").style.display="flex";
-  document.getElementById("restartGameBtn").style.display="flex";
+  const scanlinesEl=document.getElementById("scanlines");
+  if(scanlinesEl)scanlinesEl.style.display=isMobileLayout()?"none":"block";
+  const pauseBtnEl=document.getElementById("pauseBtn");
+  if(pauseBtnEl)pauseBtnEl.style.display="flex";
+  const joystickEl=document.getElementById("joystick");
+  if(joystickEl)joystickEl.style.display="";
   const gameOverLead=document.getElementById("gameOverLead");
-  if(gameOverLead)gameOverLead.textContent="本次阿尔法星探索结束，继续挑战更高积分与更长生存时间。";
+  if(gameOverLead)gameOverLead.textContent=t("game.overLead");
 
-  if(gameOverScreen)gameOverScreen.style.display="none";
-  setHUDVisible(true);
-  tip.style.display="none";
+  if(tip)tip.style.display="none";
 
-  startToast.style.animation="none";
-  void startToast.offsetWidth;
-  startToast.style.display="block";
-  startToast.style.animation="toastFade 4.5s forwards";
+  if(startToast){
+    startToast.style.animation="none";
+    void startToast.offsetWidth;
+    startToast.style.display="block";
+    startToast.style.animation="toastFade 4.5s forwards";
+  }
 
   score=0;hp=maxHp;aliveTime=0;mysteryHealAvailable=false;mysterySlowTimer=0;speedBuffTimer=0;speedStackLevel=0;speedTextureActive=false;speedEndTransitionTimer=0;applyPlayerSpeedTexture(false);invincibleTimer=0;invincibleVisualActive=false;invincibleTextureActive=false;invincibleEndTransitionTimer=0;damageFlashTimer=0;lowHpWarningTimer=0;playerHitAnimTimer=0;knockbackVelocity.set(0,0,0);
   removeInvincibleAura();
@@ -1890,6 +1882,8 @@ function startGame(){
   updateHUD();
   clock.getDelta();
   accumulator=0;
+  fpsFrameCount=0;
+  fpsLastTime=performance.now();
 }
 
 function clearObjects(arr,dispose=false){
@@ -1905,16 +1899,17 @@ function clearObjects(arr,dispose=false){
 function getTier(){
   if(_cachedTier&&_tierCacheScore===score&&_frameCount===_tierCacheFrame)return _cachedTier;
   let t;
-  if(score>=2000)t={crystalColor:0xffffff,crystalName:"星白色",crystalValue:80,enemyLevel:10,enemySpeed:5.5,enemyDamage:14};
-  else if(score>=1500)t={crystalColor:0xfff1a8,crystalName:"金色",crystalValue:60,enemyLevel:9,enemySpeed:5.2,enemyDamage:12};
-  else if(score>=1100)t={crystalColor:0xffd700,crystalName:"黄色",crystalValue:45,enemyLevel:8,enemySpeed:4.9,enemyDamage:11};
-  else if(score>=800)t={crystalColor:0xff8c00,crystalName:"橙色",crystalValue:30,enemyLevel:7,enemySpeed:4.5,enemyDamage:9};
-  else if(score>=550)t={crystalColor:0x001f8f,crystalName:"深蓝色",crystalValue:20,enemyLevel:6,enemySpeed:4.2,enemyDamage:7};
-  else if(score>=350)t={crystalColor:0xff3030,crystalName:"红色",crystalValue:14,enemyLevel:5,enemySpeed:3.9,enemyDamage:5};
-  else if(score>=200)t={crystalColor:0xb14cff,crystalName:"紫色",crystalValue:10,enemyLevel:4,enemySpeed:3.6,enemyDamage:3};
-  else if(score>=100)t={crystalColor:0x2ecc71,crystalName:"绿色",crystalValue:7,enemyLevel:3,enemySpeed:3.2,enemyDamage:3};
-  else if(score>=40)t={crystalColor:0x48a8ff,crystalName:"天蓝色",crystalValue:6,enemyLevel:2,enemySpeed:2.9,enemyDamage:3};
-  else t={crystalColor:0x87ceeb,crystalName:"浅蓝色",crystalValue:5,enemyLevel:1,enemySpeed:2.6,enemyDamage:3};
+  if(score>=2000)t={crystalColor:0xffffff,crystalTierKey:"starWhite",crystalValue:80,enemyLevel:10,enemySpeed:5.5,enemyDamage:14};
+  else if(score>=1500)t={crystalColor:0xfff1a8,crystalTierKey:"gold",crystalValue:60,enemyLevel:9,enemySpeed:5.2,enemyDamage:12};
+  else if(score>=1100)t={crystalColor:0xffd700,crystalTierKey:"yellow",crystalValue:45,enemyLevel:8,enemySpeed:4.9,enemyDamage:11};
+  else if(score>=800)t={crystalColor:0xff8c00,crystalTierKey:"orange",crystalValue:30,enemyLevel:7,enemySpeed:4.5,enemyDamage:9};
+  else if(score>=550)t={crystalColor:0x001f8f,crystalTierKey:"deepBlue",crystalValue:20,enemyLevel:6,enemySpeed:4.2,enemyDamage:7};
+  else if(score>=350)t={crystalColor:0xff3030,crystalTierKey:"red",crystalValue:14,enemyLevel:5,enemySpeed:3.9,enemyDamage:5};
+  else if(score>=200)t={crystalColor:0xb14cff,crystalTierKey:"purple",crystalValue:10,enemyLevel:4,enemySpeed:3.6,enemyDamage:3};
+  else if(score>=100)t={crystalColor:0x2ecc71,crystalTierKey:"green",crystalValue:7,enemyLevel:3,enemySpeed:3.2,enemyDamage:3};
+  else if(score>=40)t={crystalColor:0x48a8ff,crystalTierKey:"skyBlue",crystalValue:6,enemyLevel:2,enemySpeed:2.9,enemyDamage:3};
+  else t={crystalColor:0x87ceeb,crystalTierKey:"lightBlue",crystalValue:5,enemyLevel:1,enemySpeed:2.6,enemyDamage:3};
+  t.crystalName=getCrystalTierKey(t.crystalTierKey);
   _cachedTier=t;_tierCacheScore=score;_tierCacheFrame=_frameCount;
   return t;
 }
@@ -2302,13 +2297,50 @@ function updateFog(){
   scene.fog.density=(isMobileLayout()? .0006:.001)*(.45+.55*heightFactor);
 }
 
+function resetPauseUI(){
+  isPaused=false;
+  const btn=document.getElementById("pauseBtn");
+  if(btn)btn.classList.remove("is-paused");
+  const overlay=document.getElementById("debugOverlay");
+  if(DEBUG_ENABLED&&overlay){
+    overlay.classList.remove("active");
+    exitDebugCameraMode();
+    clearDebugHighlight();
+    updateDebugInfoPanel(null);
+  }
+  const pauseMenu=document.getElementById("pauseMenu");
+  if(pauseMenu){
+    pauseMenu.style.display="none";
+    pauseMenu.setAttribute("aria-hidden","true");
+  }
+}
+
+function returnToHome(){
+  if(_navigatingHome)return;
+  _navigatingHome=true;
+  releaseJoystickInput();
+  resetPauseUI();
+  gameRunning=false;
+  moveInput.set(0,0);
+  stopBGM();
+  try{
+    if(document.fullscreenElement)document.exitFullscreen();
+  }catch(e){}
+  location.href="home.html";
+}
+
 function togglePause(){
   if(!gameRunning)return;
   isPaused=!isPaused;
   const btn=document.getElementById("pauseBtn");
   const overlay=document.getElementById("debugOverlay");
+  const pauseMenu=document.getElementById("pauseMenu");
   if(isPaused){
     btn.classList.add("is-paused");
+    if(pauseMenu){
+      pauseMenu.style.display="flex";
+      pauseMenu.setAttribute("aria-hidden","false");
+    }
     if(DEBUG_ENABLED&&overlay){
       overlay.classList.add("active");
       enterDebugCameraMode();
@@ -2316,6 +2348,10 @@ function togglePause(){
     pauseBGM();
   }else{
     btn.classList.remove("is-paused");
+    if(pauseMenu){
+      pauseMenu.style.display="none";
+      pauseMenu.setAttribute("aria-hidden","true");
+    }
     if(DEBUG_ENABLED&&overlay){
       overlay.classList.remove("active");
       exitDebugCameraMode();
@@ -2386,6 +2422,10 @@ function updateDebugCamera(dt){
 let mouseDX=0,mouseDY=0;
 function setupDebugInput(){
   document.getElementById("pauseBtn").addEventListener("click",togglePause);
+  const pauseResumeBtn=document.getElementById("pauseResumeBtn");
+  const pauseHomeBtn=document.getElementById("pauseHomeBtn");
+  if(pauseResumeBtn)pauseResumeBtn.addEventListener("click",()=>{if(isPaused)togglePause()});
+  if(pauseHomeBtn)pauseHomeBtn.addEventListener("click",returnToHome);
   if(!DEBUG_ENABLED)return;
   const canvas=document.getElementById("game");
   canvas.addEventListener("contextmenu",e=>{if(debugCameraMode&&isPaused)e.preventDefault()});
@@ -2746,36 +2786,55 @@ function updateDebugTooltip(){
 
 function animate(){
   requestAnimationFrame(animate);
-  _frameCount++;
-  let frameTime=clock.getDelta();
-  if(frameTime>MAX_FRAME_TIME)frameTime=MAX_FRAME_TIME;
-  fpsFrameCount++;
-  fpsAccumTime+=frameTime;
-  if(fpsAccumTime>=.5){
-    fps=Math.round(fpsFrameCount/fpsAccumTime);
-    fpsFrameCount=0;
-    fpsAccumTime=0;
-  }
-  if(skyboxMesh&&camera)skyboxMesh.position.copy(camera.position);
-  updateFog();
-  if(isPaused){
-    updateDebugCamera(frameTime);
-    renderer.render(scene,camera);
-    return;
-  }
-  processEnemySpawnQueue();
-  updatePerformance(frameTime);
-  if(gameRunning){
-    accumulator+=frameTime;
-    while(accumulator>=FIXED_DT){
-      update(FIXED_DT);
-      updatePlayerStatusText(FIXED_DT);
-      accumulator-=FIXED_DT;
+  try{
+    _frameCount++;
+    const rawFrameTime=clock.getDelta();
+    let frameTime=rawFrameTime;
+    if(frameTime>MAX_FRAME_TIME)frameTime=MAX_FRAME_TIME;
+    fpsFrameCount++;
+    const fpsNow=performance.now();
+    const fpsElapsed=fpsNow-fpsLastTime;
+    if(fpsElapsed>=500){
+      fps=Math.round(fpsFrameCount*1000/fpsElapsed);
+      fpsFrameCount=0;
+      fpsLastTime=fpsNow;
     }
-    updateCamera(FIXED_DT);
-  }else if(playerMixer)playerMixer.update(frameTime);
-  applyFrustumCulling();
-  renderer.render(scene,camera);
+    if(skyboxMesh&&camera)skyboxMesh.position.copy(camera.position);
+    updateFog();
+    if(isPaused){
+      updateDebugCamera(frameTime);
+      renderer.render(scene,camera);
+      updateHUD();
+      return;
+    }
+    if(gameOverPending){
+      if(playerMixer)playerMixer.update(frameTime);
+      renderer.render(scene,camera);
+      return;
+    }
+    processEnemySpawnQueue();
+    updatePerformance(Math.min(rawFrameTime,.05));
+    if(gameRunning&&!gameOverPending){
+      accumulator+=frameTime;
+      let physicsSteps=0;
+      const maxSteps=gameOverPending?0:8;
+      while(accumulator>=FIXED_DT&&physicsSteps<maxSteps){
+        update(FIXED_DT);
+        if(gameOverPending)break;
+        updatePlayerStatusText(FIXED_DT);
+        accumulator-=FIXED_DT;
+        physicsSteps++;
+        if(!gameRunning||gameOverPending)break;
+      }
+      if(gameOverPending)accumulator=0;
+      updateCamera(FIXED_DT);
+    }else if(playerMixer)playerMixer.update(frameTime);
+    applyFrustumCulling();
+    renderer.render(scene,camera);
+    updateHUD();
+  }catch(err){
+    console.error("animate error:",err);
+  }
 }
 
 function updatePerformance(dt){
@@ -2808,6 +2867,7 @@ function applyPerformanceLevel(){
 }
 
 function update(dt){
+  if(gameOverPending)return;
   aliveTime+=dt;
   if(speedBuffTimer>0){speedBuffTimer-=dt;if(speedBuffTimer<=0){speedBuffTimer=0;speedStackLevel=0;if(speedTextureActive){speedEndTransitionTimer=.5}}}
   if(mysterySlowTimer>0){mysterySlowTimer-=dt;if(mysterySlowTimer<=0)mysterySlowTimer=0}
@@ -2828,14 +2888,14 @@ function update(dt){
   updatePlayerAnimation(dt);
   updateCrystals(dt);
   updateEnemies(dt);
+  if(gameOverPending)return;
   applyAuraKillToEnemies();
+  if(gameOverPending)return;
   updateFruits(dt);
   updateSpawns(dt);
-  updateHUD();
   refreshPlayerStatusText();
   // Mystery heal: auto-heal when HP < 20%
   if(mysteryHealAvailable&&hp>0&&hp<maxHp*0.2){hp=maxHp;mysteryHealAvailable=false;setPlayerStatusText("heal",2.0)}
-  if(hp<=0&&!gameOverPending)endGame();
 }
 
 function updatePlayer(dt){
@@ -3163,6 +3223,7 @@ function applyPlayerDamage(damage,enemyPosition){
   if(_v3h.lengthSq()<.001)_v3h.set(Math.random()-.5,0,Math.random()-.5);
   _v3h.normalize();
   knockbackVelocity.copy(_v3h.multiplyScalar(13.5));
+  if(hp<=0){endGame();return;}
 }
 
 function updateFruits(dt){
@@ -3224,88 +3285,83 @@ function updateSpawns(dt){
 }
 
 function updateHUD(){
-  const t=getTier();
   setBind("score",score);
-  setBind("hp",Math.max(0,hp));
   setBind("time",aliveTime.toFixed(1));
-  setBind("crystal",`${t.crystalName} +${t.crystalValue}`);
-  setBind("enemyLevel",t.enemyLevel);
-  setBind("enemyCount",enemies.length);
-  setBind("purpleCount",_purpleCount);
-  setBind("ghostBossCount",_ghostBossCount);
-  setBind("speedBuff",Math.max(0,speedBuffTimer).toFixed(1));
-  setBind("invincibleBuff",Math.max(0,invincibleTimer).toFixed(1));
   setBind("fps",fps);
-  const invincibleNext=Math.max(0,Math.ceil(nextInvincibleFruitSpawnTime-invincibleFruitSpawnTimer));
-  if(aliveTime<5)setBind("fruitInfo",`5秒后加速果实 / 无敌${invincibleNext}s`);
-  else if(aliveTime<45)setBind("fruitInfo",`加速果实 / 无敌${invincibleNext}s`);
-  else if(aliveTime<60)setBind("fruitInfo",`加速+加血 / 无敌${invincibleNext}s`);
-  else if(aliveTime<120)setBind("fruitInfo",`果实加快 / 无敌${invincibleNext}s`);
-  else setBind("fruitInfo",`MAX刷新 / 无敌${invincibleNext}s`);
 }
 
 function endGame(){
   if(gameOverPending)return;
   gameOverPending=true;
   gameRunning=false;
-  if(isPaused){
-    isPaused=false;
-    const btn=document.getElementById("pauseBtn");
-    const overlay=document.getElementById("debugOverlay");
-    btn.classList.remove("is-paused");
-    if(DEBUG_ENABLED&&overlay){
-      overlay.classList.remove("active");
-      exitDebugCameraMode();
-      clearDebugHighlight();
-      updateDebugInfoPanel(null);
-    }
-  }
-  document.getElementById("pauseBtn").style.display="none";
-  document.getElementById("restartGameBtn").style.display="none";
-  document.getElementById("scanlines").style.display="none";
-
-  stopBGM();
-  playSfx("gameover");
-
-  removeInvincibleAura();
-
-  if(!runUsesDebugCheats){
-    meta.gamesPlayed++;
-    meta.bestScore=Math.max(meta.bestScore,score);
-    meta.bestTime=Math.max(meta.bestTime,aliveTime);
-    meta.totalPoints=(meta.totalPoints||0)+score;
-    evaluateAchievements();
-    saveMeta();
-  }else{
-    newlyUnlockedAchievements=[];
-  }
-
   playerIsDead=true;
-  knockbackVelocity.set(0,0,0);
-  moveInput.set(0,0);
-  invincibleTimer=0;
-  invincibleVisualActive=false;
-  clearPlatformAirParticles();
-  clearSandstorms();
-  clearEnemyDeathExplosions();
-  enemySpawnQueue.length=0;
-  restorePlayerTint();
-  if(playerStatusSprite){playerStatusSprite.visible=false}playerStatusTimer=0;playerStatusType="";
+  accumulator=0;
+  document.body.classList.add("is-game-over");
+  const gameCanvas=document.getElementById("game");
+  if(gameCanvas)gameCanvas.style.pointerEvents="none";
 
-  clearPlayerActions();
-  playPlayerAnim("idle",.15,true);
+  releaseJoystickInput();
+  resetPauseUI();
+  const pauseBtn=document.getElementById("pauseBtn");
+  if(pauseBtn)pauseBtn.style.display="none";
+  const scanlinesEl=document.getElementById("scanlines");
+  if(scanlinesEl)scanlinesEl.style.display="none";
+  const joystickEl=document.getElementById("joystick");
+  if(joystickEl)joystickEl.style.display="none";
 
   setHUDVisible(false);
   warning.style.display="none";
   damageOverlay.style.opacity=0;
+  if(startToast)startToast.style.display="none";
 
   finalScore.textContent=score;
   finalTime.textContent=aliveTime.toFixed(1);
   const gameOverLead=document.getElementById("gameOverLead");
-  if(gameOverLead)gameOverLead.textContent=runUsesDebugCheats?"本局使用了调试能力，成绩不会写入历史记录、成就与商店积分。":"本次阿尔法星探索结束，继续挑战更高积分与更长生存时间。";
-  renderAchievementPanel("gameoverAchievementPanel",true,newlyUnlockedAchievements);
+  if(gameOverLead)gameOverLead.textContent=t(runUsesDebugCheats?"game.overLeadDebug":"game.overLead");
+  if(gameOverScreen){
+    gameOverScreen.style.display="flex";
+    gameOverScreen.style.pointerEvents="auto";
+  }
 
-  setTimeout(()=>{if(gameOverPending&&gameOverScreen)gameOverScreen.style.display="flex"},550);
+  knockbackVelocity.set(0,0,0);
+  moveInput.set(0,0);
+  invincibleTimer=0;
+  invincibleVisualActive=false;
+  lowHpWarningTimer=0;
+
+  stopBGM();
+  playSfx("gameover");
+  removeInvincibleAura();
+
+  requestAnimationFrame(()=>{
+    try{
+      if(!runUsesDebugCheats){
+        meta.gamesPlayed++;
+        meta.bestScore=Math.max(meta.bestScore,score);
+        meta.bestTime=Math.max(meta.bestTime,aliveTime);
+        meta.totalPoints=(meta.totalPoints||0)+score;
+        evaluateAchievements();
+        saveMeta();
+      }else{
+        newlyUnlockedAchievements=[];
+      }
+      renderAchievementPanel("gameoverAchievementPanel",meta,{isGameover:true,newList:newlyUnlockedAchievements});
+    }catch(err){
+      console.error("endGame save/achievement error:",err);
+    }
+    try{
+      clearPlatformAirParticles();
+      clearSandstorms();
+      clearEnemyDeathExplosions();
+      enemySpawnQueue.length=0;
+      restorePlayerTint();
+      if(playerStatusSprite){playerStatusSprite.visible=false}playerStatusTimer=0;playerStatusType="";
+      clearPlayerActions();
+      playPlayerAnim("idle",.15,true);
+    }catch(err){
+      console.error("endGame cleanup error:",err);
+    }
+  });
 }
 
 function randomPosition(){
@@ -3411,23 +3467,44 @@ function setupControls(){
 function setupJoystick(){
   const joystick=document.getElementById("joystick");
   const stick=document.getElementById("stick");
-  let active=false,center={x:0,y:0},maxDist=42;
+  let active=false,activePointerId=null,center={x:0,y:0},maxDist=42;
+
+  function resetStick(){
+    const base=joystick.getBoundingClientRect(),stickSize=stick.offsetWidth;
+    stick.style.left=`${base.width/2-stickSize/2}px`;
+    stick.style.top=`${base.height/2-stickSize/2}px`;
+  }
+
+  function releaseCapture(){
+    active=false;
+    moveInput.set(0,0);
+    resetStick();
+    if(joystick&&activePointerId!==null){
+      try{joystick.releasePointerCapture(activePointerId)}catch(e){}
+      activePointerId=null;
+    }
+  }
+
+  _joystickRelease=releaseCapture;
 
   joystick.addEventListener("pointerdown",e=>{
-    if(isPaused)return;
+    if(isPaused||gameOverPending)return;
     active=true;
+    activePointerId=e.pointerId;
     unlockAudio();
     const rect=joystick.getBoundingClientRect();
     center.x=rect.left+rect.width/2;
     center.y=rect.top+rect.height/2;
     maxDist=rect.width*.35;
-    joystick.setPointerCapture(e.pointerId);
+    try{joystick.setPointerCapture(e.pointerId)}catch(err){}
     updateStick(e.clientX,e.clientY);
   });
 
-  joystick.addEventListener("pointermove",e=>{if(!isPaused&&active)updateStick(e.clientX,e.clientY)});
-  joystick.addEventListener("pointerup",()=>{active=false;moveInput.set(0,0);resetStick()});
-  joystick.addEventListener("pointercancel",()=>{active=false;moveInput.set(0,0);resetStick()});
+  joystick.addEventListener("pointermove",e=>{
+    if(!isPaused&&!gameOverPending&&active)updateStick(e.clientX,e.clientY);
+  });
+  joystick.addEventListener("pointerup",e=>{if(e.pointerId===activePointerId||activePointerId===null)releaseCapture()});
+  joystick.addEventListener("pointercancel",e=>{if(e.pointerId===activePointerId||activePointerId===null)releaseCapture()});
 
   function updateStick(x,y){
     let dx=x-center.x,dy=y-center.y;
@@ -3439,22 +3516,12 @@ function setupJoystick(){
     moveInput.set(dx/maxDist,dy/maxDist);
   }
 
-  function resetStick(){
-    const base=joystick.getBoundingClientRect(),stickSize=stick.offsetWidth;
-    stick.style.left=`${base.width/2-stickSize/2}px`;
-    stick.style.top=`${base.height/2-stickSize/2}px`;
-  }
-
   resetStick();
 }
 
 function onResize(){
   updateLayoutCache();
-  camera.aspect=window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(_isMobile?854:1280,_isMobile?480:720,false);
-  applyPerformanceLevel();
-  updatePlayerHeadUIScale();
+  applyRendererSize();
   if(gameRunning)setHUDVisible(true);
 }
 
@@ -3469,6 +3536,7 @@ function unlockAudio(){
   if(!audioCtx)return;
   if(audioCtx.state==="suspended")audioCtx.resume();
   audioUnlocked=true;
+  try{sessionStorage.setItem("starCrystalBgmUnlocked","1")}catch(e){}
   initBGM();
 }
 function playTone(freq,duration,type="sine",volume=.06,delay=0){
@@ -3528,15 +3596,17 @@ function playSfx(type){
   if(type==="gameover"){playTone(329.63,.18,"sine",.06,0);playTone(246.94,.22,"sine",.055,.18);playTone(164.81,.35,"sine",.05,.42)}
 }
 function initBGM(){
+  if(!bgmBattle){
+    bgmBattle=new Audio(BGM_BATTLE_URL);
+    bgmBattle.loop=true;
+    bgmBattle.volume=0;
+    bgmBattle.preload="auto";
+  }
   if(bgmMenu)return;
   bgmMenu=new Audio(BGM_MENU_URL);
   bgmMenu.loop=true;
   bgmMenu.volume=0;
-  bgmMenu.preload="auto";
-  bgmBattle=new Audio(BGM_BATTLE_URL);
-  bgmBattle.loop=true;
-  bgmBattle.volume=0;
-  bgmBattle.preload="auto";
+  bgmMenu.preload="metadata";
 }
 function playBGM(audio){
   if(!audio||bgmCurrent===audio)return;

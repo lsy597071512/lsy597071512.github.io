@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>星空水晶生存战 - 游戏预览</title>
-<meta name="description" content="在阿尔法星的赤色荒原上收集晶石、躲避怪物、刷新段位。3D 生存收集类浏览器游戏，支持 PC 与移动端。" />
+<meta name="description" content="在阿尔法星的赤色荒原上收集晶石、躲避怪物、刷新段位。3D 生存收集类浏览器游戏，支持 PC 与移动端，中英双语。" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
@@ -44,7 +44,6 @@ code {
   font-size: .92em;
 }
 
-/* ── Top bar ── */
 .topbar {
   position: fixed;
   top: 0;
@@ -98,7 +97,6 @@ code {
   font-weight: 800;
 }
 
-/* ── Hero ── */
 .hero {
   position: relative;
   min-height: 100vh;
@@ -300,7 +298,6 @@ code {
   font-weight: 900;
 }
 
-/* ── Sections ── */
 .section {
   padding: 64px 20px;
   max-width: 1100px;
@@ -320,10 +317,39 @@ code {
 
 .section-lead {
   margin: 0 auto 36px;
-  max-width: 620px;
+  max-width: 680px;
   text-align: center;
   color: var(--text-soft);
   line-height: 1.65;
+}
+
+.preview-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.preview-tab {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 228, 180, .28);
+  background: rgba(54, 22, 18, .45);
+  color: var(--text);
+  font-family: var(--font-d);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s, transform .15s;
+}
+
+.preview-tab:hover { transform: translateY(-1px); }
+
+.preview-tab.is-active {
+  color: #5a2208;
+  background: linear-gradient(180deg, #ffe08a 0%, #ffb84d 100%);
+  border-color: transparent;
 }
 
 .preview-layout {
@@ -340,7 +366,7 @@ code {
   border: 4px solid rgba(255, 228, 180, .28);
   box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
   background: #0a0e1a;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 10;
 }
 
 .preview-chrome {
@@ -368,9 +394,11 @@ code {
   width: 100%;
   height: calc(100% - 40px);
   border: none;
-  display: block;
+  display: none;
   background: #050816;
 }
+
+.preview-frame.is-active { display: block; }
 
 .preview-side {
   display: grid;
@@ -527,13 +555,15 @@ code {
   .hero-actions { flex-direction: column; }
 
   .btn { width: 100%; }
+
+  .preview-frame-wrap { aspect-ratio: 9 / 16; max-height: 72vh; }
 }
 </style>
 </head>
 <body>
 
 <header class="topbar">
-  <a href="../../index.html" class="topbar-brand">
+  <a href="index.html" class="topbar-brand">
     <span>🪐</span><span>星空水晶生存战</span>
   </a>
   <nav class="topbar-nav">
@@ -552,7 +582,7 @@ code {
       <h1>星空水晶生存战</h1>
       <p class="hero-sub">
         在阿尔法星的赤色荒原上收集晶石、躲避怪物、刷新段位，冲击更高纪录。
-        3D 生存收集玩法，支持 PC 键鼠与移动端虚拟摇杆。
+        3D 生存收集玩法，支持 PC 键鼠与移动端虚拟摇杆，默认英文界面，可在主页标题栏 ⚙ 切换中文。
       </p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="index.html">
@@ -568,6 +598,7 @@ code {
       <div class="hero-tags">
         <span class="tag">🎮 生存收集</span>
         <span class="tag">💎 晶石刷分</span>
+        <span class="tag">🌐 中英双语</span>
         <span class="tag">🛒 星际商店</span>
         <span class="tag">🏆 成就段位</span>
         <span class="tag">📱 移动端适配</span>
@@ -578,19 +609,19 @@ code {
       <ol class="flow-list">
         <li>
           <span class="flow-step">1</span>
-          <span>从 <strong>index.html</strong> 进入加载页，预载模型与音效资源。</span>
+          <span>从 <strong>index.html</strong> 进入加载页，预载模型、贴图与音效。</span>
         </li>
         <li>
           <span class="flow-step">2</span>
-          <span>进入主页：开始游戏、查看玩法说明，或用累计积分逛星际商店。</span>
+          <span>主页标题右侧 ⚙ 可切换中/英文；下方可开始游戏、查看玩法说明或逛星际商店。</span>
         </li>
         <li>
           <span class="flow-step">3</span>
-          <span>战斗中收集晶石、拾取状态果实，按 <strong>P / ESC</strong> 可暂停并返回主页。</span>
+          <span>战斗左上角 HUD 显示积分、存活时间与 FPS；左下角为虚拟摇杆（移动端）。</span>
         </li>
         <li>
           <span class="flow-step">4</span>
-          <span>局内 HUD 显示积分、存活时间与 FPS，挑战更高段位与成就。</span>
+          <span>按 <strong>P / ESC</strong> 暂停，可继续或返回主页；死亡后可重开或回主页。</span>
         </li>
       </ol>
     </aside>
@@ -600,39 +631,62 @@ code {
 <section class="section section-alt" id="preview">
   <h2 class="section-title">游戏预览</h2>
   <p class="section-lead">
-    下方嵌入主页菜单，可直接浏览界面与成就面板。点击「开始游戏」将进入完整 3D 战斗（需通过本地 HTTP 服务访问）。
+    下方嵌入真实页面，可直接浏览 UI。完整 3D 战斗需通过本地 HTTP 服务访问（勿用 <code>file://</code> 打开）。
   </p>
+
+  <div class="preview-tabs" role="tablist" aria-label="预览切换">
+    <button class="preview-tab is-active" type="button" data-target="home" role="tab" aria-selected="true">主页菜单</button>
+    <button class="preview-tab" type="button" data-target="guide" role="tab" aria-selected="false">玩法说明</button>
+    <button class="preview-tab" type="button" data-target="game" role="tab" aria-selected="false">战斗场景</button>
+  </div>
+
   <div class="preview-layout">
     <div class="preview-frame-wrap">
       <div class="preview-chrome">
         <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-        <span>home.html — 主页菜单预览</span>
+        <span id="previewChromeLabel">home.html — 主页菜单预览</span>
       </div>
       <iframe
-        class="preview-frame"
+        id="previewHome"
+        class="preview-frame is-active"
         src="home.html"
         title="星空水晶生存战 - 主页预览"
         loading="lazy"
         sandbox="allow-scripts allow-same-origin allow-forms"
       ></iframe>
+      <iframe
+        id="previewGuide"
+        class="preview-frame"
+        src="guide.html"
+        title="星空水晶生存战 - 玩法说明预览"
+        loading="lazy"
+        sandbox="allow-scripts allow-same-origin allow-forms"
+      ></iframe>
+      <iframe
+        id="previewGame"
+        class="preview-frame"
+        data-src="game.html"
+        title="星空水晶生存战 - 战斗场景预览"
+        sandbox="allow-scripts allow-same-origin allow-forms"
+      ></iframe>
     </div>
     <div class="preview-side">
       <div class="side-card">
-        <h3>🕹️ 主页功能</h3>
+        <h3>🏠 主页菜单</h3>
         <ul>
-          <li>玩法说明：积分规则与怪物介绍</li>
-          <li>开始游戏：进入 3D 生存战</li>
-          <li>星际商店：用累计积分购买开局 Buff</li>
+          <li>标题栏右侧 ⚙ 设置：中/英文切换</li>
+          <li>玩法说明 / 开始游戏 / 星际商店</li>
           <li>成就面板：段位与跨局成就进度</li>
+          <li>触摸设备上按钮纵向全宽排列</li>
         </ul>
       </div>
       <div class="side-card">
-        <h3>⏸️ 局内体验</h3>
-        <p>左上角 HUD 显示积分、存活时间与 FPS。暂停菜单支持继续游戏或返回主页，不会把未完成的局计入纪录。</p>
+        <h3>🎯 局内 HUD</h3>
+        <p>左上角横向三栏：积分、存活时间、FPS。角色头顶保留 HP 血条；暂停菜单支持继续或返回主页（未完成局不计入成绩）。</p>
       </div>
       <div class="side-card">
-        <h3>🔊 音频</h3>
-        <p>主页与战斗各有独立 BGM。首次进入若浏览器拦截自动播放，点击页面任意位置即可解锁音效。</p>
+        <h3>🔊 音频提示</h3>
+        <p>主页与战斗各有独立 BGM。若浏览器拦截自动播放，点击页面任意位置即可解锁音效。</p>
       </div>
     </div>
   </div>
@@ -658,6 +712,11 @@ code {
       <p>加速、回血、无敌果实随机刷新，叠加时可获得最高 2 倍得分加成。</p>
     </article>
     <article class="feature-card">
+      <div class="icon">🌐</div>
+      <h3>中英双语</h3>
+      <p>默认 English，主页 ⚙ 一键切换中文；菜单、HUD、商店、成就与结算页全面本地化。</p>
+    </article>
+    <article class="feature-card">
       <div class="icon">🛒</div>
       <h3>星际商店</h3>
       <p>用累计积分购买开局 Buff，含惊喜箱随机效果；每局限购一次。</p>
@@ -666,11 +725,6 @@ code {
       <div class="icon">🏆</div>
       <h3>段位成就</h3>
       <p>8 大段位、9 项成就跨局保存，挑战「永恒星王」与更长存活时间。</p>
-    </article>
-    <article class="feature-card">
-      <div class="icon">🪐</div>
-      <h3>3D 场景</h3>
-      <p>基于 Three.js 渲染，含火星天空盒、平台地形、角色动画与粒子特效。</p>
     </article>
   </div>
 </section>
@@ -692,7 +746,7 @@ code {
       <ul>
         <li>在项目目录执行 <code>.\server.ps1 -Port 8081</code></li>
         <li>浏览器打开 <code>http://localhost:8081/preview.html</code></li>
-        <li>若 8080 已被占用，请换用 8081 或其他端口</li>
+        <li>若端口被占用，可改用 8082 等其它端口</li>
         <li>不要直接用 <code>file://</code> 打开（会导致资源加载失败）</li>
       </ul>
     </div>
@@ -719,6 +773,45 @@ code {
     <span>🚀</span><span>开始游戏</span>
   </a>
 </section>
+
+<script>
+(function () {
+  const tabs = document.querySelectorAll('.preview-tab');
+  const frames = {
+    home: document.getElementById('previewHome'),
+    guide: document.getElementById('previewGuide'),
+    game: document.getElementById('previewGame')
+  };
+  const labels = {
+    home: 'home.html — 主页菜单预览',
+    guide: 'guide.html — 玩法说明预览',
+    game: 'game.html — 3D 战斗场景预览'
+  };
+  const chromeLabel = document.getElementById('previewChromeLabel');
+  let gameLoaded = false;
+
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      const target = tab.getAttribute('data-target');
+      tabs.forEach(function (item) {
+        const active = item === tab;
+        item.classList.toggle('is-active', active);
+        item.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      Object.keys(frames).forEach(function (key) {
+        frames[key].classList.toggle('is-active', key === target);
+      });
+      if (target === 'game' && !gameLoaded) {
+        frames.game.src = frames.game.getAttribute('data-src');
+        gameLoaded = true;
+      }
+      if (chromeLabel && labels[target]) {
+        chromeLabel.textContent = labels[target];
+      }
+    });
+  });
+})();
+</script>
 
 </body>
 </html>
