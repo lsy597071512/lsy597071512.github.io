@@ -18,7 +18,11 @@ const MIME = {
 };
 
 function send(res, status, body, type) {
-  res.writeHead(status, { 'Content-Type': type || 'text/plain; charset=utf-8' });
+  res.writeHead(status, {
+    'Content-Type': type || 'text/plain; charset=utf-8',
+    'Cache-Control': 'no-store, no-cache, must-revalidate',
+    Pragma: 'no-cache',
+  });
   res.end(body);
 }
 

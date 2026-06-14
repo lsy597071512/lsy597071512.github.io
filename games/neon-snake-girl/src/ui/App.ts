@@ -1,4 +1,3 @@
-import Phaser from 'phaser';
 import { saveManager } from '../core/SaveManager';
 import { STAGES, STAGE_MAP, ECONOMY, STARTER, CHAPTERS } from '../data/stages';
 import { CHARACTER_MAP, CHARACTERS, GACHA_PITY } from '../data/characters';
@@ -6,6 +5,8 @@ import { WEAPON_MAP, WEAPONS, PACK_PRICES, GIFT_PRICES, ARMORY_UPGRADE_COST, ARM
 import { ACHIEVEMENTS, rankingScore } from '../data/achievements';
 import {
   getTeamTcp,
+  getFullSquadTcp,
+  getDeployIds,
   canAutoBattle,
   canManualWin,
   performGachaPull,
@@ -28,20 +29,35 @@ import {
 } from '../systems/ArmorySystem';
 import { showRewardedAd, canShowAd, getRemainingAds, hasShopDiscount } from '../systems/AdSystem';
 import { claimAchievement, sendGift, getClaimableAchievements } from '../systems/AchievementSystem';
-import { createPhaserGame, startCombat } from '../game/Game';
+import { startCombat } from '../game/Game';
 import { squadSlotsForStage } from '../data/chapters';
+import {
+  UI_ASSETS,
+  rarityFrame,
+  featuredCharDisplay,
+  renderCharPortrait,
+  hasPortraitFlip,
+  type PortraitSide,
+} from './uiAssets';
 import type { SaveData } from '../types';
 
-type Tab = 'map' | 'home' | 'shop' | 'squad';
+type Module = 'map' | 'home' | 'shop' | 'squad';
+type View = 'hub' | Module;
+
+interface RewardPopup {
+  title: string;
+  lines: string[];
+}
 
 export class App {
   private uiRoot: HTMLElement;
   private gameRoot: HTMLElement;
-  private phaserGame: Phaser.Game | null = null;
-  private tab: Tab = 'map';
+  private view: View = 'hub';
   private selectedStage = 1;
   private lastRollMsg = '';
+  private rewardPopup: RewardPopup | null = null;
   private inCombat = false;
+  private portraitSide: PortraitSide = 'front';
 
   constructor() {
     this.uiRoot = document.getElementById('ui-root')!;
@@ -64,58 +80,176 @@ export class App {
   private render(): void {
     const s = this.save();
     this.uiRoot.innerHTML = `
-      <div class="shell">
-        <header class="top-bar">
-          <div class="brand">锈带纪元</div>
-          <div class="resources">
-            <span>🪙 ${s.gold}</span>
-            <span>🎫 ${s.tickets}</span>
-            <span>📺 ${getRemainingAds(s)}/${ECONOMY.dailyAdLimit}</span>
+      <div class="shell ${this.view === 'hub' ? 'shell-hub' : ''}">
+        <div class="bg-layer" aria-hidden="true"></div>
+        <div class="scanlines" aria-hidden="true"></div>
+        <header class="top-bar hud-bar cc-header ${this.view === 'hub' ? 'cc-header-hub' : ''}">
+          <div class="brand cc-brand">
+            <img class="brand-emblem" src="${UI_ASSETS.nav.squad}" alt="" />
+            <div>
+              <span class="brand-tag">${this.view === 'hub' ? 'COMMANDER · 总控制' : 'COMMANDER · 总队长'}</span>
+              <span class="brand-name">锈带纪元</span>
+            </div>
+          </div>
+          <div class="resources cc-resources">
+            <div class="res-pill res-gold"><img src="${UI_ASSETS.res.gold}" alt="" /><span class="res-val">${s.gold}</span></div>
+            <div class="res-pill res-ticket"><img src="${UI_ASSETS.res.ticket}" alt="" /><span class="res-val">${s.tickets}</span></div>
+            <div class="res-pill res-ad"><span class="res-icon">📺</span><span class="res-val">${getRemainingAds(s)}/${ECONOMY.dailyAdLimit}</span></div>
           </div>
         </header>
-        <main class="content">${this.renderContent()}</main>
-        <nav class="tab-bar">
-          ${this.tabBtn('map', '🗺️', '地图')}
-          ${this.tabBtn('home', '🏠', '家园')}
-          ${this.tabBtn('shop', '🛒', '商店')}
-          ${this.tabBtn('squad', '⚔️', '编队')}
-        </nav>
+        <main class="content cc-content ${this.view === 'hub' ? 'content-hub' : 'content-sub'}">${this.renderContent()}</main>
       </div>
+      ${this.renderRewardPopup()}
     `;
     this.bindEvents();
   }
 
-  private tabBtn(id: Tab, icon: string, label: string): string {
-    return `<button class="tab ${this.tab === id ? 'active' : ''}" data-tab="${id}">${icon}<span>${label}</span></button>`;
+  private renderRewardPopup(): string {
+    if (!this.rewardPopup) return '';
+    const lines = this.rewardPopup.lines.map((l) => `<li>${l}</li>`).join('');
+    return `
+      <div class="reward-overlay" data-reward-overlay>
+        <div class="reward-modal card hud-card">
+          <div class="modal-corner tl"></div><div class="modal-corner tr"></div>
+          <div class="modal-corner bl"></div><div class="modal-corner br"></div>
+          <h3>${this.rewardPopup.title}</h3>
+          <ul class="reward-list">${lines}</ul>
+          <button class="btn btn-primary" data-close-reward>确认领取</button>
+        </div>
+      </div>
+    `;
+  }
+
+  private sectionHead(title: string, sub: string): string {
+    return `<div class="section-head"><span class="section-line"></span><h2>${title}</h2><span class="section-sub">${sub}</span></div>`;
+  }
+
+  private hubNavBtn(
+    id: Module,
+    iconSrc: string,
+    label: string,
+    sub: string,
+    primary = false,
+    badge = 0,
+  ): string {
+    if (primary) {
+      return `<button class="hub-nav-btn hub-nav-ops" data-goto="${id}">
+        <img class="hub-nav-ops-icon" src="${iconSrc}" alt="" />
+        <span class="hub-nav-ops-body">
+          <span class="hub-nav-label">${label}</span>
+          <span class="hub-nav-sub">${sub}</span>
+        </span>
+      </button>`;
+    }
+    return `<button class="hub-nav-btn hub-nav-square" data-goto="${id}">
+      ${badge > 0 ? `<span class="hub-badge">${badge}</span>` : ''}
+      <img src="${iconSrc}" alt="" />
+      <span class="hub-nav-label">${label}</span>
+      <span class="hub-nav-sub">${sub}</span>
+    </button>`;
+  }
+
+  private wrapSub(title: string, sub: string, inner: string): string {
+    return `
+      <div class="sub-screen">
+        <button class="hub-back" data-back-hub>
+          <span class="hub-back-arrow">←</span>
+          <span>返回指挥部</span>
+        </button>
+        ${this.sectionHead(title, sub)}
+        ${inner}
+      </div>
+    `;
+  }
+
+  private portraitFlipBtn(charId: string): string {
+    if (!hasPortraitFlip(charId)) return '';
+    const label = this.portraitSide === 'front' ? '背面' : '正面';
+    return `<button class="portrait-flip-btn" data-flip-portrait type="button">${label}</button>`;
+  }
+
+  private renderHub(): string {
+    const s = this.save();
+    const feat = featuredCharDisplay(s.squad);
+    const tcp = getFullSquadTcp(s);
+    const claimable = getClaimableAchievements(s).length;
+    const highest = s.stats.highestStage;
+
+    return `
+      <section class="hub-screen">
+        <div class="hub-stage">
+          <img class="hub-bg" src="${UI_ASSETS.kanbanBg}" alt="" />
+          <div class="hub-char-zone">
+            ${renderCharPortrait(feat.id, this.portraitSide, 'hub-char-portrait', 'hub-char-icon')}
+          </div>
+          <div class="hub-meta-tr">
+            <span class="hub-kanban-tag">看板娘 · KANBAN</span>
+            <h2 class="hub-char-title">${feat.name}</h2>
+            <div class="hub-char-pills">
+              <span class="hub-pill hub-pill-rarity ${feat.rarity}">${feat.rarity}</span>
+              <span class="hub-pill hub-pill-tag">${feat.tagShort}</span>
+              ${this.portraitFlipBtn(feat.id)}
+            </div>
+          </div>
+          <nav class="hub-menu-rail">
+            ${this.hubNavBtn('map', UI_ASSETS.nav.map, '作战出击', 'OPS', true)}
+            ${this.hubNavBtn('home', UI_ASSETS.nav.home, '总控', 'BASE', false, claimable)}
+            ${this.hubNavBtn('squad', UI_ASSETS.nav.squad, '编队', 'UNIT')}
+            ${this.hubNavBtn('shop', UI_ASSETS.nav.shop, '构建', 'BUILD')}
+          </nav>
+          <footer class="hub-status-bar">
+            <div class="hub-stat"><small>TCP</small><b>${tcp}</b></div>
+            <div class="hub-stat"><small>最高关卡</small><b>${highest || '—'}</b></div>
+            <div class="hub-stat"><small>构装体</small><b>${s.stats.charactersOwned}</b></div>
+          </footer>
+        </div>
+      </section>
+    `;
   }
 
   private renderContent(): string {
-    switch (this.tab) {
+    if (this.view === 'hub') return this.renderHub();
+    switch (this.view) {
       case 'map':
-        return this.renderMap();
+        return this.wrapSub('星系作战', 'OPERATION', this.renderMap());
       case 'home':
-        return this.renderHome();
+        return this.wrapSub('零号月台', 'HOME BASE', this.renderHome());
       case 'shop':
-        return this.renderShop();
+        return this.wrapSub('构建中心', 'BUILD', this.renderShop());
       case 'squad':
-        return this.renderSquad();
+        return this.wrapSub(
+          `战术编队 · TCP ${getFullSquadTcp(this.save())}`,
+          'COMBAT UNIT',
+          this.renderSquad(),
+        );
     }
   }
 
   private renderMap(): string {
     const s = this.save();
     const stage = STAGE_MAP[this.selectedStage];
-    const tcp = getTeamTcp(s, this.selectedStage);
+    const slots = squadSlotsForStage(this.selectedStage);
+    const battleTcp = getTeamTcp(s, this.selectedStage);
+    const squadTcp = getFullSquadTcp(s);
+    const deployIds = getDeployIds(s, this.selectedStage);
     const cleared = s.clearedStages.includes(this.selectedStage);
     const canAuto = canAutoBattle(s, this.selectedStage, stage.recommendedTcp);
-    const winnable = canManualWin(tcp, stage.recommendedTcp, stage.isBoss);
+    const winnable = canManualWin(battleTcp, stage.recommendedTcp, stage.isBoss);
+
+    const deployList = deployIds
+      .map((cid) => {
+        const c = CHARACTER_MAP[cid];
+        const oc = s.ownedCharacters.find((o) => o.characterId === cid);
+        const p = oc ? getCharacterPower(cid, oc.weaponId) : 0;
+        return `${c.icon}${c.name}(${p})`;
+      })
+      .join('、');
 
     const chapterStages = STAGES.filter((st) => st.chapter === stage.chapter);
 
     return `
-      <section class="panel">
-        <h2>世界地图</h2>
-        <div class="chapter-tabs">
+      <section class="panel panel-map cc-panel">
+        <div class="chapter-tabs cc-chapters">
           ${CHAPTERS.map(
             (c) =>
               `<button class="chip ${c.id === stage.chapter ? 'active' : ''}" data-chapter="${c.id}">${c.name}</button>`,
@@ -126,24 +260,31 @@ export class App {
             .map((st) => {
               const done = s.clearedStages.includes(st.id);
               const cur = st.id === this.selectedStage;
-              return `<button class="stage-btn ${done ? 'done' : ''} ${cur ? 'cur' : ''} ${st.isBoss ? 'boss' : ''}" data-stage="${st.id}">
-                ${st.id}${st.isBoss ? '★' : ''}
+              return `<button class="stage-btn cc-hex ${done ? 'done' : ''} ${cur ? 'cur' : ''} ${st.isBoss ? 'boss' : ''}" data-stage="${st.id}">
+                <img class="stage-hex-bg" src="${UI_ASSETS.stageHex}" alt="" />
+                <span class="stage-num">${st.id}${st.isBoss ? '★' : ''}</span>
               </button>`;
             })
             .join('')}
         </div>
-        <div class="stage-detail card">
+        <div class="stage-detail card hud-card stage-brief">
+          <div class="card-shine"></div>
           <h3>${stage.name}</h3>
-          <p>推荐 TCP：<strong>${stage.recommendedTcp}</strong> · 你的 TCP：<strong class="${tcp >= stage.recommendedTcp ? 'good' : 'warn'}">${tcp}</strong></p>
+          <p>本关可出战 <strong>${slots}</strong> 人 · 推荐 TCP <strong>${stage.recommendedTcp}</strong></p>
+          <p>出战 TCP：<strong class="${battleTcp >= stage.recommendedTcp ? 'good' : 'warn'}">${battleTcp}</strong>
+            ${squadTcp !== battleTcp ? ` · 编队总战力 <strong>${squadTcp}</strong>（本关仅计前 ${slots} 人）` : ''}
+          </p>
+          <p class="muted">出战：${deployList || '未编队'}</p>
           <p>类型：${stage.type} · 限时 ${stage.timer}s · ${stage.waves} 波</p>
           <p>首通 ${stage.firstClearGold} 币 · 扫荡 ${stage.sweepGold} 币</p>
           ${cleared ? '<span class="badge done-badge">已通关</span>' : winnable ? '<span class="badge ok-badge">可挑战</span>' : '<span class="badge bad-badge">战力不足</span>'}
         </div>
         <div class="actions">
           ${
-            !cleared
-              ? `<button class="btn btn-primary" data-action="fight" ${!winnable ? 'disabled' : ''}>${canAuto ? '自动战斗' : '手动战斗'}</button>`
-              : `<button class="btn btn-secondary" data-action="sweep">扫荡</button>`
+            cleared
+              ? `<button class="btn btn-primary" data-action="fight">手动战斗</button>
+                 <button class="btn btn-secondary" data-action="sweep">扫荡</button>`
+              : `<button class="btn btn-primary" data-action="fight" ${!winnable ? 'disabled' : ''}>${canAuto ? '自动战斗' : '手动战斗'}</button>`
           }
           <button class="btn btn-ad" data-action="ad-stage" ${!canShowAd(s, 'stage_double', this.selectedStage) ? 'disabled' : ''}>📺 双倍奖励</button>
         </div>
@@ -155,18 +296,30 @@ export class App {
     const s = this.save();
     const score = rankingScore(s.stats);
     const claimable = getClaimableAchievements(s);
+    const feat = featuredCharDisplay(s.squad);
 
     return `
-      <section class="panel">
-        <h2>零号月台 · 家园</h2>
-        <div class="stats-row card">
+      <section class="panel panel-home cc-panel">
+        <div class="home-featured card hud-card">
+          <div class="home-featured-portrait">
+            <img class="char-frame-bg" src="${rarityFrame(feat.rarity)}" alt="" />
+            ${renderCharPortrait(feat.id, this.portraitSide, 'home-char-portrait', 'home-char-icon')}
+          </div>
+          <div class="home-featured-meta">
+            <span class="kanban-label">看板构装体 · ${this.portraitSide === 'front' ? '正面' : '背面'}</span>
+            <strong>${feat.name}</strong>
+            <span class="rarity ${feat.rarity}">${feat.rarity}</span>
+            ${this.portraitFlipBtn(feat.id)}
+          </div>
+        </div>
+        <div class="stats-row card hud-card">
           <div><b>${score}</b><small>排行积分</small></div>
           <div><b>${s.stats.stagesCleared}</b><small>通关数</small></div>
           <div><b>${s.stats.totalKills}</b><small>击杀数</small></div>
           <div><b>${s.stats.charactersOwned}</b><small>角色数</small></div>
         </div>
 
-        <h3>角色</h3>
+        <h3 class="sub-head">◈ 机械少女档案</h3>
         <div class="char-list">
           ${s.ownedCharacters
             .map((oc) => {
@@ -174,8 +327,16 @@ export class App {
               const w = oc.weaponId ? WEAPON_MAP[oc.weaponId] : null;
               const power = getCharacterPower(oc.characterId, oc.weaponId);
               return `
-                <div class="card char-card" data-char="${oc.characterId}">
-                  <div class="char-icon">${c.icon}</div>
+                <div class="card char-card hud-card cc-char-card">
+                  <div class="char-portrait">
+                    <img class="char-frame-bg" src="${rarityFrame(c.rarity)}" alt="" />
+                    ${renderCharPortrait(
+                      oc.characterId,
+                      oc.characterId === feat.id ? this.portraitSide : 'front',
+                      'char-portrait-img',
+                      'char-icon-frame',
+                    )}
+                  </div>
                   <div class="char-info">
                     <strong>${c.name}</strong>
                     <span class="rarity ${c.rarity}">${c.rarity}</span>
@@ -195,7 +356,7 @@ export class App {
             .join('')}
         </div>
 
-        <h3>成就 ${claimable.length ? `(${claimable.length} 可领)` : ''}</h3>
+        <h3 class="sub-head">◈ 成就系统 ${claimable.length ? `<em class="highlight">${claimable.length} 可领</em>` : ''}</h3>
         <div class="ach-list">
           ${ACHIEVEMENTS.map((a) => {
             const done = a.check(s.stats);
@@ -226,12 +387,12 @@ export class App {
     const nextCost = s.armoryLevel < 8 ? ARMORY_UPGRADE_COST[s.armoryLevel] : 0;
 
     return `
-      <section class="panel">
-        <h2>锈带商店</h2>
-        ${this.lastRollMsg ? `<div class="toast">${this.lastRollMsg}</div>` : ''}
+      <section class="panel panel-shop cc-panel">
+        <img class="gacha-banner" src="${UI_ASSETS.gachaBanner}" alt="构建" />
+        ${this.lastRollMsg ? `<div class="toast hud-toast">${this.lastRollMsg}</div>` : ''}
 
-        <div class="card shop-block">
-          <h3>🎰 唤醒协议 · 抽卡</h3>
+        <div class="card shop-block hud-card cc-build-card">
+          <h3 class="block-title"><span class="block-icon">◆</span>唤醒协议 · 构装体招募</h3>
           <p>SR 86% · SSR 12.5% · UR 1.5% · 保底 ${GACHA_PITY}（当前 ${s.gachaPity}）</p>
           <div class="actions">
             <button class="btn btn-primary" data-action="pull1">单抽 900🪙 / 1🎫</button>
@@ -240,8 +401,8 @@ export class App {
           </div>
         </div>
 
-        <div class="card shop-block">
-          <h3>📦 锈带军械箱 Lv.${s.armoryLevel}</h3>
+        <div class="card shop-block hud-card">
+          <h3 class="block-title"><span class="block-icon">📦</span>军械箱 · ARMORY Lv.${s.armoryLevel}</h3>
           <p>开箱 ${openPrice}🪙 ${hasShopDiscount(s) ? '（九折已激活）' : ''}</p>
           ${
             upgrading
@@ -259,8 +420,8 @@ export class App {
           </div>
         </div>
 
-        <div class="card shop-block">
-          <h3>🎁 前线补给包</h3>
+        <div class="card shop-block hud-card">
+          <h3 class="block-title"><span class="block-icon">🎁</span>前线补给 · SUPPLY</h3>
           <div class="actions">
             <button class="btn btn-secondary" data-action="pack-normal">普通 ${PACK_PRICES.normal}🪙</button>
             <button class="btn btn-secondary" data-action="pack-advanced">高级 ${PACK_PRICES.advanced}🪙</button>
@@ -268,7 +429,7 @@ export class App {
           </div>
         </div>
 
-        <h3>武器背包</h3>
+        <h3 class="sub-head">◈ 武器背包</h3>
         <div class="weapon-grid">
           ${s.ownedWeaponIds
             .map((wid) => {
@@ -290,22 +451,24 @@ export class App {
 
   private renderSquad(): string {
     const s = this.save();
-    const tcp = getTeamTcp(s);
+    const stageSlots = squadSlotsForStage(this.selectedStage);
+    const battleTcp = getTeamTcp(s, this.selectedStage);
 
     return `
-      <section class="panel">
-        <h2>编队 · TCP ${tcp}</h2>
+      <section class="panel panel-squad cc-panel">
         <p class="muted">关 1-5 出战 1 人 · 6-15 出战 2 人 · 16+ 出战 3 人</p>
+        <p class="muted">当前选中关 ${this.selectedStage}：可出战 ${stageSlots} 人 · 出战 TCP <strong>${battleTcp}</strong></p>
         <div class="squad-slots">
           ${[0, 1, 2]
             .map((i) => {
               const cid = s.squad[i];
+              const deploysThisStage = i < stageSlots;
               if (!cid) return `<div class="card slot empty">空槽 ${i + 1}</div>`;
               const c = CHARACTER_MAP[cid];
               const oc = s.ownedCharacters.find((o) => o.characterId === cid)!;
               const w = oc.weaponId ? WEAPON_MAP[oc.weaponId] : null;
-              return `<div class="card slot">
-                <span>${c.icon} ${c.name}</span>
+              return `<div class="card slot ${deploysThisStage ? 'deploy-active' : 'deploy-bench'}">
+                <span>${c.icon} ${c.name} ${deploysThisStage ? '<em class="deploy-tag">本关出战</em>' : '<em class="deploy-tag bench">替补</em>'}</span>
                 <span>战力 ${getCharacterPower(cid, oc.weaponId)}</span>
                 <span>${w ? w.icon + w.name : '无武器'}</span>
                 <button class="btn btn-sm" data-remove-squad="${cid}">移除</button>
@@ -313,7 +476,7 @@ export class App {
             })
             .join('')}
         </div>
-        <h3>可用角色</h3>
+        <h3 class="sub-head">◈ 可用机体</h3>
         <div class="char-pick">
           ${s.ownedCharacters
             .map((oc) => {
@@ -325,7 +488,7 @@ export class App {
             })
             .join('')}
         </div>
-        <h3>快速装备</h3>
+        <h3 class="sub-head">◈ 快速武装</h3>
         <div class="equip-list">
           ${s.ownedCharacters
             .map((oc) => {
@@ -350,12 +513,23 @@ export class App {
   }
 
   private bindEvents(): void {
-    this.uiRoot.querySelectorAll('[data-tab]').forEach((el) => {
+    this.uiRoot.querySelectorAll('[data-goto]').forEach((el) => {
       el.addEventListener('click', () => {
-        this.tab = (el as HTMLElement).dataset.tab as Tab;
+        this.view = (el as HTMLElement).dataset.goto as Module;
         this.lastRollMsg = '';
         this.render();
       });
+    });
+
+    this.uiRoot.querySelector('[data-back-hub]')?.addEventListener('click', () => {
+      this.view = 'hub';
+      this.lastRollMsg = '';
+      this.render();
+    });
+
+    this.uiRoot.querySelector('[data-flip-portrait]')?.addEventListener('click', () => {
+      this.portraitSide = this.portraitSide === 'front' ? 'back' : 'front';
+      this.render();
     });
 
     this.uiRoot.querySelectorAll('[data-chapter]').forEach((el) => {
@@ -469,6 +643,17 @@ export class App {
     }));
     this.uiRoot.querySelector('[data-action="ad-opens"]')?.addEventListener('click', () => this.runAd('extra_opens', () => this.openBox(2, true)));
     this.uiRoot.querySelector('[data-action="ad-discount"]')?.addEventListener('click', () => this.runAd('shop_discount'));
+
+    this.uiRoot.querySelector('[data-close-reward]')?.addEventListener('click', () => {
+      this.rewardPopup = null;
+      this.render();
+    });
+    this.uiRoot.querySelector('[data-reward-overlay]')?.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).dataset.rewardOverlay) {
+        this.rewardPopup = null;
+        this.render();
+      }
+    });
   }
 
   private async runAd(type: Parameters<typeof showRewardedAd>[1], cb?: () => void): Promise<void> {
@@ -545,8 +730,14 @@ export class App {
     saveManager.mutate((d) => {
       d.gold += stage.sweepGold;
     });
-    this.lastRollMsg = `扫荡获得 ${stage.sweepGold} 锈币`;
-    this.tab = 'shop';
+    this.rewardPopup = {
+      title: '扫荡完成',
+      lines: [
+        `关卡：${stage.name}`,
+        `🪙 锈币 +${stage.sweepGold}`,
+        `当前锈币：${saveManager.get().gold}`,
+      ],
+    };
     this.render();
   }
 
@@ -567,26 +758,26 @@ export class App {
     const s = this.save();
     const stage = STAGE_MAP[this.selectedStage];
     const tcp = getTeamTcp(s, this.selectedStage);
-
-    if (s.clearedStages.includes(this.selectedStage)) return;
+    const cleared = s.clearedStages.includes(this.selectedStage);
 
     const slots = squadSlotsForStage(this.selectedStage);
     const squadIds = s.squad.slice(0, slots);
     if (!squadIds.length) {
       alert('请先编队');
-      this.tab = 'squad';
+      this.view = 'squad';
       this.render();
       return;
     }
 
-    const useAuto = auto || canAutoBattle(s, this.selectedStage, stage.recommendedTcp);
+    const useAuto =
+      !cleared && (auto || canAutoBattle(s, this.selectedStage, stage.recommendedTcp));
 
     if (useAuto && canAutoBattle(s, this.selectedStage, stage.recommendedTcp)) {
       this.resolveInstantWin(stage, tcp);
       return;
     }
 
-    if (!canManualWin(tcp, stage.recommendedTcp, stage.isBoss)) {
+    if (!cleared && !canManualWin(tcp, stage.recommendedTcp, stage.isBoss)) {
       alert('战力不足，请升级武器或抽卡');
       return;
     }
@@ -595,11 +786,7 @@ export class App {
     this.uiRoot.classList.add('hidden');
     this.gameRoot.classList.add('visible');
 
-    if (!this.phaserGame) {
-      this.phaserGame = createPhaserGame(this.gameRoot);
-    }
-
-    startCombat(this.phaserGame, {
+    startCombat(this.gameRoot, {
       stage,
       tcp,
       squadIds,
@@ -635,6 +822,7 @@ export class App {
     }
 
     if (victory) {
+      const wasCleared = saveManager.get().clearedStages.includes(stage.id);
       saveManager.mutate((d) => {
         if (!d.clearedStages.includes(stage.id)) {
           d.clearedStages.push(stage.id);
@@ -646,7 +834,11 @@ export class App {
         d.stats.totalKills += kills;
         updateLegendaryStat(d);
       });
-      alert(`胜利！+${stage.firstClearGold} 锈币 · 击杀 ${kills}`);
+      alert(
+        wasCleared
+          ? `胜利！击杀 ${kills}（重复通关无首通奖励）`
+          : `胜利！+${stage.firstClearGold} 锈币 · 击杀 ${kills}`,
+      );
     } else {
       alert('战斗失败，升级武器后再来');
     }

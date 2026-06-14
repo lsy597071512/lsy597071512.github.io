@@ -7,6 +7,8 @@ export const CHARACTERS: CharacterDef[] = [
     rarity: 'SR',
     basePower: 120,
     icon: '🐦‍⬛',
+    portraitFront: './tex/juese/01.png',
+    portraitBack: './tex/juese/01_1.png',
     tag: '均衡 / 闪避',
     bio: '北线邮差队通讯中继机体，大崩解后独自在沙尘暴中重启。寡言警觉，总走在队伍最前。',
     age: '出厂 3 年 / 觉醒 11 个月',

@@ -1,20 +1,18 @@
-import Phaser from 'phaser';
-import { CombatScene } from './CombatScene';
+import { Combat3D, startCombat3D, type CombatSceneData } from './Combat3D';
 
-export function createPhaserGame(parent: HTMLElement): Phaser.Game {
-  return new Phaser.Game({
-    type: Phaser.AUTO,
-    parent,
-    width: 720,
-    height: 1280,
-    scale: {
-      mode: Phaser.Scale.FIT,
-      autoCenter: Phaser.Scale.CENTER_BOTH,
-    },
-    scene: [CombatScene],
-    backgroundColor: '#1a1520',
-  });
+/** 实验性 3D 战斗 — 改为 false 可回退 Phaser 2D（见 CombatScene.ts） */
+export const USE_3D_COMBAT = true;
+
+let activeCombat: Combat3D | null = null;
+
+export function startCombat(parent: HTMLElement, data: CombatSceneData): void {
+  activeCombat?.dispose();
+  activeCombat = startCombat3D(parent, data);
 }
 
-export { startCombat } from './CombatScene';
-export type { CombatSceneData } from './CombatScene';
+export function disposeCombat(): void {
+  activeCombat?.dispose();
+  activeCombat = null;
+}
+
+export type { CombatSceneData };

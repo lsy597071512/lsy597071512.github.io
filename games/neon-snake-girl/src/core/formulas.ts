@@ -10,9 +10,21 @@ export function getCharacterPower(characterId: string, weaponId: string | null):
   return c.basePower + (w?.power ?? 0);
 }
 
+export function getFullSquadTcp(save: SaveData): number {
+  return save.squad.reduce((sum, cid) => {
+    const owned = save.ownedCharacters.find((o) => o.characterId === cid);
+    if (!owned) return sum;
+    return sum + getCharacterPower(owned.characterId, owned.weaponId);
+  }, 0);
+}
+
+export function getDeployIds(save: SaveData, stageId: number): string[] {
+  return save.squad.slice(0, squadSlotsForStage(stageId));
+}
+
 export function getTeamTcp(save: SaveData, stageId?: number): number {
-  const slots = stageId ? squadSlotsForStage(stageId) : save.squad.length;
-  const active = save.squad.slice(0, slots);
+  if (!stageId) return getFullSquadTcp(save);
+  const active = getDeployIds(save, stageId);
   return active.reduce((sum, cid) => {
     const owned = save.ownedCharacters.find((o) => o.characterId === cid);
     if (!owned) return sum;

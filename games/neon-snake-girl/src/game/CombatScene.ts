@@ -12,13 +12,16 @@ export interface CombatSceneData {
 
 const LANES = [180, 360, 540];
 const COLORS = {
-  bg: 0x1a1520,
-  lane: 0x2a2438,
-  player: 0x7ec8e3,
-  enemy: 0xff6b4a,
-  barrel: 0xffaa00,
-  door: 0x9b59b6,
-  bullet: 0xffe066,
+  bg: 0x0a1420,
+  lane: 0x122840,
+  laneGlow: 0x1a4060,
+  player: 0x2ecbff,
+  enemy: 0x3a5060,
+  enemyBoss: 0xff4757,
+  barrel: 0xff8c42,
+  door: 0xb57dff,
+  bullet: 0x2ecbff,
+  grid: 0x2ecbff,
 };
 
 export class CombatScene extends Phaser.Scene {
@@ -75,26 +78,38 @@ export class CombatScene extends Phaser.Scene {
     this.wave = 1;
 
     for (let i = 0; i < 3; i++) {
-      this.add.rectangle(LANES[i], height / 2, 100, height, COLORS.lane, 0.35);
+      this.add.rectangle(LANES[i], height / 2, 100, height, COLORS.lane, 0.5);
+      this.add.rectangle(LANES[i], height / 2, 96, height, COLORS.laneGlow, 0.15);
     }
 
-    this.player = this.add.rectangle(LANES[this.laneIndex], height - 120, 56, 56, COLORS.player);
-    this.player.setStrokeStyle(3, 0xffffff);
+    this.player = this.add.rectangle(LANES[this.laneIndex], height - 120, 52, 52, COLORS.player);
+    this.player.setStrokeStyle(2, 0xffffff, 0.9);
 
     this.bullets = this.add.group();
     this.enemies = this.add.group();
     this.hazards = this.add.group();
 
-    this.timerText = this.add.text(16, 16, '', { fontSize: '20px', color: '#ff6b4a' });
-    this.hpText = this.add.text(16, 44, '', { fontSize: '18px', color: '#7ec8e3' });
-    this.infoText = this.add.text(width / 2, 16, this.stage.name, {
+    this.timerText = this.add.text(16, 16, '', {
+      fontFamily: 'Rajdhani, sans-serif',
+      fontSize: '22px',
+      color: '#ff4757',
+      fontStyle: 'bold',
+    });
+    this.hpText = this.add.text(16, 46, '', {
+      fontFamily: 'Rajdhani, sans-serif',
       fontSize: '18px',
-      color: '#ffffff',
+      color: '#00e5ff',
+    });
+    this.infoText = this.add.text(width / 2, 14, this.stage.name, {
+      fontFamily: 'Noto Sans SC, sans-serif',
+      fontSize: '16px',
+      color: '#eef2f8',
     }).setOrigin(0.5, 0);
 
     this.add.text(width - 16, 16, `TCP ${this.tcp}`, {
-      fontSize: '16px',
-      color: '#ffe066',
+      fontFamily: 'Orbitron, sans-serif',
+      fontSize: '14px',
+      color: '#ffd54f',
     }).setOrigin(1, 0);
 
     if (this.stage.type === 'door') this.spawnDoors();
@@ -161,13 +176,13 @@ export class CombatScene extends Phaser.Scene {
       -60,
       100,
       80,
-      0xcc0044,
+      COLORS.enemyBoss,
     ) as Phaser.GameObjects.Rectangle & { hp: number; lane: number; boss: boolean };
     e.hp = this.stage.enemyHp * 8;
     e.lane = 1;
     e.boss = true;
     this.enemies.add(e);
-    this.infoText.setText('⚠ BOSS').setColor('#ff4444');
+    this.infoText.setText('⚠ BOSS').setColor('#ff4757');
   }
 
   private spawnDoors(): void {
@@ -335,7 +350,11 @@ export class CombatScene extends Phaser.Scene {
       this.scale.width / 2,
       this.scale.height / 2,
       victory ? '✅ 胜利' : '❌ 失败',
-      { fontSize: '36px', color: victory ? '#90ee90' : '#ff6b4a' },
+      {
+        fontFamily: 'Noto Sans SC, sans-serif',
+        fontSize: '36px',
+        color: victory ? '#5dffa8' : '#ff4757',
+      },
     ).setOrigin(0.5);
 
     this.time.delayedCall(1200, () => {

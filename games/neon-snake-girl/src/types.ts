@@ -7,6 +7,10 @@ export interface CharacterDef {
   rarity: Rarity;
   basePower: number;
   icon: string;
+  /** 立绘正面（主页/家园） */
+  portraitFront?: string;
+  /** 立绘背面（战斗关卡） */
+  portraitBack?: string;
   tag: string;
   skillName?: string;
   skillDesc?: string;
