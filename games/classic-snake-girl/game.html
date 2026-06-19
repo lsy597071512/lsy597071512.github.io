@@ -911,9 +911,9 @@
     .arenaChrome {
       position: fixed;
       left: var(--playfield-left);
-      top: var(--playfield-top);
+      top: calc(var(--playfield-top) - var(--playfield-chrome-height, 0px));
       width: var(--playfield-width);
-      height: var(--playfield-height);
+      height: calc(var(--playfield-height) + var(--playfield-chrome-height, 0px));
       z-index: 4;
       pointer-events: none;
     }
@@ -1152,7 +1152,7 @@
       }
 
       .arenaChrome {
-        height: calc(var(--playfield-height) + 1.5rem);
+        height: calc(var(--playfield-height) + max(1.5rem, var(--playfield-chrome-height, 0px)));
       }
 
       .arenaBadge {
@@ -2462,8 +2462,16 @@
       layout.left = (W - containerWidth) / 2;
       layout.right = layout.left + containerWidth;
 
+      const warningOffset = isCompactMobile ? 18 : (isMobile ? 24 : 34);
+      const spawnOffset = isCompactMobile ? 44 : (isMobile ? 52 : 58);
+      const chromeHeight = spawnOffset + 10;
+      const safeTop = viewportMetrics.safeTop || 0;
+      const minTop = Math.max(
+        isCompactMobile ? 52 : (isMobile ? 96 : 88),
+        safeTop + chromeHeight
+      );
       const topReserve = isCompactMobile
-        ? clamp(H * 0.16, 58, 74)
+        ? clamp(H * 0.1, minTop, minTop + 28)
         : (isMobile
           ? clamp(H * 0.28, 168, 220)
           : (isTablet ? clamp(H * 0.18, 112, 160) : clamp(H * 0.14, 104, 148)));
@@ -2472,14 +2480,14 @@
         : (isMobile
           ? clamp(H * 0.31, 208, 286)
           : (isTablet ? clamp(H * 0.22, 168, 220) : clamp(H * 0.24, 190, 260)));
-      const minTop = isCompactMobile ? 58 : (isMobile ? 104 : 88);
       const topShift = isCompactMobile
-        ? clamp(H * 0.089, 25, 43)
+        ? clamp(H * 0.03, 6, 16)
         : (isMobile
           ? clamp(H * 0.133, 47, 85)
           : (isTablet ? clamp(H * 0.097, 43, 70) : clamp(H * 0.08, 36, 60)));
-      const maxArenaSpace = Math.max(isCompactMobile ? 170 : 220, H - bottomReserve - minTop);
-      const minArenaHeight = isCompactMobile ? 170 : (isMobile ? 220 : (isTablet ? 300 : 360));
+      const topBump = isCompactMobile ? topShift : topShift + 80;
+      const maxArenaSpace = Math.max(isCompactMobile ? 150 : 220, H - bottomReserve - minTop);
+      const minArenaHeight = isCompactMobile ? 150 : (isMobile ? 220 : (isTablet ? 300 : 360));
       const arenaHeight = clamp(
         PLAYFIELD_DESIGN_HEIGHT,
         Math.min(minArenaHeight, maxArenaSpace),
@@ -2488,12 +2496,15 @@
 
       const maxTop = H - bottomReserve - arenaHeight;
       const baseTop = Math.max(minTop, Math.min(topReserve, maxTop));
-      layout.top = Math.min(maxTop, baseTop + topShift + 80);
+      layout.top = Math.max(minTop, Math.min(maxTop, baseTop + topBump));
       layout.bottom = layout.top + arenaHeight;
       layout.width = layout.right - layout.left;
       layout.height = layout.bottom - layout.top;
-      layout.warningY = Math.max(72, layout.top - (isMobile ? 24 : 34));
-      layout.spawnY = Math.max(56, layout.top - (isCompactMobile ? 34 : (isMobile ? 42 : 58)));
+      layout.warningY = layout.top - warningOffset;
+      layout.spawnY = layout.top - spawnOffset;
+      if (layout.spawnY >= layout.warningY - 6) {
+        layout.spawnY = layout.warningY - 18;
+      }
       dropX = clamp(dropX || W / 2, layout.left + 25, layout.right - 25);
 
       const leftSpace = Math.max(0, layout.left - pagePad);
@@ -2521,6 +2532,8 @@
       root.style.setProperty("--playfield-bottom", `${layout.bottom}px`);
       root.style.setProperty("--playfield-width", `${layout.width}px`);
       root.style.setProperty("--playfield-height", `${layout.height}px`);
+      root.style.setProperty("--playfield-chrome-height", `${spawnOffset}px`);
+      root.style.setProperty("--playfield-warning-offset", `${warningOffset}px`);
       root.style.setProperty("--hud-side-width", `${sideWidth}px`);
       root.style.setProperty("--hud-left-width", `${leftSideWidth}px`);
       root.style.setProperty("--hud-right-width", `${rightSideWidth}px`);
@@ -2549,7 +2562,9 @@
           top: Math.round(layout.top),
           bottom: Math.round(layout.bottom),
           width: Math.round(layout.width),
-          height: Math.round(layout.height)
+          height: Math.round(layout.height),
+          warningY: Math.round(layout.warningY),
+          spawnY: Math.round(layout.spawnY)
         }
       });
       // #endregion
