@@ -227,6 +227,60 @@ padding:9px 12px;border-radius:999px;background:linear-gradient(180deg,#fff8eb,#
 }
 .panel-gameover .achievement-panel{margin-top:16px}
 
+/* Game over CTA — desktop keeps side-by-side; mobile stacks vertically */
+.cta-row-gameover .cta-center{width:100%}
+@media (max-width:900px){
+.panel-gameover .cta-row-gameover{
+flex-direction:column;align-items:stretch;gap:10px;margin-top:14px
+}
+.panel-gameover .cta-row-gameover .shop-main-btn{
+position:static;width:100%;max-width:100%;margin:0;justify-content:center
+}
+.panel-gameover .cta-row-gameover .cta-center{width:100%}
+.panel-gameover .cta-row-gameover .cta-button{
+width:100%;min-width:0;max-width:100%;padding:14px 22px;padding-left:22px;
+display:inline-flex;align-items:center;justify-content:center;gap:10px
+}
+.panel-gameover .cta-row-gameover .cta-icon{
+position:static;left:auto;top:auto;transform:rotate(-16deg);font-size:1.15em;
+filter:drop-shadow(0 4px 8px rgba(154,66,20,.22))
+}
+#gameOverScreen .panel-gameover .achievement-panel{
+max-height:min(40vh,340px);overflow-y:auto;-webkit-overflow-scrolling:touch
+}
+#gameOverScreen .panel-gameover .panel-shell{
+max-height:calc(100dvh - 24px);overflow-y:auto;-webkit-overflow-scrolling:touch
+}
+#gameOverScreen .panel-gameover .hero-strip-gameover{display:none}
+#gameOverScreen .panel-gameover .panel-lead{font-size:14px;margin-top:8px}
+.panel-gameover .bgm-volume{margin-top:12px;padding-bottom:max(8px,env(safe-area-inset-bottom,0px))
+}
+}
+
+.portrait-tip-modal{
+position:fixed;inset:0;z-index:110;display:none;align-items:center;justify-content:center;
+background:rgba(30,10,6,.78);backdrop-filter:blur(5px);padding:20px;pointer-events:auto
+}
+.portrait-tip-card{
+width:100%;max-width:360px;padding:28px 24px 24px;border-radius:24px;text-align:center;
+background:linear-gradient(180deg,#fff9f0,#f3dfbf);border:3px solid rgba(212,152,102,.6);
+box-shadow:0 24px 50px rgba(60,15,6,.42)
+}
+.portrait-tip-icon{font-size:42px;line-height:1;margin-bottom:8px}
+.portrait-tip-title{
+margin:0 0 10px;font-family:var(--font-d);font-size:24px;font-weight:900;color:#8b4d28;line-height:1.25
+}
+.portrait-tip-body{
+margin:0 0 20px;font-size:15px;font-weight:700;color:#a86a43;line-height:1.55
+}
+.portrait-tip-btn{
+width:100%;padding:14px 24px;border:none;border-radius:999px;cursor:pointer;
+background:linear-gradient(180deg,#ffc44b 0%,#ffad34 55%,#f69229 100%);
+color:#fffef8;font-family:var(--font-d);font-size:18px;font-weight:900;letter-spacing:.5px;
+box-shadow:0 10px 20px rgba(128,48,15,.24);touch-action:manipulation
+}
+.portrait-tip-btn:active{transform:translateY(1px)}
+
 /* CTA */
 .cta-row{
 position:relative;display:flex;align-items:center;justify-content:center;margin-top:18px;flex-wrap:wrap

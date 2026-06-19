@@ -139,12 +139,34 @@ function onAllLoaded(){
   warmRenderPipeline().then(()=>{
     if(lBar)lBar.style.width="100%";
     if(lPct)lPct.textContent="100％";
-    _hideLoadingScreen();
-    requestAnimationFrame(()=>{
-      requestAnimationFrame(()=>{safeStartGame("assets-ready")});
+    showPortraitTipIfNeeded().then(()=>{
+      _hideLoadingScreen();
+      requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>{safeStartGame("assets-ready")});
+      });
     });
   });
   _totalLoads=0;_loadedCount=0;
+}
+const PORTRAIT_TIP_PAGE_KEY="starCrystalPortraitTipPage";
+function showPortraitTipIfNeeded(){
+  if(!isMobileLayout())return Promise.resolve();
+  if(window.__portraitTipShownThisPage)return Promise.resolve();
+  const modal=document.getElementById("portraitTipModal");
+  const btn=document.getElementById("portraitTipConfirmBtn");
+  if(!modal||!btn)return Promise.resolve();
+  applyI18n(modal,"game");
+  return new Promise(resolve=>{
+    window.__portraitTipShownThisPage=true;
+    modal.style.display="flex";
+    modal.setAttribute("aria-hidden","false");
+    const done=()=>{
+      modal.style.display="none";
+      modal.setAttribute("aria-hidden","true");
+      resolve();
+    };
+    btn.addEventListener("click",done,{once:true});
+  });
 }
 function warmRenderPipeline(){
   return new Promise(resolve=>{
@@ -183,7 +205,7 @@ function _scheduleBootWatchdog(){
       return;
     }
     _hideLoadingScreen();
-    safeStartGame("watchdog");
+    showPortraitTipIfNeeded().then(()=>{safeStartGame("watchdog")});
   },12000);
 }
 
@@ -355,7 +377,6 @@ function beginSceneBoot(){
   initSharedResources();
   createLights();
   _loadAllAssets();
-  forceLandscape();
   animate();
   _scheduleBootWatchdog();
 }
@@ -419,7 +440,7 @@ function init(){
 
   window.addEventListener("pointerdown",()=>unlockAudio(),{once:true});
   window.addEventListener("resize",onResize);
-  window.addEventListener("orientationchange",()=>setTimeout(()=>{forceLandscape();applyRendererSize()},300));
+  window.addEventListener("orientationchange",()=>setTimeout(applyRendererSize,300));
 
   const restartBtn=document.getElementById("restartBtn");
   const shopEntryBtn2=document.getElementById("shopEntryBtn2");
@@ -641,20 +662,6 @@ function evaluateAchievements(){
       newlyUnlockedAchievements.push(a);
     }
   }
-}
-
-function forceLandscape(){
-  if(!isMobileLayout())return;
-  try{
-    if(document.documentElement.requestFullscreen&&!document.fullscreenElement){
-      document.documentElement.requestFullscreen();
-    }
-  }catch(e){}
-  try{
-    if(screen.orientation&&screen.orientation.lock){
-      screen.orientation.lock("landscape");
-    }
-  }catch(e){}
 }
 
 function setPlayerStatusText(type,duration){
@@ -1948,7 +1955,6 @@ function clearPlayerActions(){
 }
 
 function startGame(){
-  forceLandscape();
   resetPauseUI();
   releaseJoystickInput();
   _navigatingHome=false;

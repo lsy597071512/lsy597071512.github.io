@@ -13,7 +13,7 @@ const BGM_SESSION_KEY = "starCrystalBgmUnlocked";
 const BGM_GESTURE_EVENTS = ["pointerdown", "keydown", "touchstart", "click"];
 const GAME_PREFETCH_URLS = [
   "game.html",
-  "scripts/game.js?v=20250619b",
+  "scripts/game.js?v=20250619c",
   "model/tex/skybox_basecolor_01.png?v=v2",
   "model/tex/Sphere001_BaseColor.png?v=v2",
   "model/Sphere001.fbx?v=v2",

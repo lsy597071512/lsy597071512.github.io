@@ -125,7 +125,7 @@
         <div class="hero-stat"><span data-i18n="game.evalNext">下一步</span><strong data-i18n="game.evalNextVal">再次出发</strong></div>
       </div>
     <div id="gameoverAchievementPanel" class="achievement-panel"></div>
-      <div class="cta-row">
+      <div class="cta-row cta-row-gameover">
         <div class="cta-center"><button id="restartBtn" class="cta-button"><span class="cta-icon">🚀</span><span data-i18n="game.restart">重新开始</span></button></div>
         <button id="shopEntryBtn2" class="shop-main-btn"><span class="sm-icon">🏠</span><span data-i18n="game.goHome">返回主页</span></button>
       </div>
@@ -134,6 +134,15 @@
         <input type="range" id="bgmVolSlider2" min="0" max="100" value="50" class="bgm-vol-slider">
       </div>
     </div>
+  </div>
+</div>
+
+<div id="portraitTipModal" class="portrait-tip-modal" style="display:none;" aria-hidden="true">
+  <div class="portrait-tip-card">
+    <div class="portrait-tip-icon" aria-hidden="true">📱</div>
+    <h2 class="portrait-tip-title" data-i18n="game.portraitTipTitle">游玩提示</h2>
+    <p class="portrait-tip-body" data-i18n="game.portraitTipBody">建议竖屏游玩，以获得更好的视野与操作体验。</p>
+    <button type="button" id="portraitTipConfirmBtn" class="portrait-tip-btn" data-i18n="game.portraitTipConfirm">知道了</button>
   </div>
 </div>
 
@@ -158,6 +167,6 @@
 }
 </script>
 
-<script type="module" src="scripts/game.js?v=20250619b"></script>
+<script type="module" src="scripts/game.js?v=20250619c"></script>
 </body>
 </html>
