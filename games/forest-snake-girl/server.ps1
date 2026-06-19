@@ -80,6 +80,9 @@ function Serve-Request {
     }
 
     $buffer = [System.IO.File]::ReadAllBytes($filePath)
+    if ($ext -in @(".js", ".css", ".png", ".jpg", ".jpeg", ".webp", ".gif", ".fbx", ".mp3")) {
+      $Context.Response.Headers["Cache-Control"] = "public, max-age=604800"
+    }
     Write-Response -Context $Context -StatusCode 200 -Body $buffer -ContentType $mime
   } catch {
     $body = [System.Text.Encoding]::UTF8.GetBytes("500 Internal Server Error")

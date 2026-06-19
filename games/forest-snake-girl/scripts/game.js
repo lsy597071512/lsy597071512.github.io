@@ -5,6 +5,7 @@ import { applyI18n, t, getRankName, getAchievementText, getCrystalTierKey } from
 
 let scene,camera,renderer,skyboxMesh=null;
 let platformModel=null,platformMeshes=[],platformRaycaster=new THREE.Raycaster();
+let platformMaterialCache=null;
 let platformWalkRadiusX=20,platformWalkRadiusZ=20,platformReady=false,platformTopY=0,platformCollisionModel=null;
 let platformCollisionMeshes=[],platformCollisionBox=null,platformCollisionCenterX=0,platformCollisionCenterZ=0;
 const _platformDownDir=new THREE.Vector3(0,-1,0),_platformRayOrigin=new THREE.Vector3();
@@ -252,8 +253,76 @@ function applyGameI18n(){
 init();
 
 function getRendererBufferSize(){
-  if(isMobileLayout())return {w:854,h:480};
+  const canvas=document.getElementById("game");
+  const viewW=Math.max(1,canvas?.clientWidth||window.innerWidth||1);
+  const viewH=Math.max(1,canvas?.clientHeight||window.innerHeight||1);
+  if(isMobileLayout()){
+    const maxW=854,maxH=480;
+    const scale=Math.min(1,maxW/viewW,maxH/viewH);
+    return {w:Math.max(320,Math.round(viewW*scale)),h:Math.max(180,Math.round(viewH*scale))};
+  }
   return {w:1280,h:720};
+}
+function getMaxAnisotropy(preferred){
+  const cap=renderer?.capabilities?.getMaxAnisotropy?.();
+  if(!Number.isFinite(cap)||cap<=0)return Math.min(preferred,4);
+  return Math.min(preferred,cap);
+}
+function createWebGLRenderer(canvas){
+  const base={
+    canvas,
+    alpha:false,
+    depth:true,
+    stencil:false,
+    antialias:!_isMobile,
+    powerPreference:_isMobile?"default":"high-performance",
+    failIfMajorPerformanceCaveat:false,
+    preserveDrawingBuffer:false
+  };
+  let instance=new THREE.WebGLRenderer(base);
+  if(!instance.getContext()){
+    instance.dispose();
+    instance=new THREE.WebGLRenderer({...base,antialias:false,powerPreference:"default"});
+  }
+  return instance;
+}
+function setupRendererContextHandlers(canvas){
+  if(!canvas||canvas.__webglHandlersBound)return;
+  canvas.__webglHandlersBound=true;
+  canvas.addEventListener("webglcontextlost",event=>{
+    event.preventDefault();
+    gameRunning=false;
+  },false);
+  canvas.addEventListener("webglcontextrestored",()=>{
+    if(renderer){
+      applyRendererSize();
+      applyPerformanceLevel();
+    }
+    if(!gameRunning&&!gameOverPending&&_allLoaded)safeStartGame("context-restored");
+  },false);
+}
+function beginSceneBoot(){
+  const canvas=document.getElementById("game");
+  if(!canvas||(canvas.clientWidth<=0&&canvas.clientHeight<=0)){
+    requestAnimationFrame(beginSceneBoot);
+    return;
+  }
+  setupRendererContextHandlers(canvas);
+  renderer=createWebGLRenderer(canvas);
+  applyRendererSize();
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=_isMobile?1.08:1.02;
+  renderer.setClearColor(0x050816,1);
+  renderer.shadowMap.enabled=!_isMobile;
+  renderer.shadowMap.type=THREE.BasicShadowMap;
+  applyPerformanceLevel();
+  initSharedResources();
+  createLights();
+  _loadAllAssets();
+  forceLandscape();
+  animate();
+  _scheduleBootWatchdog();
 }
 function applyRendererSize(){
   if(!renderer||!camera)return;
@@ -310,25 +379,12 @@ function init(){
   camera.position.set(0,camYStart,camZStart);
   camera.lookAt(0,0,0);
 
-  renderer=new THREE.WebGLRenderer({canvas:document.getElementById("game"),antialias:!_isMobile,powerPreference:_isMobile?"default":"high-performance"});
-  applyRendererSize();
-  renderer.outputColorSpace=THREE.SRGBColorSpace;
-  renderer.toneMapping=THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure=_isMobile?1.08:1.02;
-  renderer.shadowMap.enabled=true;
-  renderer.shadowMap.type=THREE.BasicShadowMap;
-  applyPerformanceLevel();
-
-  initSharedResources();
-  createLights();
-  _loadAllAssets();
-
   setupControls();
   setupJoystick();
 
   window.addEventListener("pointerdown",()=>unlockAudio(),{once:true});
   window.addEventListener("resize",onResize);
-  window.addEventListener("orientationchange",()=>setTimeout(forceLandscape,300));
+  window.addEventListener("orientationchange",()=>setTimeout(()=>{forceLandscape();applyRendererSize()},300));
 
   const restartBtn=document.getElementById("restartBtn");
   const shopEntryBtn2=document.getElementById("shopEntryBtn2");
@@ -338,22 +394,42 @@ function init(){
     shopEntryBtn2.title=t("game.home");
   }
 
-  forceLandscape();
-  animate();
-  _scheduleBootWatchdog();
+  beginSceneBoot();
 }
 
 function _loadAllAssets(){
   _trackLoad(new Promise(resolve=>{createSkybox(resolve)}));
+  loadPlatformTextures();
   createPlatformModel();
   createPlayer();
   loadRockModels();
 }
 
+function refreshRockMaterial(){
+  if(!platformMaterialCache)return;
+  rockMaterial=platformMaterialCache;
+  for(const model of rockModels){
+    model.traverse(obj=>{
+      if(obj.isMesh||obj.isSkinnedMesh)obj.material=rockMaterial;
+    });
+  }
+  for(const rock of rocks){
+    if(!rock.mesh)continue;
+    rock.mesh.traverse(obj=>{
+      if(obj.isMesh||obj.isSkinnedMesh)obj.material=rockMaterial;
+    });
+  }
+}
+function refreshPlatformMaterial(){
+  if(!platformMaterialCache||!platformModel)return;
+  platformModel.traverse(obj=>{
+    if(obj.isMesh||obj.isSkinnedMesh)obj.material=platformMaterialCache;
+  });
+}
 function loadRockModels(){
-  rockMaterial=createPlatformMaterial();
   for(const url of ROCK_NEW_MODEL_URLS){
     _autoTrackFBX(url,fbx=>{
+      rockMaterial=createPlatformMaterial();
       fbx.traverse(obj=>{
         if(obj.isMesh||obj.isSkinnedMesh){
           obj.material=rockMaterial;
@@ -654,7 +730,7 @@ function createLights(){
 
   const sun=new THREE.DirectionalLight(0xE59F3E,sunIntensity);
   sun.position.set(-18,28,16);
-  sun.castShadow=true;
+  sun.castShadow=!isMobileLayout();
 
   const target=new THREE.Object3D();
   target.position.set(0,0,0);
@@ -750,44 +826,53 @@ function loadTexture(url,options={}){
   return texture;
 }
 
-function createPlatformMaterial(){
-  const aniso=_isMobile?4:16;
-  const textureLoader=new THREE.TextureLoader();
-  const baseColor=textureLoader.load(PLATFORM_BASECOLOR_TEXTURE_URL);
-  baseColor.colorSpace=THREE.SRGBColorSpace;
-  baseColor.wrapS=THREE.RepeatWrapping;
-  baseColor.wrapT=THREE.RepeatWrapping;
-  baseColor.flipY=true;
-  baseColor.anisotropy=aniso;
-  baseColor.magFilter=THREE.LinearFilter;
-  baseColor.minFilter=THREE.LinearMipmapLinearFilter;
-  const roughness=textureLoader.load(PLATFORM_ROUGHNESS_TEXTURE_URL);
-  roughness.colorSpace=THREE.NoColorSpace;
-  roughness.wrapS=THREE.RepeatWrapping;
-  roughness.wrapT=THREE.RepeatWrapping;
-  roughness.flipY=true;
-  roughness.anisotropy=aniso;
-  roughness.magFilter=THREE.LinearFilter;
-  roughness.minFilter=THREE.LinearMipmapLinearFilter;
-  const normal=textureLoader.load(PLATFORM_NORMAL_TEXTURE_URL);
-  normal.colorSpace=THREE.NoColorSpace;
-  normal.wrapS=THREE.RepeatWrapping;
-  normal.wrapT=THREE.RepeatWrapping;
-  normal.flipY=true;
-  normal.anisotropy=aniso;
-  normal.magFilter=THREE.LinearFilter;
-  normal.minFilter=THREE.LinearMipmapLinearFilter;
+function buildPlatformMaterial(baseColor,roughness,normal){
+  const aniso=getMaxAnisotropy(_isMobile?4:16);
+  for(const tex of [baseColor,roughness,normal]){
+    if(tex)tex.anisotropy=aniso;
+  }
   return new THREE.MeshStandardMaterial({
     name:"Sphere001_mat",
-    map:baseColor,
-    roughnessMap:roughness,
-    normalMap:normal,
+    map:baseColor||null,
+    roughnessMap:roughness||null,
+    normalMap:normal||null,
     normalScale:new THREE.Vector2(1,-1),
     roughness:1,
     metalness:0,
     flatShading:false,
     color:0xffffff
   });
+}
+function configurePlatformTexture(texture,isSRGB){
+  if(!texture)return null;
+  texture.colorSpace=isSRGB?THREE.SRGBColorSpace:THREE.NoColorSpace;
+  texture.wrapS=THREE.RepeatWrapping;
+  texture.wrapT=THREE.RepeatWrapping;
+  texture.flipY=true;
+  texture.magFilter=THREE.LinearFilter;
+  texture.minFilter=THREE.LinearMipmapLinearFilter;
+  return texture;
+}
+function loadPlatformTextures(){
+  return _trackLoad(new Promise(resolve=>{
+    const textureLoader=new THREE.TextureLoader();
+    const slots={baseColor:null,roughness:null,normal:null};
+    let done=0;
+    const finish=()=>{
+      done++;
+      if(done<3)return;
+      platformMaterialCache=buildPlatformMaterial(slots.baseColor,slots.roughness,slots.normal);
+      refreshPlatformMaterial();
+      refreshRockMaterial();
+      resolve();
+    };
+    textureLoader.load(PLATFORM_BASECOLOR_TEXTURE_URL,t=>{slots.baseColor=configurePlatformTexture(t,true);finish()},undefined,()=>finish());
+    textureLoader.load(PLATFORM_ROUGHNESS_TEXTURE_URL,t=>{slots.roughness=configurePlatformTexture(t,false);finish()},undefined,()=>finish());
+    textureLoader.load(PLATFORM_NORMAL_TEXTURE_URL,t=>{slots.normal=configurePlatformTexture(t,false);finish()},undefined,()=>finish());
+  }));
+}
+function createPlatformMaterial(){
+  return platformMaterialCache||buildPlatformMaterial(null,null,null);
 }
 
 function createPlatformModel(){
@@ -1527,14 +1612,21 @@ function clearPlayerSideEffects(){
 
 function loadPlayerTextures(onDone){
   const textureLoader=new THREE.TextureLoader();
+  const aniso=getMaxAnisotropy(_isMobile?4:8);
   let loadedCount=0;
   function doneOne(){loadedCount++;if(loadedCount>=6)onDone()}
-  textureLoader.load(PLAYER_BASE_COLOR_URL,texture=>{texture.colorSpace=THREE.SRGBColorSpace;texture.flipY=PLAYER_TEXTURE_FLIP_Y;texture.anisotropy=8;playerBaseColorTexture=texture;doneOne()},undefined,err=>{console.warn("玩家颜色贴图加载失败：",PLAYER_BASE_COLOR_URL,err);doneOne()});
-  textureLoader.load(PLAYER_NORMAL_MAP_URL,texture=>{texture.colorSpace=THREE.NoColorSpace;texture.flipY=PLAYER_TEXTURE_FLIP_Y;texture.anisotropy=8;playerNormalTexture=texture;doneOne()},undefined,err=>{console.warn("玩家法线贴图加载失败：",PLAYER_NORMAL_MAP_URL,err);doneOne()});
-  textureLoader.load(PLAYER_ROUGHNESS_URL,texture=>{texture.colorSpace=THREE.NoColorSpace;texture.flipY=PLAYER_TEXTURE_FLIP_Y;texture.anisotropy=8;playerRoughnessTexture=texture;doneOne()},undefined,err=>{console.warn("玩家粗糙度贴图加载失败：",PLAYER_ROUGHNESS_URL,err);doneOne()});
-  textureLoader.load(PLAYER_METALNESS_URL,texture=>{texture.colorSpace=THREE.NoColorSpace;texture.flipY=PLAYER_TEXTURE_FLIP_Y;texture.anisotropy=8;playerMetalnessTexture=texture;doneOne()},undefined,err=>{console.warn("玩家金属度贴图加载失败：",PLAYER_METALNESS_URL,err);doneOne()});
-  textureLoader.load(PLAYER_SPEED_COLOR_URL,texture=>{texture.colorSpace=THREE.SRGBColorSpace;texture.flipY=PLAYER_TEXTURE_FLIP_Y;texture.anisotropy=8;playerSpeedColorTexture=texture;doneOne()},undefined,err=>{console.warn("玩家加速状态贴图加载失败：",PLAYER_SPEED_COLOR_URL,err);doneOne()});
-  textureLoader.load(PLAYER_INVINCIBLE_COLOR_URL,texture=>{texture.colorSpace=THREE.SRGBColorSpace;texture.flipY=PLAYER_TEXTURE_FLIP_Y;texture.anisotropy=8;playerInvincibleColorTexture=texture;doneOne()},undefined,err=>{console.warn("玩家无敌状态贴图加载失败：",PLAYER_INVINCIBLE_COLOR_URL,err);doneOne()});
+  function bindTex(texture,isSRGB){
+    if(!texture)return;
+    texture.colorSpace=isSRGB?THREE.SRGBColorSpace:THREE.NoColorSpace;
+    texture.flipY=PLAYER_TEXTURE_FLIP_Y;
+    texture.anisotropy=aniso;
+  }
+  textureLoader.load(PLAYER_BASE_COLOR_URL,texture=>{bindTex(texture,true);playerBaseColorTexture=texture;doneOne()},undefined,err=>{console.warn("玩家颜色贴图加载失败：",PLAYER_BASE_COLOR_URL,err);doneOne()});
+  textureLoader.load(PLAYER_NORMAL_MAP_URL,texture=>{bindTex(texture,false);playerNormalTexture=texture;doneOne()},undefined,err=>{console.warn("玩家法线贴图加载失败：",PLAYER_NORMAL_MAP_URL,err);doneOne()});
+  textureLoader.load(PLAYER_ROUGHNESS_URL,texture=>{bindTex(texture,false);playerRoughnessTexture=texture;doneOne()},undefined,err=>{console.warn("玩家粗糙度贴图加载失败：",PLAYER_ROUGHNESS_URL,err);doneOne()});
+  textureLoader.load(PLAYER_METALNESS_URL,texture=>{bindTex(texture,false);playerMetalnessTexture=texture;doneOne()},undefined,err=>{console.warn("玩家金属度贴图加载失败：",PLAYER_METALNESS_URL,err);doneOne()});
+  textureLoader.load(PLAYER_SPEED_COLOR_URL,texture=>{bindTex(texture,true);playerSpeedColorTexture=texture;doneOne()},undefined,err=>{console.warn("玩家加速状态贴图加载失败：",PLAYER_SPEED_COLOR_URL,err);doneOne()});
+  textureLoader.load(PLAYER_INVINCIBLE_COLOR_URL,texture=>{bindTex(texture,true);playerInvincibleColorTexture=texture;doneOne()},undefined,err=>{console.warn("玩家无敌状态贴图加载失败：",PLAYER_INVINCIBLE_COLOR_URL,err);doneOne()});
 }
 
 function createPlayerMaterial(){

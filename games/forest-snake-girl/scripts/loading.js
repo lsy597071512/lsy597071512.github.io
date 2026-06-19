@@ -1,30 +1,16 @@
 import { applyI18n, t } from "./shared/i18n.js";
 
+// Only preload lightweight home-screen assets. Heavy 3D models are loaded once in game.js.
 const ASSETS = [
-  "preview.html",
   "home.html",
   "guide.html",
-  "game.html",
   "styles/app.css",
   "scripts/home.js",
   "scripts/guide.js",
-  "scripts/game.js",
   "scripts/shared/meta.js",
   "scripts/shared/i18n.js",
-  "TEX/01_d.png",
   "TEX/loading_d.png",
-  "model/tex/skybox_basecolor_01.png",
-  "model/Sphere001.fbx",
-  "model/Sphere001_col.FBX",
-  "model/rock_new01.FBX",
-  "model/rock_new03.FBX",
-  "model/boss01.fbx",
-  "model/wanjia01.FBX",
-  "model/ani/wanjia01_idle.FBX",
-  "model/ani/wanjia01_run.fbx",
-  "model/ani/wanjia01_attacked.fbx",
-  "music/jiemian01.mp3",
-  "music/zhandou01.mp3"
+  "music/jiemian01.mp3"
 ];
 
 applyI18n(document, "loading");
