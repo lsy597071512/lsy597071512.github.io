@@ -11,6 +11,17 @@ import { applyI18n, getLang, setLang, t } from "./shared/i18n.js";
 const BGM_MENU_URL = "music/jiemian01.mp3";
 const BGM_SESSION_KEY = "starCrystalBgmUnlocked";
 const BGM_GESTURE_EVENTS = ["pointerdown", "keydown", "touchstart", "click"];
+const GAME_PREFETCH_URLS = [
+  "game.html",
+  "scripts/game.js?v=20250619b",
+  "model/tex/skybox_basecolor_01.png?v=v2",
+  "model/tex/Sphere001_BaseColor.png?v=v2",
+  "model/Sphere001.fbx?v=v2",
+  "model/wanjia01.FBX?v=v2",
+  "model/ani/wanjia01_idle.FBX?v=v2",
+  "model/ani/wanjia01_run.fbx?v=v2"
+];
+let _gamePrefetchStarted = false;
 
 let meta = loadMeta();
 let currentMysteryItem = null;
@@ -31,6 +42,22 @@ const bgmSlider = document.getElementById("bgmVolSlider");
 const settingsModal = document.getElementById("settingsModal");
 const settingsBtn = document.getElementById("settingsBtn");
 const settingsCloseBtn = document.getElementById("settingsCloseBtn");
+
+function prefetchGameAssets() {
+  if (_gamePrefetchStarted) return;
+  _gamePrefetchStarted = true;
+  GAME_PREFETCH_URLS.forEach(url => {
+    fetch(url, { cache: "force-cache" }).catch(() => {});
+  });
+}
+
+function scheduleGamePrefetch() {
+  if (typeof requestIdleCallback === "function") {
+    requestIdleCallback(() => prefetchGameAssets(), { timeout: 2500 });
+  } else {
+    window.setTimeout(prefetchGameAssets, 1200);
+  }
+}
 
 function escapeHtml(value) {
   return String(value)
@@ -289,12 +316,14 @@ function init() {
   });
 
   document.getElementById("startBtn").addEventListener("click", () => {
+    prefetchGameAssets();
     if (menuBgm) {
       menuBgm.pause();
       menuBgm.currentTime = 0;
     }
     location.href = "game.html";
   });
+  document.getElementById("startBtn").addEventListener("touchstart", prefetchGameAssets, { passive: true });
   document.getElementById("shopEntryBtn").addEventListener("click", openShop);
   document.getElementById("shopBackBtn").addEventListener("click", closeShop);
   document.getElementById("shopConfirmYes").addEventListener("click", confirmPurchase);
@@ -312,6 +341,7 @@ function init() {
   }
 
   bgmSlider.addEventListener("input", event => syncVolume(event.target.value));
+  scheduleGamePrefetch();
 }
 
 init();

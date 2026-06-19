@@ -116,7 +116,11 @@ function _showBootError(message){
 }
 function safeStartGame(reason="boot"){
   if(gameRunning||gameOverPending)return true;
-  window.__bootState={reason,hasPlayer:!!player,hasScene:!!scene,gameRunning,gameOverPending};
+  if(!_playerAnimsReady){
+    ensurePlayerAnimationsReady().then(()=>{if(!gameRunning&&!gameOverPending)safeStartGame(reason)});
+    return false;
+  }
+  window.__bootState={reason,hasPlayer:!!player,hasScene:!!scene,gameRunning,gameOverPending,animsReady:_playerAnimsReady,platformReady};
   try{
     startGame();
     _startGameAttempted=true;
@@ -132,11 +136,42 @@ function safeStartGame(reason="boot"){
   }
 }
 function onAllLoaded(){
-  _hideLoadingScreen();
-  requestAnimationFrame(()=>{
-    requestAnimationFrame(()=>{safeStartGame("assets-ready")});
+  warmRenderPipeline().then(()=>{
+    if(lBar)lBar.style.width="100%";
+    if(lPct)lPct.textContent="100％";
+    _hideLoadingScreen();
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{safeStartGame("assets-ready")});
+    });
   });
   _totalLoads=0;_loadedCount=0;
+}
+function warmRenderPipeline(){
+  return new Promise(resolve=>{
+    if(!renderer||!scene||!camera){resolve();return}
+    try{
+      if(playerMixer){
+        playPlayerAnim("idle",0,true);
+        playerMixer.update(1/60);
+      }
+      renderer.compile(scene,camera);
+      renderer.render(scene,camera);
+    }catch(err){
+      console.warn("warmRenderPipeline:",err);
+    }
+    requestAnimationFrame(()=>{
+      try{renderer.render(scene,camera)}catch(e){}
+      window.__bootDiagnostics={
+        animsReady:_playerAnimsReady,
+        animNames:Object.keys(playerActions),
+        platformReady,
+        hasPlayerModel:!!playerModel,
+        hasPlayerMixer:!!playerMixer,
+        hasPlatformMaterial:!!platformMaterialCache
+      };
+      resolve();
+    });
+  });
 }
 function _scheduleBootWatchdog(){
   if(_bootWatchdogTimer)clearTimeout(_bootWatchdogTimer);
@@ -1005,7 +1040,7 @@ function isOnPlatform(x,z,extra=0){
 function snapObjectToPlatform(object3D,extraY=0){object3D.position.y=getPlatformHeightAt(object3D.position.x,object3D.position.z)+extraY}
 
 function createPlayer(){
-  _trackLoad(new Promise(resolve=>{
+  _trackLoad((async()=>{
     player=new THREE.Group();
     player.position.set(0,0,0);
     scene.add(player);
@@ -1018,8 +1053,10 @@ function createPlayer(){
     registerPlayerTintTarget(body);
     createPlayerLocatorHalo();
     createPlayerHeadUI();
-    loadPlayerTextures(()=>loadPlayerFBX(resolve));
-  }));
+    await loadPlayerTexturesAsync();
+    await loadPlayerFBXAsync();
+    await preloadPlayerAnimationsAsync();
+  })());
 }
 
 function createPlayerLocatorHalo(){
@@ -1610,23 +1647,25 @@ function clearPlayerSideEffects(){
   playerSideEffects.length=0;
 }
 
-function loadPlayerTextures(onDone){
-  const textureLoader=new THREE.TextureLoader();
-  const aniso=getMaxAnisotropy(_isMobile?4:8);
-  let loadedCount=0;
-  function doneOne(){loadedCount++;if(loadedCount>=6)onDone()}
-  function bindTex(texture,isSRGB){
-    if(!texture)return;
-    texture.colorSpace=isSRGB?THREE.SRGBColorSpace:THREE.NoColorSpace;
-    texture.flipY=PLAYER_TEXTURE_FLIP_Y;
-    texture.anisotropy=aniso;
-  }
-  textureLoader.load(PLAYER_BASE_COLOR_URL,texture=>{bindTex(texture,true);playerBaseColorTexture=texture;doneOne()},undefined,err=>{console.warn("玩家颜色贴图加载失败：",PLAYER_BASE_COLOR_URL,err);doneOne()});
-  textureLoader.load(PLAYER_NORMAL_MAP_URL,texture=>{bindTex(texture,false);playerNormalTexture=texture;doneOne()},undefined,err=>{console.warn("玩家法线贴图加载失败：",PLAYER_NORMAL_MAP_URL,err);doneOne()});
-  textureLoader.load(PLAYER_ROUGHNESS_URL,texture=>{bindTex(texture,false);playerRoughnessTexture=texture;doneOne()},undefined,err=>{console.warn("玩家粗糙度贴图加载失败：",PLAYER_ROUGHNESS_URL,err);doneOne()});
-  textureLoader.load(PLAYER_METALNESS_URL,texture=>{bindTex(texture,false);playerMetalnessTexture=texture;doneOne()},undefined,err=>{console.warn("玩家金属度贴图加载失败：",PLAYER_METALNESS_URL,err);doneOne()});
-  textureLoader.load(PLAYER_SPEED_COLOR_URL,texture=>{bindTex(texture,true);playerSpeedColorTexture=texture;doneOne()},undefined,err=>{console.warn("玩家加速状态贴图加载失败：",PLAYER_SPEED_COLOR_URL,err);doneOne()});
-  textureLoader.load(PLAYER_INVINCIBLE_COLOR_URL,texture=>{bindTex(texture,true);playerInvincibleColorTexture=texture;doneOne()},undefined,err=>{console.warn("玩家无敌状态贴图加载失败：",PLAYER_INVINCIBLE_COLOR_URL,err);doneOne()});
+function loadPlayerTexturesAsync(){
+  return new Promise(resolve=>{
+    const textureLoader=new THREE.TextureLoader();
+    const aniso=getMaxAnisotropy(_isMobile?4:8);
+    let loadedCount=0;
+    function doneOne(){loadedCount++;if(loadedCount>=6)resolve()}
+    function bindTex(texture,isSRGB){
+      if(!texture)return;
+      texture.colorSpace=isSRGB?THREE.SRGBColorSpace:THREE.NoColorSpace;
+      texture.flipY=PLAYER_TEXTURE_FLIP_Y;
+      texture.anisotropy=aniso;
+    }
+    textureLoader.load(PLAYER_BASE_COLOR_URL,texture=>{bindTex(texture,true);playerBaseColorTexture=texture;doneOne()},undefined,err=>{console.warn("玩家颜色贴图加载失败：",PLAYER_BASE_COLOR_URL,err);doneOne()});
+    textureLoader.load(PLAYER_NORMAL_MAP_URL,texture=>{bindTex(texture,false);playerNormalTexture=texture;doneOne()},undefined,err=>{console.warn("玩家法线贴图加载失败：",PLAYER_NORMAL_MAP_URL,err);doneOne()});
+    textureLoader.load(PLAYER_ROUGHNESS_URL,texture=>{bindTex(texture,false);playerRoughnessTexture=texture;doneOne()},undefined,err=>{console.warn("玩家粗糙度贴图加载失败：",PLAYER_ROUGHNESS_URL,err);doneOne()});
+    textureLoader.load(PLAYER_METALNESS_URL,texture=>{bindTex(texture,false);playerMetalnessTexture=texture;doneOne()},undefined,err=>{console.warn("玩家金属度贴图加载失败：",PLAYER_METALNESS_URL,err);doneOne()});
+    textureLoader.load(PLAYER_SPEED_COLOR_URL,texture=>{bindTex(texture,true);playerSpeedColorTexture=texture;doneOne()},undefined,err=>{console.warn("玩家加速状态贴图加载失败：",PLAYER_SPEED_COLOR_URL,err);doneOne()});
+    textureLoader.load(PLAYER_INVINCIBLE_COLOR_URL,texture=>{bindTex(texture,true);playerInvincibleColorTexture=texture;doneOne()},undefined,err=>{console.warn("玩家无敌状态贴图加载失败：",PLAYER_INVINCIBLE_COLOR_URL,err);doneOne()});
+  });
 }
 
 function createPlayerMaterial(){
@@ -1774,64 +1813,93 @@ function retargetClipToModel(rawClip,modelRoot,clipName){
   return newClip;
 }
 
-function loadPlayerFBX(resolve){
-  new FBXLoader().load(
-    PLAYER_MODEL_URL,
-    fbx=>{
-      playerModel=fbx;
-      playerModel.scale.setScalar(PLAYER_MODEL_SCALE);
-      playerModel.rotation.set(PLAYER_MODEL_X_ROTATION,PLAYER_MODEL_Y_ROTATION,PLAYER_MODEL_Z_ROTATION);
-      playerModel.position.set(0,0,0);
-      playerTintTargets=[];
-      playerModel.traverse(obj=>{
-        if(obj.name)obj.name=sanitizeFBXNodeName(obj.name);
-        if(obj.isMesh||obj.isSkinnedMesh){
-          obj.castShadow=true;
-          obj.receiveShadow=true;
-          obj.material=createPlayerMaterial();
-          registerPlayerTintTarget(obj);
+function loadPlayerFBXAsync(){
+  return new Promise(resolve=>{
+    new FBXLoader().load(
+      PLAYER_MODEL_URL,
+      fbx=>{
+        playerModel=fbx;
+        playerModel.scale.setScalar(PLAYER_MODEL_SCALE);
+        playerModel.rotation.set(PLAYER_MODEL_X_ROTATION,PLAYER_MODEL_Y_ROTATION,PLAYER_MODEL_Z_ROTATION);
+        playerModel.position.set(0,0,0);
+        playerTintTargets=[];
+        playerModel.traverse(obj=>{
+          if(obj.name)obj.name=sanitizeFBXNodeName(obj.name);
+          if(obj.isMesh||obj.isSkinnedMesh){
+            obj.castShadow=!_isMobile;
+            obj.receiveShadow=true;
+            obj.material=createPlayerMaterial();
+            if(obj.isSkinnedMesh)obj.frustumCulled=false;
+            registerPlayerTintTarget(obj);
+          }
+        });
+        if(playerFallbackBody)playerFallbackBody.visible=false;
+        player.add(playerModel);
+        playerMixer=new THREE.AnimationMixer(playerModel);
+        resolve();
+      },
+      undefined,
+      err=>{console.warn("玩家模型加载失败：",PLAYER_MODEL_URL,err);resolve()}
+    );
+  });
+}
+
+const PLAYER_ANIM_DEFS=[
+  {name:"idle",url:PLAYER_IDLE_ANIM_URL,loop:true},
+  {name:"run",url:PLAYER_RUN_ANIM_URL,loop:true},
+  {name:"attacked",url:PLAYER_ATTACKED_ANIM_URL,loop:false}
+];
+let _playerAnimsReady=false;
+let _playerAnimsLoadingPromise=null;
+
+function loadPlayerAnimationAsync(name,url,loop){
+  if(playerActions[name])return Promise.resolve();
+  return new Promise(resolve=>{
+    new FBXLoader().load(
+      url,
+      animFbx=>{
+        if(!playerMixer||!playerModel){resolve();return}
+        if(!animFbx.animations||animFbx.animations.length===0){
+          console.warn("玩家动画为空：",url);
+          resolve();
+          return;
         }
-      });
-      if(playerFallbackBody)playerFallbackBody.visible=false;
-      player.add(playerModel);
-      playerMixer=new THREE.AnimationMixer(playerModel);
-      resolve();
-    },
-    undefined,
-    err=>{console.warn("玩家模型加载失败：",PLAYER_MODEL_URL,err);resolve();}
-  );
+        const clip=retargetClipToModel(animFbx.animations[0],playerModel,name);
+        if(!clip.tracks||clip.tracks.length===0){
+          console.warn("玩家动画轨道为空：",url);
+          resolve();
+          return;
+        }
+        const action=playerMixer.clipAction(clip,playerModel);
+        action.enabled=true;action.paused=false;action.setEffectiveWeight(1);action.setEffectiveTimeScale(1);
+        if(loop){action.setLoop(THREE.LoopRepeat,Infinity);action.clampWhenFinished=false}
+        else{action.setLoop(THREE.LoopOnce,1);action.clampWhenFinished=true}
+        playerActions[name]=action;
+        resolve();
+      },
+      undefined,
+      err=>{console.warn("玩家动画加载失败：",url,err);resolve()}
+    );
+  });
 }
 
-let _playerAnimsLoaded=false,_playerAnimsLoading=false;
-function loadPlayerAnimationsLazy(){
-  if(_playerAnimsLoaded||_playerAnimsLoading)return;
-  _playerAnimsLoading=true;
-  loadPlayerAnimation("idle",PLAYER_IDLE_ANIM_URL,true);
-  setTimeout(()=>{
-    loadPlayerAnimation("run",PLAYER_RUN_ANIM_URL,true);
-    loadPlayerAnimation("attacked",PLAYER_ATTACKED_ANIM_URL,false);
-  },200);
-  _playerAnimsLoaded=true;
+function preloadPlayerAnimationsAsync(){
+  if(_playerAnimsReady)return Promise.resolve();
+  if(_playerAnimsLoadingPromise)return _playerAnimsLoadingPromise;
+  _playerAnimsLoadingPromise=Promise.all(
+    PLAYER_ANIM_DEFS.map(def=>loadPlayerAnimationAsync(def.name,def.url,def.loop))
+  ).then(()=>{
+    _playerAnimsReady=!!(playerActions.idle&&playerActions.run);
+    if(_playerAnimsReady){
+      playPlayerAnim("idle",0,true);
+      if(playerMixer)playerMixer.update(1/60);
+    }
+  }).finally(()=>{_playerAnimsLoadingPromise=null});
+  return _playerAnimsLoadingPromise;
 }
 
-function loadPlayerAnimation(name,url,loop){
-  new FBXLoader().load(
-    url,
-    animFbx=>{
-      if(!playerMixer||!playerModel)return;
-      if(!animFbx.animations||animFbx.animations.length===0)return;
-      const clip=retargetClipToModel(animFbx.animations[0],playerModel,name);
-      if(!clip.tracks||clip.tracks.length===0)return;
-      const action=playerMixer.clipAction(clip,playerModel);
-      action.enabled=true;action.paused=false;action.setEffectiveWeight(1);action.setEffectiveTimeScale(1);
-      if(loop){action.setLoop(THREE.LoopRepeat,Infinity);action.clampWhenFinished=false}
-      else{action.setLoop(THREE.LoopOnce,1);action.clampWhenFinished=true}
-      playerActions[name]=action;
-      if(name==="idle"&&!gameRunning&&!playerIsDead)setTimeout(()=>playPlayerAnim("idle",.15,true),100);
-    },
-    undefined,
-    err=>console.warn("玩家动画加载失败：",url,err)
-  );
+function ensurePlayerAnimationsReady(){
+  return preloadPlayerAnimationsAsync();
 }
 
 function stopAllPlayerActions(exceptName=""){
@@ -1903,7 +1971,6 @@ function startGame(){
   startBGM();
   runUsesDebugCheats=false;
 
-  loadPlayerAnimationsLazy();
   loadBossModel();
   const scanlinesEl=document.getElementById("scanlines");
   if(scanlinesEl)scanlinesEl.style.display=isMobileLayout()?"none":"block";
